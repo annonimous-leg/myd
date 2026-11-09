@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import ErrorCode, MegalodonException
 from app.models.procurement import TenderPackage, TenderDocument, TenderDocumentRevision, TenderRequirement, TenderEvidence, TenderEvidenceLink, TenderArtifact
 
-from app.engines.procurement.format_field_map import load_format_catalog, resolve_format
+from app.engines.procurement.format_field_map import load_tender_format_catalog, normalize_format_code
 from app.engines.procurement.workspace_pdf import render_workspace_pdf
 from app.engines.procurement.workspace_docx import Field, TemplateError, render_draft
 from app.engines.procurement.workspace_xlsx import render_xlsx
@@ -83,9 +83,7 @@ class TenderWorkspaceService:
         if not tender.jurisdiction_code or tender.frozen:
             return []
         try:
-            catalog = await load_format_catalog(
-                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=tender.jurisdiction_code,
-            )
+            catalog = await load_tender_format_catalog(self.db, tender)
         except ValueError:
             return []
         return [{"artifact_code": code, "name": binding.get("title") or code}
@@ -155,10 +153,7 @@ class TenderWorkspaceService:
 
     async def _editor_binding(self, tender: TenderPackage, row: TenderDocument) -> dict:
         try:
-            return (await resolve_format(
-                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=tender.jurisdiction_code,
-                code=row.artifact_code,
-            ) or {}) if tender.jurisdiction_code else {}
+            return (await load_tender_format_catalog(self.db, tender)).get(normalize_format_code(row.artifact_code), {}) if tender.jurisdiction_code else {}
         except ValueError:
             return {}
 

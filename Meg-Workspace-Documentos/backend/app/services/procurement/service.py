@@ -71,7 +71,7 @@ from app.services.procurement.approval_manifest import (
 from app.services.procurement.preparation_runs import PreparationRunTracker, PIPELINE_VERSION
 from app.engines.procurement.domain_contracts import snapshot_source_is_current, source_revision_token
 from app.engines.procurement.proposition_bridge import build_economic_block, hydrate_canonical_from_presupuesto
-from app.engines.procurement.format_field_map import load_format_catalog, normalize_format_code
+from app.engines.procurement.format_field_map import TENDER_FORMAT_CONFIGURATION, load_format_catalog, load_tender_format_catalog, normalize_format_code
 from app.engines.procurement.workspace_overrides import model_with_workspace_overrides
 from app.models.bim import ModeloBIM
 from app.models.topografia import CalculoVolumen
@@ -735,7 +735,7 @@ class ProcurementService:
         ]
 
     async def create(self, data: TenderCreate) -> TenderPackage:
-        await self._validate_tender_configuration(data)
+        profile = await self._validate_tender_configuration(data)
         expediente = await self.db.scalar(
             select(ExpedienteObra).where(
                 ExpedienteObra.id == data.expediente_id,
@@ -806,6 +806,40 @@ class ProcurementService:
                         } for activity in program.actividades
                     ],
                 }
+        manifest = dict(data.source_manifest)
+        if TENDER_FORMAT_CONFIGURATION in manifest:
+            raise MegalodonException(
+                ErrorCode.PARAMETRO_INVALIDO, "Usa format_configuration para configurar los formatos.", 422,
+            )
+        try:
+            formats = await load_format_catalog(
+                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=data.jurisdiction_code,
+            )
+            configuration = data.format_configuration
+            seen_codes = set()
+            for definition in configuration.format_definitions if configuration else []:
+                raw_code = definition.get("format_code")
+                code = normalize_format_code(raw_code) if isinstance(raw_code, str) else ""
+                if not code or code not in formats or code in seen_codes:
+                    raise ValueError("Cada formato personalizado debe identificar un formato único de la dependencia.")
+                if set(definition) - {"format_code", "workspace_docx", "workspace_xlsx"}:
+                    raise ValueError("La personalización admite mapas Workspace de DOCX o XLSX.")
+                replacement = {**formats[code]}
+                for key in ("workspace_docx", "workspace_xlsx"):
+                    replacement.pop(key, None)
+                maps = {key: value for key, value in definition.items() if key != "format_code"}
+                if len(maps) != 1 or not isinstance(next(iter(maps.values())), dict):
+                    raise ValueError("Cada formato personalizado debe incluir exactamente un mapa DOCX o XLSX.")
+                formats[code] = {**replacement, **maps}
+                seen_codes.add(code)
+        except ValueError as exc:
+            raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, str(exc), 422) from exc
+        manifest[TENDER_FORMAT_CONFIGURATION] = {
+            "version": configuration.version if configuration else str(profile.profile_version),
+            "jurisdiction_code": data.jurisdiction_code.upper(),
+            "formats": formats,
+            "requirement_extraction": (profile.templates or {}).get("requirement_extraction") or {},
+        }
         tender = TenderPackage(
             expediente_id=data.expediente_id,
             identifier=data.identifier,
@@ -814,7 +848,7 @@ class ProcurementService:
             procedure_type=data.procedure_type,
             contract_type=data.contract_type,
             evaluation_criterion=data.evaluation_criterion, project_type=data.project_type, scope_scale=data.scope_scale, case_pack_code=data.case_pack_code,
-            source_manifest=data.source_manifest,
+            source_manifest=manifest,
             canonical_model=canonical,
             tenant_id=self.user.tenant_id,
             creado_por_id=self.user.id,
@@ -824,7 +858,7 @@ class ProcurementService:
         await self.db.flush()
         revision = TenderRevision(
             tender_id=tender.id, revision=1, reason="INITIAL",
-            source_hash=self._hash(data.source_manifest),
+            source_hash=self._hash(manifest),
             model_snapshot=tender.canonical_model,
             tenant_id=self.user.tenant_id,
         )
@@ -892,14 +926,11 @@ class ProcurementService:
             }
         safe_name = filename.replace("/", "_").replace("\\", "_")
         extracted = self.extractor.extract(filename, content_type or "application/octet-stream", content)
-        format_catalog = await load_format_catalog(
-            self.db, tenant_id=self.user.tenant_id, jurisdiction_code=tender.jurisdiction_code
-        )
+        format_catalog = await load_tender_format_catalog(self.db, tender)
         detected_formats = self._format_detection_candidates(
             format_catalog, filename=filename, text=extracted.text or ""
         )
-        profile = await self._effective_profile(tender.jurisdiction_code)
-        extraction_config = ((profile.templates or {}).get("requirement_extraction") if profile else None) or {}
+        extraction_config = await self._tender_requirement_extraction(tender)
         source_role = str(source_role or "CONVOCATORIA").upper().strip()
         flow_code = str(tender.project_type or (tender.canonical_model or {}).get("facts", {}).get("project_type") or "OBRA_PUBLICA").upper()
         document_version = self.extractor.detect_document_version(
@@ -1159,6 +1190,13 @@ class ProcurementService:
                 raise
         return changed
 
+    async def _tender_requirement_extraction(self, tender: TenderPackage) -> dict:
+        configuration = (tender.source_manifest or {}).get(TENDER_FORMAT_CONFIGURATION)
+        if configuration is not None:
+            return configuration["requirement_extraction"]
+        profile = await self._effective_profile(tender.jurisdiction_code)
+        return ((profile.templates or {}).get("requirement_extraction") if profile else None) or {}
+
     async def requirement_source_readiness(self, tender_id: UUID) -> dict[str, Any]:
         """Report whether the user has supplied the official source set needed to work.
 
@@ -1167,8 +1205,7 @@ class ProcurementService:
         engine defect/review state and must never be reported as user omission.
         """
         tender = await self._get(tender_id)
-        profile = await self._effective_profile(tender.jurisdiction_code)
-        cfg = ((profile.templates or {}).get("requirement_extraction") if profile else None) or {}
+        cfg = await self._tender_requirement_extraction(tender)
         required = [str(x).upper() for x in (cfg.get("required_source_roles") or ["CONVOCATORIA"]) ]
         evidence = (await self.db.execute(select(TenderEvidence).where(
             TenderEvidence.tender_id == tender.id,
@@ -1729,6 +1766,9 @@ class ProcurementService:
         decision = await self.jurisdiction.resolve_db(self.db, self.user.tenant_id, {
             **metadata, "jurisdiction_code": tender.jurisdiction_code,
         })
+        configuration = (tender.source_manifest or {}).get(TENDER_FORMAT_CONFIGURATION)
+        if configuration is not None and decision.code.upper() != configuration["jurisdiction_code"]:
+            raise MegalodonException(ErrorCode.CONFLICT, "La convocatoria ya tiene una configuración fijada para otra dependencia.", 409)
         tender.jurisdiction_code = decision.code
         tender.canonical_model = {
             **tender.canonical_model,
@@ -1943,11 +1983,7 @@ class ProcurementService:
                         )
                     authoritative_formats = list(configured_pack.get("artifacts") or [])
                 else:
-                    format_catalog = await load_format_catalog(
-                        self.db,
-                        tenant_id=self.user.tenant_id,
-                        jurisdiction_code=tender.jurisdiction_code,
-                    )
+                    format_catalog = await load_tender_format_catalog(self.db, tender)
                     authoritative_formats = list(format_catalog.values())
                 cleaned = _merge_authoritative_format_checklist(
                     authoritative_formats,
@@ -2101,9 +2137,7 @@ class ProcurementService:
         if not jurisdiction_code:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, "No existe dependencia convocante en el expediente; no se puede seleccionar catálogo de formatos.", 409)
         try:
-            format_catalog = await load_format_catalog(
-                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=jurisdiction_code
-            )
+            format_catalog = await load_tender_format_catalog(self.db, tender)
         except ValueError as exc:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, str(exc), 409) from exc
 

@@ -60,6 +60,12 @@ class ProcurementCanonicalModel(BaseModel):
     submission: dict[str, Any] = Field(default_factory=dict)
 
 
+class TenderFormatConfigurationCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    version: str = Field(min_length=1, max_length=100)
+    format_definitions: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class TenderCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     expediente_id: UUID
@@ -76,6 +82,7 @@ class TenderCreate(BaseModel):
     object_class: str | None = None
     legal_regime: str | None = None
     source_manifest: dict[str, Any] = Field(default_factory=dict)
+    format_configuration: TenderFormatConfigurationCreate | None = None
     canonical_model: ProcurementCanonicalModel
 
 
