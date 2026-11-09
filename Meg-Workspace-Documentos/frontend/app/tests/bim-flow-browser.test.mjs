@@ -149,20 +149,12 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await page.getByRole('button',{name:'3. Crear cronograma'}).click();
     await page.locator('input[type="date"]').fill('2026-10-06');
     await page.getByRole('button',{name:'Generar cronograma 4D',exact:true}).click();
-    // The generated 4D program is exposed through the licitante Workspace, not the
-    // old standalone Programación route. Keep the persisted-program assertion.
-    await page.getByRole('button',{name:'Editar cronograma en Workspace',exact:true}).waitFor({timeout:60000});
-    await page.reload(); // 4D history must survive a reload, not only component state.
+    await page.getByRole('button',{name:'Abrir cronograma en Programación'}).waitFor({timeout:60000});
+    await page.reload(); // 4D history is recovered too, not only transient component state.
     await page.getByRole('button',{name:'3. Crear cronograma'}).click();
-    await page.getByRole('button',{name:'Editar cronograma en Workspace',exact:true}).click();
-    const scheduleUrl=new URL(page.url());
-    assert.equal(scheduleUrl.searchParams.get('app'),'licitaciones-obra');
-    assert.equal(scheduleUrl.searchParams.get('seccion'),'cronograma');
-    const scheduleId=scheduleUrl.searchParams.get('programa');
-    assert.ok(scheduleId,'The 4D generation must link a persisted program ID.');
-    await page.getByRole('navigation',{name:'Secciones de Workspace'})
-      .getByRole('button',{name:'Cronograma de obra',exact:true})
-      .waitFor();
+    await page.getByRole('button',{name:'Abrir cronograma en Programación'}).click();
+    const scheduleId=new URL(page.url()).searchParams.get('programa');
+    assert.ok(scheduleId);
     await page.waitForFunction(id=>document.querySelector('select[aria-label="Cronograma de esta obra"]')?.value===id,scheduleId);
     await page.screenshot({path:join(evidence,'03-cronograma.png'),fullPage:true});
     await page.setViewportSize({width:390,height:844});
@@ -335,7 +327,7 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.getByRole('button',{name:'Presupuesto',exact:true}).click();
     await page.getByRole('button',{name:'Actualizar material',exact:true}).click();
     await page.getByText('Catálogos en la base conectada',{exact:true}).click();
-    await page.getByText('Investigación de mercado Megalodon · enero 2020',{exact:false}).waitFor();
+    await page.getByText('CI sintético: catálogo de aceptación',{exact:false}).waitFor();
     await page.getByLabel('Material revisado',{exact:true}).selectOption(credentials.indexed_material);
     await page.getByLabel('Fecha de corte de publicaciones',{exact:true}).fill('2020-09-10');
     await page.getByRole('button',{name:'Usar última publicación disponible',exact:true}).click();
@@ -344,7 +336,7 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.screenshot({path:join(evidence,'08-catalogos-indices.png'),fullPage:true});
     // Synthetic source ZIP crosses the real import API and migrated schema.
     // The private authentic CMIC/Varela packages are exercised separately.
-    await page.getByRole('button',{name:'Investigación de mercado Megalodon',exact:true}).click();
+    await page.getByRole('button',{name:'Catálogos CMIC / fuentes',exact:true}).click();
     await page.getByText('Ediciones importadas y revisiones pendientes',{exact:true}).click();
     const [previewed] = await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/catalogo-apu/importaciones/verificar'),
