@@ -149,12 +149,20 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await page.getByRole('button',{name:'3. Crear cronograma'}).click();
     await page.locator('input[type="date"]').fill('2026-10-06');
     await page.getByRole('button',{name:'Generar cronograma 4D',exact:true}).click();
-    await page.getByRole('button',{name:'Abrir cronograma en Programación'}).waitFor({timeout:60000});
-    await page.reload(); // 4D history is recovered too, not only transient component state.
+    // The generated 4D program is exposed through the licitante Workspace, not the
+    // old standalone Programación route. Keep the persisted-program assertion.
+    await page.getByRole('button',{name:'Editar cronograma en Workspace',exact:true}).waitFor({timeout:60000});
+    await page.reload(); // 4D history must survive a reload, not only component state.
     await page.getByRole('button',{name:'3. Crear cronograma'}).click();
-    await page.getByRole('button',{name:'Abrir cronograma en Programación'}).click();
-    const scheduleId=new URL(page.url()).searchParams.get('programa');
-    assert.ok(scheduleId);
+    await page.getByRole('button',{name:'Editar cronograma en Workspace',exact:true}).click();
+    const scheduleUrl=new URL(page.url());
+    assert.equal(scheduleUrl.searchParams.get('app'),'licitaciones-obra');
+    assert.equal(scheduleUrl.searchParams.get('seccion'),'cronograma');
+    const scheduleId=scheduleUrl.searchParams.get('programa');
+    assert.ok(scheduleId,'The 4D generation must link a persisted program ID.');
+    await page.getByRole('navigation',{name:'Secciones de Workspace'})
+      .getByRole('button',{name:'Cronograma de obra',exact:true})
+      .waitFor();
     await page.waitForFunction(id=>document.querySelector('select[aria-label="Cronograma de esta obra"]')?.value===id,scheduleId);
     await page.screenshot({path:join(evidence,'03-cronograma.png'),fullPage:true});
     await page.setViewportSize({width:390,height:844});
