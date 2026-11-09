@@ -335,7 +335,7 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.getByRole('button',{name:'Presupuesto',exact:true}).click();
     await page.getByRole('button',{name:'Actualizar material',exact:true}).click();
     await page.getByText('Catálogos en la base conectada',{exact:true}).click();
-    await page.getByText('CI sintético: catálogo de aceptación',{exact:false}).waitFor();
+    await page.getByText('Investigación de mercado Megalodon · enero 2020',{exact:false}).waitFor();
     await page.getByLabel('Material revisado',{exact:true}).selectOption(credentials.indexed_material);
     await page.getByLabel('Fecha de corte de publicaciones',{exact:true}).fill('2020-09-10');
     await page.getByRole('button',{name:'Usar última publicación disponible',exact:true}).click();
