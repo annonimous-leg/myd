@@ -84,3 +84,23 @@ de navegación real, Storage, persistencia ni integración.
 
 **Estado:** cambios de los tests propuestos; aceptación final sujeta al
 workflow real de la PR. No hay aprobación para producción ni fusión a main.
+
+
+## 5. Segundo hallazgo durante la validación automatizada
+
+El run [42695849106](https://github.com/annonimous-leg/myd/actions/runs/42695849106)
+de la PR apilada ejecutó toda la matriz: los trabajos distintos del navegador
+pasaron. En Playwright pasó **1/2**: el caso del licitante completo quedó verde y
+el caso BIM avanzó más allá de la generación 4D, la recarga y la selección del
+programa. Terminó en `bim-flow-browser.test.mjs:338` esperando una denominación
+antigua de catálogo (`CI sintético: catálogo de aceptación`).
+
+La captura `last-screen.png` de ese run muestra que el servicio sí devolvió el
+inventario y que la etiqueta comercial vigente es
+`Investigación de mercado Megalodon · enero 2020`, correspondiente a la fecha
+de edición de la fuente sintética. El test de navegador ahora contrasta esa
+presentación; no se cambian ni el nombre original de la fuente ni precios,
+identidades, evidencias o snapshots.
+
+La evidencia de aceptación del nuevo commit requiere un **nuevo run**. El run
+anterior permanece fallido en el historial y no debe presentarse como verde.
