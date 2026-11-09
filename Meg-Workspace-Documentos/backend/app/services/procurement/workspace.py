@@ -5,7 +5,7 @@ from hashlib import sha256
 import json
 from math import isfinite
 import re
-from anyio import to_thread
+from anyio import CapacityLimiter, to_thread
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +16,7 @@ from app.engines.procurement.format_field_map import load_format_catalog, resolv
 from app.engines.procurement.workspace_pdf import render_workspace_pdf
 from app.engines.procurement.workspace_docx import Field, TemplateError, render_draft
 from app.engines.procurement.workspace_xlsx import render_xlsx
+from app.engines.procurement.office import recalculate_xlsx
 from app.integrations.supabase_storage import storage_documentos, storage_exportaciones
 
 
@@ -28,6 +29,7 @@ _FIELD_LABELS = {
     "technical.planning": "Planeación integral",
     "technical.construction_method": "Procedimiento constructivo",
 }
+_OFFICE_LIMITER = CapacityLimiter(2)
 _MAX_FIELD_LENGTH = 2000
 _MAX_DRAFT_BYTES = 128 * 1024
 _MAX_DOCX_DRAFT_BYTES = 512 * 1024
@@ -248,12 +250,18 @@ class TenderWorkspaceService:
                 field_map = {key: Field(item["tag"], item.get("required", True))
                              for key, item in config["fields"].items()}
                 draft = await to_thread.run_sync(render_draft, original, field_map, values)
+            content = draft.content
+            if format_name == "xlsx":
+                content = await to_thread.run_sync(
+                    recalculate_xlsx, content, _MAX_DOCX_DRAFT_BYTES, limiter=_OFFICE_LIMITER,
+                )
         except TemplateError as exc:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, str(exc), 422) from exc
-        if len(draft.content) > _MAX_DOCX_DRAFT_BYTES:
+        if len(content) > _MAX_DOCX_DRAFT_BYTES:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, "El borrador supera el límite de Workspace.", 422)
         return {
-            "sha256": draft.content_sha256, "content": b64encode(draft.content).decode("ascii"),
+            "sha256": sha256(content).hexdigest(), "content": b64encode(content).decode("ascii"),
+            "server_recalculated": format_name == "xlsx",
             "source_sha256": draft.source_sha256, "source_evidence_id": str(source.id),
             "map_version": config["version"], "map_sha256": model_hash(config),
             "renderer": draft.renderer, "submission_eligible": False,
