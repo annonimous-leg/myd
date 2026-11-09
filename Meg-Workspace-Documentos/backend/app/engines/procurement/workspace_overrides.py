@@ -40,12 +40,12 @@ def model_with_workspace_overrides(
     overrides = document_content_model.get(override_key)
     if overrides is None and template_key:
         overrides = document_content_model.get("field_overrides")
+    if document_tender_revision != current_tender_revision:
+        raise ValueError("La edición pertenece a otra revisión del expediente y necesita revisarse de nuevo.")
     if overrides is None or overrides == {}:
         return canonical_model, []
     if not isinstance(overrides, dict):
         raise ValueError("Los campos editados deben formar un objeto de rutas y valores.")
-    if document_tender_revision != current_tender_revision:
-        raise ValueError("La edición pertenece a otra revisión del expediente y necesita revisarse de nuevo.")
 
     allowed_paths = {str(path) for path in binding.get("canonical_paths") or ()}
     template_fields = None
@@ -54,6 +54,13 @@ def model_with_workspace_overrides(
         if not isinstance(template, dict) or not isinstance(template.get("fields"), dict):
             raise ValueError("El mapa editable del formato no es válido.")
         template_fields = template["fields"]
+        mapped_paths = {str(path) for path in template_fields}
+        # Some valid Workspace-only templates declare their editable field
+        # catalog exclusively inside workspace_docx/workspace_xlsx.fields.
+        # When canonical_paths is also declared, the explicit template-field
+        # check below enforces the intersection without accepting foreign paths.
+        if not allowed_paths:
+            allowed_paths = mapped_paths
 
     result = deepcopy(canonical_model)
     applied: list[str] = []

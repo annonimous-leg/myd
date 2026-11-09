@@ -85,5 +85,70 @@ class WorkspaceOverrideContractTests(unittest.TestCase):
             self.run_model({"docx_field_overrides": {"bidder.legal_name.part": "X"}}, binding=binding)
 
 
+    def test_template_fields_without_duplicate_canonical_paths_are_editable(self):
+        binding = {"workspace_docx": {"fields": {"bidder.legal_name": {"tag": "legal"}}}}
+        model, paths = self.run_model(
+            {"docx_field_overrides": {"bidder.legal_name": "Empresa de prueba"}},
+            binding=binding,
+        )
+        self.assertEqual(model["bidder"]["legal_name"], "Empresa de prueba")
+        self.assertEqual(paths, ["bidder.legal_name"])
+
+    def test_template_fields_without_canonical_paths_reject_foreign_field(self):
+        binding = {"workspace_docx": {"fields": {"bidder.legal_name": {"tag": "legal"}}}}
+        with self.assertRaisesRegex(ValueError, "fuera del catálogo"):
+            self.run_model({"docx_field_overrides": {"bidder.unknown": "X"}}, binding=binding)
+
+    def test_stale_revision_blocks_even_empty_human_edits(self):
+        with self.assertRaisesRegex(ValueError, "otra revisión"):
+            self.run_model({"docx_field_overrides": {}}, document_tender_revision=3)
+
+    def test_reviewed_edit_reaches_compiled_pdf_bytes(self):
+        from io import BytesIO
+        from pypdf import PdfReader
+        from app.engines.procurement.compiler import ProcurementArtifactCompiler
+
+        binding = {
+            "format_code": "ANX-01", "title": "Carta empresarial",
+            "compiler": "compile_annex_pdf",
+            "canonical_paths": ["bidder.legal_name"],
+        }
+        reviewed, paths = self.run_model(
+            {"field_overrides": {"bidder.legal_name": "Empresa Revisada"}},
+            binding=binding,
+        )
+        original_bytes = ProcurementArtifactCompiler().compile_from_binding(binding, self.original)
+        reviewed_bytes = ProcurementArtifactCompiler().compile_from_binding(binding, reviewed)
+        reviewed_text = "\n".join(page.extract_text() for page in PdfReader(BytesIO(reviewed_bytes)).pages)
+        self.assertEqual(paths, ["bidder.legal_name"])
+        self.assertNotEqual(original_bytes, reviewed_bytes)
+        self.assertIn("Empresa Revisada", reviewed_text)
+
+    def test_reviewed_edit_reaches_compiled_xlsx_cell(self):
+        from io import BytesIO
+        from openpyxl import load_workbook
+        from app.engines.procurement.compiler import ProcurementArtifactCompiler
+
+        original = {
+            "facts": {"authority": "Dependencia", "object": "Proyecto original"},
+            "economic": {"budget_total": 100},
+        }
+        binding = {
+            "format_code": "FP-01", "title": "Oferta económica",
+            "compiler": "compile_proposal_letter_xlsx",
+            "canonical_paths": ["facts.object"],
+        }
+        reviewed, paths = model_with_workspace_overrides(
+            original, binding, {"field_overrides": {"facts.object": "Proyecto modificado"}},
+            human_modified=True, document_tender_revision=4,
+            current_tender_revision=4,
+        )
+        xlsx = ProcurementArtifactCompiler().compile_from_binding(binding, reviewed)
+        values = [cell.value for row in load_workbook(BytesIO(xlsx)).active for cell in row]
+        self.assertIn("Proyecto modificado", values)
+        self.assertNotIn("Proyecto original", values)
+        self.assertEqual(paths, ["facts.object"])
+
+
 if __name__ == "__main__":
     unittest.main()
