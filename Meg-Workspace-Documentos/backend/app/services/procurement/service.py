@@ -63,10 +63,16 @@ from app.engines.procurement.contract_policy import ContractPolicyError
 from app.engines.procurement.rules import DeterministicRuleCompiler, RuleCompilationError
 from app.services.procurement.storage_guard import ProcurementStorageGuard
 from app.services.procurement.artifact_policy import artifact_requires_signature, artifact_submission_eligible
+from app.services.procurement.workspace_final_bytes import reviewed_workspace_artifact, WorkspaceFinalBytesError
+from app.services.procurement.approval_manifest import (
+    ApprovalManifestError, manifest_digest, original_artifact_manifest,
+    verified_approval_manifest, verify_original_bytes, verify_package_bytes,
+)
 from app.services.procurement.preparation_runs import PreparationRunTracker, PIPELINE_VERSION
 from app.engines.procurement.domain_contracts import snapshot_source_is_current, source_revision_token
 from app.engines.procurement.proposition_bridge import build_economic_block, hydrate_canonical_from_presupuesto
-from app.engines.procurement.format_field_map import load_format_catalog, normalize_format_code
+from app.engines.procurement.format_field_map import TENDER_FORMAT_CONFIGURATION, load_format_catalog, load_tender_format_catalog, normalize_format_code
+from app.engines.procurement.workspace_overrides import model_with_workspace_overrides
 from app.models.bim import ModeloBIM
 from app.models.topografia import CalculoVolumen
 
@@ -728,8 +734,29 @@ class ProcurementService:
             for row in rows
         ]
 
+    @staticmethod
+    def _apply_format_definitions(formats: dict, definitions: list[dict]) -> dict:
+        formats = dict(formats)
+        seen_codes = set()
+        for definition in definitions:
+            raw_code = definition.get("format_code")
+            code = normalize_format_code(raw_code) if isinstance(raw_code, str) else ""
+            if not code or len(code) > 120 or code in seen_codes:
+                raise ValueError("Cada formato proporcionado debe tener un código único de hasta 120 caracteres.")
+            if set(definition) - {"format_code", "workspace_docx", "workspace_xlsx"}:
+                raise ValueError("La personalización admite mapas Workspace de DOCX o XLSX.")
+            replacement = dict(formats.get(code, {}))
+            for key in ("workspace_docx", "workspace_xlsx"):
+                replacement.pop(key, None)
+            maps = {key: value for key, value in definition.items() if key != "format_code"}
+            if len(maps) != 1 or not isinstance(next(iter(maps.values())), dict):
+                raise ValueError("Cada formato personalizado debe incluir exactamente un mapa DOCX o XLSX.")
+            formats[code] = {**replacement, **maps, "format_code": code, "tender_supplied": True}
+            seen_codes.add(code)
+        return formats
+
     async def create(self, data: TenderCreate) -> TenderPackage:
-        await self._validate_tender_configuration(data)
+        profile = await self._validate_tender_configuration(data)
         expediente = await self.db.scalar(
             select(ExpedienteObra).where(
                 ExpedienteObra.id == data.expediente_id,
@@ -800,6 +827,26 @@ class ProcurementService:
                         } for activity in program.actividades
                     ],
                 }
+        manifest = dict(data.source_manifest)
+        if TENDER_FORMAT_CONFIGURATION in manifest:
+            raise MegalodonException(
+                ErrorCode.PARAMETRO_INVALIDO, "Usa format_configuration para configurar los formatos.", 422,
+            )
+        try:
+            formats = await load_format_catalog(
+                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=data.jurisdiction_code,
+            )
+            configuration = data.format_configuration
+            if configuration:
+                formats = self._apply_format_definitions(formats, configuration.format_definitions)
+        except ValueError as exc:
+            raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, str(exc), 422) from exc
+        manifest[TENDER_FORMAT_CONFIGURATION] = {
+            "version": configuration.version if configuration else str(profile.profile_version),
+            "jurisdiction_code": data.jurisdiction_code.upper(),
+            "formats": formats,
+            "requirement_extraction": (profile.templates or {}).get("requirement_extraction") or {},
+        }
         tender = TenderPackage(
             expediente_id=data.expediente_id,
             identifier=data.identifier,
@@ -808,7 +855,7 @@ class ProcurementService:
             procedure_type=data.procedure_type,
             contract_type=data.contract_type,
             evaluation_criterion=data.evaluation_criterion, project_type=data.project_type, scope_scale=data.scope_scale, case_pack_code=data.case_pack_code,
-            source_manifest=data.source_manifest,
+            source_manifest=manifest,
             canonical_model=canonical,
             tenant_id=self.user.tenant_id,
             creado_por_id=self.user.id,
@@ -818,7 +865,7 @@ class ProcurementService:
         await self.db.flush()
         revision = TenderRevision(
             tender_id=tender.id, revision=1, reason="INITIAL",
-            source_hash=self._hash(data.source_manifest),
+            source_hash=self._hash(manifest),
             model_snapshot=tender.canonical_model,
             tenant_id=self.user.tenant_id,
         )
@@ -886,14 +933,11 @@ class ProcurementService:
             }
         safe_name = filename.replace("/", "_").replace("\\", "_")
         extracted = self.extractor.extract(filename, content_type or "application/octet-stream", content)
-        format_catalog = await load_format_catalog(
-            self.db, tenant_id=self.user.tenant_id, jurisdiction_code=tender.jurisdiction_code
-        )
+        format_catalog = await load_tender_format_catalog(self.db, tender)
         detected_formats = self._format_detection_candidates(
             format_catalog, filename=filename, text=extracted.text or ""
         )
-        profile = await self._effective_profile(tender.jurisdiction_code)
-        extraction_config = ((profile.templates or {}).get("requirement_extraction") if profile else None) or {}
+        extraction_config = await self._tender_requirement_extraction(tender)
         source_role = str(source_role or "CONVOCATORIA").upper().strip()
         flow_code = str(tender.project_type or (tender.canonical_model or {}).get("facts", {}).get("project_type") or "OBRA_PUBLICA").upper()
         document_version = self.extractor.detect_document_version(
@@ -946,9 +990,10 @@ class ProcurementService:
             tenant_id=self.user.tenant_id, creado_por_id=self.user.id, actualizado_por_id=self.user.id,
         )
         self.db.add(evidence)
+        await self.db.flush()
         tender.source_manifest = {**(tender.source_manifest or {}), "sources": [
             *((tender.source_manifest or {}).get("sources", [])),
-            {"filename": filename, "storage_path": stored, "sha256": digest, "media_type": content_type, "size_bytes": len(content), "revision": tender.current_revision, "source_role": source_role, "detected_formats": detected_formats},
+            {"evidence_id": str(evidence.id), "filename": filename, "storage_path": stored, "sha256": digest, "media_type": content_type, "size_bytes": len(content), "revision": tender.current_revision, "source_role": source_role, "detected_formats": detected_formats},
         ]}
         canonical = dict(tender.canonical_model or {})
         detection = dict(canonical.get("format_detection") or {})
@@ -1153,6 +1198,13 @@ class ProcurementService:
                 raise
         return changed
 
+    async def _tender_requirement_extraction(self, tender: TenderPackage) -> dict:
+        configuration = (tender.source_manifest or {}).get(TENDER_FORMAT_CONFIGURATION)
+        if configuration is not None:
+            return configuration["requirement_extraction"]
+        profile = await self._effective_profile(tender.jurisdiction_code)
+        return ((profile.templates or {}).get("requirement_extraction") if profile else None) or {}
+
     async def requirement_source_readiness(self, tender_id: UUID) -> dict[str, Any]:
         """Report whether the user has supplied the official source set needed to work.
 
@@ -1161,8 +1213,7 @@ class ProcurementService:
         engine defect/review state and must never be reported as user omission.
         """
         tender = await self._get(tender_id)
-        profile = await self._effective_profile(tender.jurisdiction_code)
-        cfg = ((profile.templates or {}).get("requirement_extraction") if profile else None) or {}
+        cfg = await self._tender_requirement_extraction(tender)
         required = [str(x).upper() for x in (cfg.get("required_source_roles") or ["CONVOCATORIA"]) ]
         evidence = (await self.db.execute(select(TenderEvidence).where(
             TenderEvidence.tender_id == tender.id,
@@ -1667,9 +1718,63 @@ class ProcurementService:
             "invalidates_signed": bool(changed),
             "previous_revision": tender.current_revision,
         }
+        amendment = data.format_amendment
+        if amendment is not None:
+            if amendment.expected_revision != tender.current_revision:
+                raise MegalodonException(ErrorCode.CONFLICT, "La revisión de la convocatoria cambió.", 409)
+            if amendment.amendment_evidence_id == amendment.base_evidence_id:
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, "Identifica dos fuentes distintas.", 422)
+            sources = {
+                source.id: source for source in (await self.db.scalars(
+                    select(TenderEvidence).where(
+                        TenderEvidence.tender_id == tender.id,
+                        TenderEvidence.tenant_id == self.user.tenant_id,
+                        TenderEvidence.kind == "SOURCE_DOCUMENT",
+                        TenderEvidence.status == "ACTIVE",
+                        TenderEvidence.id.in_([amendment.amendment_evidence_id, amendment.base_evidence_id]),
+                    )
+                )).all()
+            }
+            base = sources.get(amendment.base_evidence_id)
+            correction = sources.get(amendment.amendment_evidence_id)
+            if not base or not correction or not base.source_hash or not correction.source_hash:
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, "Ambas fuentes deben estar activas y verificadas en este expediente.", 422)
+            if (base.value or {}).get("source_role") != "CONVOCATORIA":
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, "La fuente base debe ser la convocatoria afectada.", 422)
+            old_configuration = (tender.source_manifest or {}).get(TENDER_FORMAT_CONFIGURATION)
+            if old_configuration and (
+                old_configuration["version"] == amendment.version
+                or old_configuration.get("base_sha256", base.source_hash) != base.source_hash
+            ):
+                raise MegalodonException(ErrorCode.CONFLICT, "Indica una versión nueva de la misma convocatoria base.", 409)
+            try:
+                current_formats = await load_tender_format_catalog(self.db, tender)
+                formats = self._apply_format_definitions(current_formats, amendment.format_definitions)
+            except ValueError as exc:
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, str(exc), 422) from exc
+            configuration = {
+                "version": amendment.version,
+                "jurisdiction_code": tender.jurisdiction_code.upper(),
+                "formats": formats,
+                "requirement_extraction": await self._tender_requirement_extraction(tender),
+                "base_sha256": base.source_hash,
+                "amendment_sha256": correction.source_hash,
+                "base_evidence_id": str(base.id),
+                "amendment_evidence_id": str(correction.id),
+                "revision": revision_number,
+            }
+            impact_summary.update({
+                "previous_format_configuration": old_configuration,
+                "format_configuration": configuration,
+                "invalidates_signed": True,
+            })
+            tender.source_manifest = {
+                **(tender.source_manifest or {}),
+                TENDER_FORMAT_CONFIGURATION: configuration,
+            }
         row = TenderRevision(
             tender_id=tender.id, revision=revision_number, reason=data.reason,
-            source_hash=data.source_hash or self._hash(snapshot), model_snapshot=snapshot,
+            source_hash=(correction.source_hash if amendment else data.source_hash or self._hash(snapshot)), model_snapshot=snapshot,
             impact_summary=impact_summary, tenant_id=self.user.tenant_id,
         )
         tender.current_revision = revision_number
@@ -1723,6 +1828,9 @@ class ProcurementService:
         decision = await self.jurisdiction.resolve_db(self.db, self.user.tenant_id, {
             **metadata, "jurisdiction_code": tender.jurisdiction_code,
         })
+        configuration = (tender.source_manifest or {}).get(TENDER_FORMAT_CONFIGURATION)
+        if configuration is not None and decision.code.upper() != configuration["jurisdiction_code"]:
+            raise MegalodonException(ErrorCode.CONFLICT, "La convocatoria ya tiene una configuración fijada para otra dependencia.", 409)
         tender.jurisdiction_code = decision.code
         tender.canonical_model = {
             **tender.canonical_model,
@@ -1937,11 +2045,7 @@ class ProcurementService:
                         )
                     authoritative_formats = list(configured_pack.get("artifacts") or [])
                 else:
-                    format_catalog = await load_format_catalog(
-                        self.db,
-                        tenant_id=self.user.tenant_id,
-                        jurisdiction_code=tender.jurisdiction_code,
-                    )
+                    format_catalog = await load_tender_format_catalog(self.db, tender)
                     authoritative_formats = list(format_catalog.values())
                 cleaned = _merge_authoritative_format_checklist(
                     authoritative_formats,
@@ -2095,9 +2199,7 @@ class ProcurementService:
         if not jurisdiction_code:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, "No existe dependencia convocante en el expediente; no se puede seleccionar catálogo de formatos.", 409)
         try:
-            format_catalog = await load_format_catalog(
-                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=jurisdiction_code
-            )
+            format_catalog = await load_tender_format_catalog(self.db, tender)
         except ValueError as exc:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, str(exc), 409) from exc
 
@@ -2108,6 +2210,8 @@ class ProcurementService:
             # Backward-compatible mode: use the selected dependency's configured
             # formats, but only compile artifacts whose canonical inputs exist.
             selected_codes = list(format_catalog)
+        else:
+            selected_codes.extend(code for code, binding in format_catalog.items() if binding.get("tender_supplied"))
 
         def _get_path(path: str, values: dict) -> Any:
             cur: Any = values
@@ -2123,29 +2227,6 @@ class ProcurementService:
             value = _get_path(path, values)
             return value not in (None, "", [], {})
 
-        def _write_path(root: dict, path: str, value: Any) -> None:
-            parts = path.split(".")
-            cur = root
-            for part in parts[:-1]:
-                nxt = cur.get(part)
-                if not isinstance(nxt, dict):
-                    nxt = {}
-                    cur[part] = nxt
-                cur = nxt
-            cur[parts[-1]] = value
-
-        # FIX P0 auditoría 2026-09-14: hasta ahora, editar el TenderDocument
-        # en el Workspace (workspace_update_document) guardaba la edición y
-        # la protegía de perderse, pero jamás influía en el binario final --
-        # compile_from_binding() siempre leía únicamente canonical_model. El
-        # Workspace era, en la práctica, una vitrina de solo-lectura del
-        # resultado, no una fuente real. Ahora: si existe un TenderDocument
-        # human_modified=True para un código de formato con
-        # content_model.field_overrides, esos valores se inyectan en una
-        # copia del model ANTES de compilar ese artefacto -- solo para las
-        # rutas (canonical_paths) que ese formato ya declara como propias en
-        # el catálogo DB-driven, para no permitir que una edición de un
-        # documento cuele datos fuera de su propio ámbito declarado.
         workspace_docs_by_code: dict[str, TenderDocument] = {
             d.artifact_code: d
             for d in (await self.db.execute(select(TenderDocument).where(
@@ -2154,23 +2235,28 @@ class ProcurementService:
             ).order_by(TenderDocument.version, TenderDocument.id))).scalars().all()
         }
 
+        # Un formato con plantilla guarda sus ediciones en claves específicas
+        # (docx_field_overrides / xlsx_field_overrides); nunca se deben mezclar
+        # con los campos de otro formato ni con un modelo de otra revisión.
         def _model_con_overrides_humanos(code: str, binding: dict) -> tuple[dict, list[str]]:
             doc = workspace_docs_by_code.get(code)
-            if doc is None or not doc.human_modified:
+            if doc is None:
                 return model, []
-            overrides = (doc.content_model or {}).get("field_overrides")
-            if not isinstance(overrides, dict) or not overrides:
-                return model, []
-            allowed_paths = {str(p) for p in (binding.get("canonical_paths") or [])}
-            aplicados: list[str] = []
-            modelo_efectivo = copy.deepcopy(model)
-            for path, value in overrides.items():
-                if path not in allowed_paths:
-                    continue
-                _write_path(modelo_efectivo, path, value)
-                aplicados.append(path)
-            return modelo_efectivo, aplicados
+            try:
+                return model_with_workspace_overrides(
+                    model, binding, doc.content_model,
+                    human_modified=doc.human_modified,
+                    document_tender_revision=doc.tender_revision,
+                    current_tender_revision=tender.current_revision,
+                )
+            except ValueError as exc:
+                raise MegalodonException(
+                    ErrorCode.VALIDACION_FALLIDA,
+                    f"El anexo {code} requiere revisión de sus campos: {exc}",
+                    409,
+                ) from exc
 
+        workspace_provenance: dict[str, dict] = {}
         seen_codes: set[str] = set()
         for external_code in selected_codes:
             code = normalize_format_code(external_code)
@@ -2187,10 +2273,29 @@ class ProcurementService:
                     raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, f"El formato {code} requiere datos canónicos ausentes: {', '.join(map(str, missing))}.", 409)
                 continue
             try:
-                content = self.compiler.compile_from_binding(binding, modelo_para_compilar)
-            except (ValueError, TypeError, KeyError) as exc:
-                raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, f"No se pudo compilar {code}: {exc}", 409) from exc
-            media = "application/pdf" if str(binding.get("compiler", "")).endswith("pdf") else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                if "workspace_docx" in binding or "workspace_xlsx" in binding:
+                    doc = workspace_docs_by_code.get(code)
+                    revision = None
+                    if doc is not None:
+                        revision = await self.db.scalar(select(TenderDocumentRevision).where(
+                            TenderDocumentRevision.tenant_id == self.user.tenant_id,
+                            TenderDocumentRevision.document_id == doc.id,
+                            TenderDocumentRevision.version == doc.version,
+                        ))
+                    current_source_model_hash = sha256(json.dumps(
+                        tender.canonical_model or {}, sort_keys=True, default=str,
+                        separators=(",", ":"),
+                    ).encode()).hexdigest()
+                    content, media, provenance = reviewed_workspace_artifact(
+                        binding, doc, revision, tender.current_revision,
+                        current_source_model_hash=current_source_model_hash,
+                    )
+                    workspace_provenance[code] = provenance
+                else:
+                    content = self.compiler.compile_from_binding(binding, modelo_para_compilar)
+                    media = "application/pdf" if str(binding.get("compiler", "")).endswith("pdf") else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            except (WorkspaceFinalBytesError, ValueError, TypeError, KeyError) as exc:
+                raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, f"No se pudo cerrar el original {code}: {exc}", 409) from exc
             artifact_specs.append((code, str(binding.get("title") or code), media, content, overrides_aplicados))
             seen_codes.add(code)
 
@@ -2267,7 +2372,7 @@ class ProcurementService:
                 TenderArtifact.artifact_code == code,
             ).order_by(TenderArtifact.version.desc()).limit(1)) or 0)
             version = prior + 1
-            extension = ".xlsx" if media.endswith("spreadsheetml.sheet") else ".pdf"
+            extension = ".docx" if media.endswith("wordprocessingml.document") else ".xlsx" if media.endswith("spreadsheetml.sheet") else ".pdf"
             path = f"tenders/{tender.tenant_id}/{tender.id}/r{tender.current_revision}/{code}-v{version}-{content_hash}{extension}"
             await self.storage_guard.upload_verified(tenant_id=self.user.tenant_id, job_id=None, bucket_name=get_settings().SUPABASE_BUCKET_EXPORTS, path=path, content=content, content_type=media, entity_type="TenderArtifact")
             # Submission and signature eligibility are server-owned format policy.
@@ -2283,6 +2388,7 @@ class ProcurementService:
                     "reference_only": reference_only,
                     "internal_workspace_artifact": internal_qa_report,
                     "human_field_overrides_applied": overrides_aplicados,
+                    **workspace_provenance.get(code, {}),
                 },
             )
             self.db.add(artifact)
@@ -2351,8 +2457,12 @@ class ProcurementService:
             TenderArtifact.status != ArtifactStatus.SUPERSEDED.value,
         ))).scalars().all()
         active_codes = {a.artifact_code for a in artifacts}
+        selected_ids = {a.id for a in artifacts}
         for old in all_active:
-            if old.artifact_code in active_codes and old.source_model_hash != source_hash:
+            if old.artifact_code in active_codes and old.id not in selected_ids:
+                # Same source_model_hash can still render different bytes (e.g.,
+                # changed template/Office metadata). Never offer two live
+                # versions of the same code for one approval/submission.
                 old.status = ArtifactStatus.SUPERSEDED.value
 
         current_state = str(tender.state)
@@ -2642,6 +2752,15 @@ class ProcurementService:
         expected_prefix = f"tenders/{self.user.tenant_id}/{tender.id}/r{tender.current_revision}/"
         if not path or not path.startswith(expected_prefix) or ".." in path.split("/"):
             raise MegalodonException(ErrorCode.ARCHIVO_ERROR, "La ruta del paquete no pertenece al tenant/revisión actual.", 409)
+        # Never issue a download URL to a substituted/recompiled ZIP. The
+        # signed URL points to stored bytes; no generator is called here.
+        try:
+            if not (submission.manifest or {}).get("approved_artifact_manifest_sha256"):
+                raise ApprovalManifestError("La presentación carece de aprobación fijada a archivos originales.")
+            stored_package = await storage_exportaciones().descargar(path)
+            verify_package_bytes(submission.package_hash, stored_package)
+        except ApprovalManifestError as exc:
+            raise MegalodonException(ErrorCode.ARCHIVO_ERROR, str(exc), 409) from exc
         url = await storage_exportaciones().url_firmada(path, expires_seconds)
         return {
             "submission_id": str(submission.id),
@@ -2694,6 +2813,73 @@ class ProcurementService:
         await self._commit()
         await self.db.refresh(tender)
         return tender
+
+    async def _snapshot_verified_originals(self, tender: TenderPackage, artifacts: list[TenderArtifact]) -> dict[str, Any]:
+        """Capture and verify the original bytes without invoking any compiler.
+
+        Approval and submission share this guard while the tender row is locked.
+        No reviewer can authorize a document by providing an arbitrary URL/hash.
+        """
+        try:
+            reference_only = [a.artifact_code for a in artifacts if (a.artifact_metadata or {}).get("reference_only") is True]
+            if reference_only:
+                raise ApprovalManifestError("Existen documentos solo de referencia: " + ", ".join(sorted(reference_only)))
+            snapshot = original_artifact_manifest(
+                artifacts, tenant_id=self.user.tenant_id,
+                tender_id=tender.id, revision=tender.current_revision,
+            )
+            bucket = storage_exportaciones()
+            for entry in snapshot["artifacts"]:
+                original = await bucket.descargar(entry["storage_path"])
+                verify_original_bytes(entry, original)
+            return snapshot
+        except ApprovalManifestError as exc:
+            raise MegalodonException(ErrorCode.ARCHIVO_ERROR, str(exc), 409) from exc
+
+    @staticmethod
+    def _require_matching_approvals(
+        tender: TenderPackage, approvals: list[TenderApproval], snapshot: dict[str, Any], required_roles: set[str],
+    ) -> str:
+        if not required_roles:
+            raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, "La revisión no declara roles de aprobación.", 409)
+        try:
+            return verified_approval_manifest(approvals, snapshot, required_roles)
+        except ApprovalManifestError as exc:
+            raise MegalodonException(ErrorCode.CONFLICT, str(exc), 409) from exc
+
+    async def approval_manifest_preview(self, tender_id: UUID) -> dict[str, Any]:
+        """Review the exact server-stored bytes, not a new compilation.
+
+        Client must echo manifest SHA-256 when choosing APPROVED; a concurrent
+        change between preview and approval fails rather than silently passing.
+        """
+        tender = await self._get(tender_id)
+        if tender.state not in {TenderState.QA_READY.value, TenderState.READY_FOR_HUMAN_REVIEW.value}:
+            raise MegalodonException(ErrorCode.CONFLICT, "Los documentos no están listos para aprobación.", 409)
+        active = (await self.db.execute(select(TenderArtifact).where(
+            TenderArtifact.tender_id == tender.id,
+            TenderArtifact.tenant_id == self.user.tenant_id,
+            TenderArtifact.status != ArtifactStatus.SUPERSEDED.value,
+        ))).scalars().all()
+        snapshot = await self._snapshot_verified_originals(tender, active)
+        return {"artifact_manifest_sha256": manifest_digest(snapshot), "originals": snapshot}
+
+    async def original_download_url(self, tender_id: UUID, artifact_id: UUID, *, expires_seconds: int = 300) -> dict:
+        """Presigned URL to the actual original bytes of a single scoped artifact."""
+        tender = await self._get(tender_id)
+        artifact = await self.db.scalar(select(TenderArtifact).where(
+            TenderArtifact.id == artifact_id,
+            TenderArtifact.tender_id == tender.id,
+            TenderArtifact.tenant_id == self.user.tenant_id,
+            TenderArtifact.status != ArtifactStatus.SUPERSEDED.value,
+        ))
+        if artifact is None:
+            raise MegalodonException(ErrorCode.DOCUMENTO_NO_ENCONTRADO, "Artefacto no encontrado en esta empresa.", 404)
+        snapshot = await self._snapshot_verified_originals(tender, [artifact])
+        entry = snapshot["artifacts"][0]
+        url = await storage_exportaciones().url_firmada(entry["storage_path"], expires_seconds)
+        return {"artifact_id": str(artifact.id), "sha256": entry["sha256"],
+                "url": url, "expira_en_segundos": expires_seconds}
 
     async def approval(self, tender_id: UUID, data: ApprovalCreate) -> TenderApproval:
         tender = await self._get(tender_id, for_update=True)
@@ -2751,8 +2937,39 @@ class ProcurementService:
                     "Separación de funciones: una misma persona no puede cubrir más de un rol de aprobación en la misma revisión.",
                     403,
                 )
+        # The first role pins the exact, already stored originals. Other roles
+        # must approve the *same* manifest. Signed renditions are later linked
+        # back to these SHA-256 hashes rather than replacing the originals.
+        pinned_snapshot = None
+        pinned_hash = None
+        if data.decision == "APPROVED":
+            active = (await self.db.execute(select(TenderArtifact).where(
+                TenderArtifact.tender_id == tender.id,
+                TenderArtifact.tenant_id == self.user.tenant_id,
+                TenderArtifact.status != ArtifactStatus.SUPERSEDED.value,
+            ).with_for_update())).scalars().all()
+            pinned_snapshot = await self._snapshot_verified_originals(tender, active)
+            pinned_hash = manifest_digest(pinned_snapshot)
+            if data.expected_artifact_manifest_sha256 != pinned_hash:
+                raise MegalodonException(
+                    ErrorCode.CONFLICT,
+                    "Los archivos cambiaron desde la revisión: consulta el manifiesto actual y confirma su SHA-256.",
+                    409,
+                )
+            previous_approvals = (await self.db.execute(select(TenderApproval).where(
+                TenderApproval.tender_id == tender.id,
+                TenderApproval.revision == tender.current_revision,
+                TenderApproval.tenant_id == self.user.tenant_id,
+                TenderApproval.decision == "APPROVED",
+            ))).scalars().all()
+            if previous_approvals:
+                self._require_matching_approvals(
+                    tender, previous_approvals, pinned_snapshot,
+                    {previous.role for previous in previous_approvals},
+                )
         row = TenderApproval(
             tender_id=tender.id, role=data.role, decision=data.decision, reason=data.reason, revision=tender.current_revision,
+            artifact_manifest=pinned_snapshot, artifact_manifest_hash=pinned_hash,
             tenant_id=self.user.tenant_id, creado_por_id=self.user.id, actualizado_por_id=self.user.id,
         )
         self.db.add(row)
@@ -2862,8 +3079,34 @@ class ProcurementService:
         existing_key = artifact.signature_idempotency_key
         if existing_key and existing_key != idempotency_key:
             raise MegalodonException(ErrorCode.CONFLICT, "El artefacto ya fue firmado con otra Idempotency-Key.", 409)
+        # A signed original is useful only if its human approval identifies
+        # this exact artifact/version/hash. Validate *before* any idempotent replay.
+        active = (await self.db.execute(select(TenderArtifact).where(
+            TenderArtifact.tender_id == tender.id,
+            TenderArtifact.tenant_id == self.user.tenant_id,
+            TenderArtifact.status != ArtifactStatus.SUPERSEDED.value,
+        ).with_for_update())).scalars().all()
+        snapshot = await self._snapshot_verified_originals(tender, active)
+        approvals = (await self.db.execute(select(TenderApproval).where(
+            TenderApproval.tender_id == tender.id,
+            TenderApproval.revision == tender.current_revision,
+            TenderApproval.tenant_id == self.user.tenant_id,
+            TenderApproval.decision == "APPROVED",
+        ))).scalars().all()
+        required_roles = set((tender.canonical_model.get("approvals") or {}).get("required_roles") or [])
+        self._require_matching_approvals(tender, approvals, snapshot, required_roles)
+        if str(artifact.id) not in {entry["id"] for entry in snapshot["artifacts"]}:
+            raise MegalodonException(ErrorCode.CONFLICT, "El archivo no está incluido en la aprobación humana.", 409)
         if existing_key == idempotency_key and artifact.status == ArtifactStatus.SIGNED.value:
-            return {**(artifact.artifact_metadata or {}).get("signature", {}), "artifact_id": str(artifact.id), "artifact_code": artifact.artifact_code, "status": artifact.status, "idempotent_replay": True}
+            signature = (artifact.artifact_metadata or {}).get("signature") or {}
+            if signature.get("original_sha256") != artifact.content_hash or not signature.get("signed_sha256") or not signature.get("signed_storage_path"):
+                raise MegalodonException(ErrorCode.ARCHIVO_ERROR, "La firma no está vinculada al original aprobado.", 409)
+            content = await storage_exportaciones().descargar(signature["signed_storage_path"])
+            try:
+                verify_package_bytes(signature["signed_sha256"], content)
+            except ApprovalManifestError as exc:
+                raise MegalodonException(ErrorCode.ARCHIVO_ERROR, str(exc), 409) from exc
+            return {**signature, "artifact_id": str(artifact.id), "artifact_code": artifact.artifact_code, "status": artifact.status, "idempotent_replay": True}
         if artifact.media_type != "application/pdf":
             raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, "La firma PAdES sólo admite artefactos PDF.", 422)
         if artifact.status not in {ArtifactStatus.GENERATED.value, ArtifactStatus.VALIDATED.value}:
@@ -2995,6 +3238,13 @@ class ProcurementService:
         if reference_only:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, f"Existen artefactos de referencia que no pueden presentarse como oficiales: {', '.join(sorted(reference_only))}", 409)
         submission_artifacts = [a for a in active_artifacts if artifact_submission_eligible(a)]
+        # A role approval without a pinned SHA-256 is legacy/unsafe; it must
+        # never silently authorize regenerated files or a changed selection.
+        approved_snapshot = await self._snapshot_verified_originals(tender, active_artifacts)
+        approved_hash = self._require_matching_approvals(
+            tender, approvals, approved_snapshot, required_roles,
+        )
+        approved_by_id = {item["id"]: item for item in approved_snapshot["artifacts"]}
         unsigned_pdfs = [
             a.artifact_code for a in submission_artifacts
             if artifact_requires_signature(a) and a.status != ArtifactStatus.SIGNED.value
@@ -3037,17 +3287,31 @@ class ProcurementService:
             if not artifact.storage_path or not artifact.content_hash:
                 raise MegalodonException(ErrorCode.ARCHIVO_ERROR, f"Artefacto {artifact.artifact_code} sin contenido inmutable.", 409)
             signature = (artifact.artifact_metadata or {}).get("signature") or {}
-            package_path = signature.get("signed_storage_path") or artifact.storage_path
-            expected_hash = signature.get("signed_sha256") if signature.get("signed_storage_path") else artifact.content_hash
+            approved_original = approved_by_id.get(str(artifact.id))
+            if approved_original is None or approved_original["sha256"] != artifact.content_hash:
+                raise MegalodonException(ErrorCode.CONFLICT, "Un archivo ya no corresponde a la aprobación humana.", 409)
+            if signature.get("signed_storage_path"):
+                if (artifact.status != ArtifactStatus.SIGNED.value or
+                        signature.get("original_sha256") != approved_original["sha256"]):
+                    raise MegalodonException(ErrorCode.ARCHIVO_ERROR, "La firma no deriva del archivo original aprobado.", 409)
+            package_path = signature.get("signed_storage_path") or approved_original["storage_path"]
+            if signature.get("signed_storage_path"):
+                expected_prefix = f"tenders/{self.user.tenant_id}/{tender.id}/r{tender.current_revision}/"
+                if not package_path.startswith(expected_prefix) or ".." in package_path.split("/"):
+                    raise MegalodonException(ErrorCode.ARCHIVO_ERROR, "La firma apunta a otra empresa o revisión.", 409)
+            expected_hash = signature.get("signed_sha256") if signature.get("signed_storage_path") else approved_original["sha256"]
             content = await bucket.descargar(package_path)
+            try:
+                verify_package_bytes(expected_hash, content)
+            except ApprovalManifestError as exc:
+                raise MegalodonException(ErrorCode.ARCHIVO_ERROR, str(exc), 409) from exc
             actual_hash = self.compiler.sha256(content)
-            if actual_hash != expected_hash:
-                raise MegalodonException(ErrorCode.ARCHIVO_ERROR, f"Hash inválido del artefacto {artifact.artifact_code}.", 409)
             zip_path = f"{artifact.artifact_code}/v{artifact.version}-{artifact.name}".replace("\\", "/")
             stored_artifacts.append({"path": zip_path, "content": content})
             packaged_files.append({
                 "path": zip_path, "code": artifact.artifact_code, "version": artifact.version,
-                "sha256": actual_hash, "size_bytes": len(content),
+                "sha256": actual_hash, "original_sha256": approved_original["sha256"],
+                "artifact_id": str(artifact.id), "size_bytes": len(content),
             })
         manifest = {
             **submission.manifest,
@@ -3056,10 +3320,12 @@ class ProcurementService:
             "artifacts_verified": True,
             "packaged_files": sorted(packaged_files, key=lambda entry: entry["path"]),
             "canonical_model_hash": self.orchestrator.canonical_hash(tender.canonical_model),
+            "approved_artifact_manifest_sha256": approved_hash,
+            "approved_originals": approved_snapshot,
         }
         package_content = self.compiler.compile_submission_zip(stored_artifacts, manifest)
         package_hash = self.compiler.sha256(package_content)
-        package_path = f"tenders/{self.user.tenant_id}/{tender.id}/r{tender.current_revision}/SUBMISSION-v{tender.current_revision}.zip"
+        package_path = f"tenders/{self.user.tenant_id}/{tender.id}/r{tender.current_revision}/SUBMISSION-v{tender.current_revision}-{package_hash}.zip"
         await self.storage_guard.upload_verified(tenant_id=self.user.tenant_id, job_id=None, bucket_name=get_settings().SUPABASE_BUCKET_EXPORTS, path=package_path, content=package_content, content_type="application/zip", entity_type="SubmissionPackage", entity_id=submission.id)
         submission.package_hash = package_hash
         submission.manifest = {

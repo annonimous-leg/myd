@@ -79,6 +79,21 @@ async def load_format_catalog(db: AsyncSession, *, tenant_id: Any, jurisdiction_
     return merged
 
 
+TENDER_FORMAT_CONFIGURATION = "tender_format_configuration"
+
+
+async def load_tender_format_catalog(db: AsyncSession, tender) -> dict[str, dict[str, Any]]:
+    """Resolve the catalog pinned to this tender, with a fallback for legacy rows."""
+    configuration = (tender.source_manifest or {}).get(TENDER_FORMAT_CONFIGURATION)
+    if configuration is not None:
+        if configuration["jurisdiction_code"] != tender.jurisdiction_code.upper():
+            raise ValueError("La configuración de formatos pertenece a otra dependencia.")
+        return configuration["formats"]
+    return await load_format_catalog(
+        db, tenant_id=tender.tenant_id, jurisdiction_code=tender.jurisdiction_code,
+    )
+
+
 async def resolve_format(db: AsyncSession, *, tenant_id: Any, jurisdiction_code: str, code: str) -> dict[str, Any] | None:
     return (await load_format_catalog(db, tenant_id=tenant_id, jurisdiction_code=jurisdiction_code)).get(normalize_format_code(code))
 
