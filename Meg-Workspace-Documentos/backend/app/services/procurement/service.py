@@ -741,17 +741,17 @@ class ProcurementService:
         for definition in definitions:
             raw_code = definition.get("format_code")
             code = normalize_format_code(raw_code) if isinstance(raw_code, str) else ""
-            if not code or code not in formats or code in seen_codes:
-                raise ValueError("Cada formato personalizado debe identificar un formato único de la dependencia.")
+            if not code or len(code) > 120 or code in seen_codes:
+                raise ValueError("Cada formato proporcionado debe tener un código único de hasta 120 caracteres.")
             if set(definition) - {"format_code", "workspace_docx", "workspace_xlsx"}:
                 raise ValueError("La personalización admite mapas Workspace de DOCX o XLSX.")
-            replacement = {**formats[code]}
+            replacement = dict(formats.get(code, {}))
             for key in ("workspace_docx", "workspace_xlsx"):
                 replacement.pop(key, None)
             maps = {key: value for key, value in definition.items() if key != "format_code"}
             if len(maps) != 1 or not isinstance(next(iter(maps.values())), dict):
                 raise ValueError("Cada formato personalizado debe incluir exactamente un mapa DOCX o XLSX.")
-            formats[code] = {**replacement, **maps}
+            formats[code] = {**replacement, **maps, "format_code": code, "tender_supplied": True}
             seen_codes.add(code)
         return formats
 
@@ -2209,6 +2209,8 @@ class ProcurementService:
             # Backward-compatible mode: use the selected dependency's configured
             # formats, but only compile artifacts whose canonical inputs exist.
             selected_codes = list(format_catalog)
+        else:
+            selected_codes.extend(code for code, binding in format_catalog.items() if binding.get("tender_supplied"))
 
         def _get_path(path: str, values: dict) -> Any:
             cur: Any = values
