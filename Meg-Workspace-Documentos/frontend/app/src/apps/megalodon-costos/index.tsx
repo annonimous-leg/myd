@@ -385,7 +385,7 @@ function BudgetGrid() {
             <Plus className="w-3.5 h-3.5" /> Concepto
           </button>
           <button onClick={() => setShowCatalog(!showCatalog)} className="px-3 py-1.5 border border-[#C9A84C] text-[#C9A84C] text-xs rounded">Catálogo del libro</button>
-          <button onClick={() => setShowImportedCatalog(!showImportedCatalog)} className="px-3 py-1.5 border border-[#C9A84C] text-[#C9A84C] text-xs rounded">Catálogos CMIC / fuentes</button>
+          <button onClick={() => setShowImportedCatalog(!showImportedCatalog)} className="px-3 py-1.5 border border-[#C9A84C] text-[#C9A84C] text-xs rounded">Investigación de mercado Megalodon</button>
           <button onClick={() => setShowIndices(!showIndices)} className="px-3 py-1.5 border border-[#C9A84C] text-[#C9A84C] text-xs rounded">Actualizar material</button>
           <button onClick={exportJSON} className="flex items-center gap-1.5 px-3 py-1.5 border border-[#2A2A3E] text-[#8A8578] text-xs rounded hover:border-[#C9A84C] hover:text-[#C9A84C] transition-colors">
             <FileJson className="w-3.5 h-3.5" /> Exportar JSON
@@ -441,7 +441,7 @@ function BudgetGrid() {
         <ImportacionesCatalogosPanel onImported={() => setCatalogRevision(value => value + 1)} />
         <CatalogoImportadoPicker key={catalogRevision} onSelect={(item, quantity) => {
           setLines(previous => [...previous, {id: crypto.randomUUID(), catalogoApuId: item.id,
-            sourceLabel: `${item.origen?.fuente.titulo} · ${item.vigencia_inicio} · páginas ${item.origen?.paginas.join(', ')}`,
+            sourceLabel: `${item.fuente_visible || 'Investigación de mercado Megalodon'} · ${item.vigencia_inicio} · páginas ${item.origen?.paginas.join(', ')}`,
             conceptKey: item.clave, description: item.descripcion, unit: item.unidad, quantity,
             unitPrice: item.precio_unitario, amount: Math.round(quantity * item.precio_unitario * 100) / 100, status: 'pending'}]);
         }} />

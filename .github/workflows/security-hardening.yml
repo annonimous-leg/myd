@@ -22,13 +22,13 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify production Compose propagation with synthetic values
-        run: python backend/scripts/verify_compose_runtime_config_ci.py
+        run: python Meg-Workspace-Documentos/backend/scripts/verify_compose_runtime_config_ci.py
 
   python-audit:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -59,7 +59,7 @@ jobs:
       - name: Run Bandit high-severity Python checks
         id: bandit
         continue-on-error: true
-        run: uvx --from bandit==1.8.6 bandit -r backend/app backend/tezcatlipoca -lll -iii -f json -o "$RUNNER_TEMP/bandit-results.json"
+        run: uvx --from bandit==1.8.6 bandit -r Meg-Workspace-Documentos/backend/app Meg-Workspace-Documentos/backend/tezcatlipoca -lll -iii -f json -o "$RUNNER_TEMP/bandit-results.json"
 
       - name: Download pinned OpenGrep binary and verify SHA-256
         run: |
@@ -77,7 +77,7 @@ jobs:
           "$RUNNER_TEMP/opengrep" scan \
             --config .github/security/sast-rules.yml \
             --json --output "$RUNNER_TEMP/opengrep-results.json" --error \
-            backend/app backend/tezcatlipoca frontend/app/src
+            Meg-Workspace-Documentos/backend/app Meg-Workspace-Documentos/backend/tezcatlipoca Meg-Workspace-Documentos/frontend/app/src
 
       - name: Preserve SAST reports for review
         if: always()
@@ -137,14 +137,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend/app
+        working-directory: Meg-Workspace-Documentos/frontend/app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: frontend/app/package-lock.json
+          cache-dependency-path: Meg-Workspace-Documentos/frontend/app/package-lock.json
       - run: npm ci
       - run: npm audit --audit-level=high
       - run: node --experimental-strip-types --test tests/session-client.test.mjs
@@ -187,7 +187,7 @@ jobs:
           --health-retries 10
     defaults:
       run:
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
     env:
       DATABASE_URL: postgresql+asyncpg://megalodon:megalodon_ci_password@localhost:5432/megalodon
       REDIS_URL: redis://localhost:6379/0
@@ -206,6 +206,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: uv sync --frozen --extra dev
       - run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+      - name: Install spreadsheet recalculation runtime
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends libreoffice-calc
       - run: alembic upgrade head
       - name: Verify the canonical Python application import
         run: python -c "from app.main import app; from tezcatlipoca.main import app as legacy_app; assert app is legacy_app"
@@ -220,10 +222,10 @@ jobs:
         with:
           name: runtime-smoke-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.suite }}
           path: |
-            backend/runtime-smoke-report.json
-            backend/runtime-smoke-server.log
-            backend/backend-integration.log
-            backend/backend-integration.xml
+            Meg-Workspace-Documentos/backend/runtime-smoke-report.json
+            Meg-Workspace-Documentos/backend/runtime-smoke-server.log
+            Meg-Workspace-Documentos/backend/backend-integration.log
+            Meg-Workspace-Documentos/backend/backend-integration.xml
           if-no-files-found: ignore
           retention-days: 14
 
@@ -233,7 +235,7 @@ jobs:
     timeout-minutes: 8
     defaults:
       run:
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
     env:
       DATABASE_URL: sqlite+aiosqlite:////tmp/megalodon-sqlite-acceptance.db
       REDIS_URL: redis://127.0.0.1:6379/15
@@ -260,7 +262,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sqlite-regressions-${{ github.run_id }}
-          path: backend/sqlite-regressions.xml
+          path: Meg-Workspace-Documentos/backend/sqlite-regressions.xml
           if-no-files-found: warn
           retention-days: 14
 
@@ -283,7 +285,7 @@ jobs:
           --health-retries 10
     defaults:
       run:
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
     env:
       DATABASE_URL: postgresql+asyncpg://megalodon:megalodon_ci_password@localhost:5432/migration_history_ci
       REDIS_URL: redis://localhost:6379/0
@@ -313,7 +315,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: migration-recovery-${{ github.run_id }}
-          path: backend/migration-recovery-report.json
+          path: Meg-Workspace-Documentos/backend/migration-recovery-report.json
           if-no-files-found: ignore
           retention-days: 14
 
@@ -358,29 +360,29 @@ jobs:
           python-version: '3.12'
       - uses: astral-sh/setup-uv@v6
       - run: uv sync --frozen --extra dev
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
       - run: .venv/bin/alembic upgrade head
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
       - run: .venv/bin/python -m scripts.seed_bim_acceptance_ci
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
       - name: Start real Supabase Storage for documentary acceptance
         run: .venv/bin/python -m scripts.start_storage_acceptance_ci
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: frontend/app/package-lock.json
+          cache-dependency-path: Meg-Workspace-Documentos/frontend/app/package-lock.json
       - run: npm ci
-        working-directory: frontend/app
+        working-directory: Meg-Workspace-Documentos/frontend/app
       - run: npm run build
-        working-directory: frontend/app
+        working-directory: Meg-Workspace-Documentos/frontend/app
       - run: npx playwright install --with-deps chromium
-        working-directory: frontend/app
+        working-directory: Meg-Workspace-Documentos/frontend/app
       - name: Build the production frontend image for isolated browser acceptance
-        run: docker build -t meg-web-ci frontend/app
+        run: docker build -t meg-web-ci Meg-Workspace-Documentos/frontend/app
       - run: node --test tests/bim-flow-browser.test.mjs
-        working-directory: frontend/app
+        working-directory: Meg-Workspace-Documentos/frontend/app
         env:
           MEG_WEB_IMAGE: meg-web-ci
       - name: Collect document storage diagnostics
@@ -404,7 +406,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: backend
+        working-directory: Meg-Workspace-Documentos/backend
     env:
       ENVIRONMENT: staging
       DATABASE_URL: postgresql+asyncpg://megalodon:unused@localhost:5432/unused
@@ -422,7 +424,7 @@ jobs:
         if: always()
         with:
           name: live-provider-${{ github.run_id }}
-          path: backend/live-provider-report.json
+          path: Meg-Workspace-Documentos/backend/live-provider-report.json
           retention-days: 14
 
   production-api-image:
@@ -455,7 +457,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build actual API Dockerfile
-        run: docker build -t meg-api-ci backend
+        run: docker build -t meg-api-ci Meg-Workspace-Documentos/backend
       - name: Migrate the disposable database using the built image
         run: >-
           docker run --rm --network host
@@ -500,11 +502,12 @@ jobs:
           retention-days: 14
 
   review-package:
-    needs: [production-compose-config, python-audit, sast, frontend-audit, backend-integration, backend-sqlite-regressions, migration-recovery, bim-browser-acceptance, production-api-image, live-provider-acceptance]
+    needs: [production-compose-config, python-audit, local-sast, sast, frontend-audit, backend-integration, backend-sqlite-regressions, migration-recovery, bim-browser-acceptance, production-api-image, live-provider-acceptance]
     if: >-
       ${{ always() && !cancelled() &&
           needs.production-compose-config.result == 'success' &&
           needs.python-audit.result == 'success' &&
+          needs.local-sast.result == 'success' &&
           needs.sast.result == 'success' &&
           needs.frontend-audit.result == 'success' &&
           needs.backend-integration.result == 'success' &&
@@ -528,7 +531,7 @@ jobs:
         env:
           MEG_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           MEG_PROVIDER_RESULT: ${{ needs.live-provider-acceptance.result }}
-        run: python backend/scripts/package_review_evidence.py
+        run: python Meg-Workspace-Documentos/backend/scripts/package_review_evidence.py
       - uses: actions/upload-artifact@v4
         with:
           name: Meg-proyecto-completo-y-capturas-${{ github.run_id }}

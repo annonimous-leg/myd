@@ -20,6 +20,7 @@ from sqlalchemy import insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ErrorCode, MegalodonException
+from app.core.catalogo_labels import market_research_label
 from app.models.catalogo_apu import CatalogoAPU
 from app.models.catalogo_importacion import CatalogoImportacion, CatalogoRegistro, EstimacionParametrica
 from app.models.user import Tenant, User
@@ -244,6 +245,8 @@ async def import_package(db: AsyncSession, user: User, package: Path, originals:
         batch = CatalogoImportacion(id=uuid4(), tenant_id=tenant_id, creado_por_id=actor_id,
             paquete_sha256=verified.package_sha256, seleccion_sha256=selection_hash, fuentes=sorted(selected),
             resumen={'verificacion': verified.report(), 'registros': len(rows),
+                     'fuentes_visibles': {s['fuente_id']: market_research_label(s['fecha_vigencia'])
+                                          for s in verified.records['fuente'] if s['fuente_id'] in selected},
                      'estados': dict(Counter(r['estado'] for r in rows)),
                      'cuarentena_motivos': dict(Counter(m for r in rows for m in r['motivos'])),
                      'proyecciones_costeo': len(projections), 'revision_visual_certificada': False})

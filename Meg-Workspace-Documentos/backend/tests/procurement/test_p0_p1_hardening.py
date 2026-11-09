@@ -102,10 +102,11 @@ def test_orchestrator_has_durable_execution_provenance_model():
 
 def test_release_root_layout_and_human_gate_are_operationally_consistent():
     repo = Path(__file__).parents[3]
-    workflow = (repo / ".github/workflows/security-hardening.yml").read_text()
+    git_root = repo.parent
+    workflow = (git_root / ".github/workflows/security-hardening.yml").read_text()
     frontend = (repo / "frontend/app/src/apps/licitaciones-obra/components/TenderAutomationPanel.tsx").read_text()
-    assert (repo / ".github/workflows/security-hardening.yml").exists()
-    assert "working-directory: backend" in workflow
-    assert "working-directory: frontend/app" in workflow
+    assert (git_root / ".github/workflows/security-hardening.yml").exists()
+    assert "working-directory: Meg-Workspace-Documentos/backend" in workflow
+    assert "working-directory: Meg-Workspace-Documentos/frontend/app" in workflow
     assert "readiness?.ready !== true" in frontend
     assert "'QA_READY', 'READY_FOR_HUMAN_REVIEW'" in frontend

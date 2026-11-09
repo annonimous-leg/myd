@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from hashlib import sha256
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 from uuid import uuid4
@@ -13,7 +14,7 @@ from sqlalchemy.exc import IntegrityError
 from app.core.errors import MegalodonException
 from app.engines.programacion.cpm import Actividad, MotorCPM, TipoDependencia
 from app.models.expediente import ExpedienteObra
-from app.models.procurement import TenderPackage, TenderState
+from app.models.procurement import TenderApproval, TenderArtifact, TenderPackage, TenderState
 from app.models.procurement_jobs import ProcurementJob
 from app.models.montecarlo import EstadoMonteCarlo, MonteCarloRun
 from app.models.presupuesto import Presupuesto
@@ -194,16 +195,37 @@ async def test_one_reviewer_cannot_satisfy_two_distinct_procurement_approval_rol
     # readiness contract is covered independently and must not mask it.
     monkeypatch.setattr(service, "readiness", readiness_is_satisfied)
 
+    content = b'%PDF-synthetic-original-for-segregation-test'
+    artifact = TenderArtifact(
+        tenant_id=tenant.id, tender_id=tender.id, artifact_code='DA-01',
+        name='Original for human review', media_type='application/pdf', version=1,
+        content_hash=sha256(content).hexdigest(),
+        storage_path=f'tenders/{tenant.id}/{tender.id}/r1/DA-01.pdf',
+        artifact_metadata={'submission_eligible': True, 'signature_required': False},
+    )
+    db_session.add(artifact)
+    await db_session.commit()
+    storage = SimpleNamespace(descargar=AsyncMock(return_value=content))
+    monkeypatch.setattr('app.services.procurement.service.storage_exportaciones', lambda: storage)
+    manifest = await service.approval_manifest_preview(tender.id)
+    digest = manifest['artifact_manifest_sha256']
     await service.approval(
         tender.id,
-        ApprovalCreate(role="LEGAL", decision="APPROVED"),
+        ApprovalCreate(role="LEGAL", decision="APPROVED", expected_artifact_manifest_sha256=digest),
     )
 
-    with pytest.raises(MegalodonException):
+    with pytest.raises(MegalodonException) as error:
         await service.approval(
             tender.id,
-            ApprovalCreate(role="FINANCE", decision="APPROVED"),
+            ApprovalCreate(role="FINANCE", decision="APPROVED", expected_artifact_manifest_sha256=digest),
         )
+    assert error.value.status_code == 403
+    assert 'más de un rol' in error.value.message
+    approvals = (await db_session.scalars(select(TenderApproval).where(
+        TenderApproval.tender_id == tender.id))).all()
+    assert [(row.role, row.creado_por_id, row.artifact_manifest_hash) for row in approvals] == [
+        ('LEGAL', reviewer.id, digest),
+    ]
 
 
 @pytest.mark.asyncio

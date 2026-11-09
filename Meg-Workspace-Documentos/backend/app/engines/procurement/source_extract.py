@@ -7,6 +7,8 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 from zipfile import BadZipFile, ZIP_DEFLATED, ZIP_STORED, ZipFile
 
+from lxml.etree import XMLSyntaxError
+
 from .workspace_docx import MAX_ENTRIES, MAX_EXPANDED, parse_xml
 
 
@@ -61,15 +63,23 @@ class TenderSourceExtractor:
         if suffix == ".pdf" or media_type == "application/pdf":
             return self._pdf(filename, media_type, content)
         if suffix == ".docx" or media_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            self._validate_office_source(content, "docx")
-            return self._docx(filename, media_type, content)
+            return self._office(filename, media_type, content, "docx")
         if suffix in {".xlsx", ".xlsm"} or "spreadsheet" in media_type or "excel" in media_type:
-            self._validate_office_source(content, "xlsx")
-            return self._xlsx(filename, media_type, content)
+            return self._office(filename, media_type, content, "xlsx")
         if suffix in {".txt", ".csv", ".json", ".xml", ".md"} or media_type.startswith("text/") or "json" in media_type or "xml" in media_type:
             text = content.decode("utf-8-sig", errors="strict")
             return ExtractedSource(filename, media_type, text[: self.MAX_TEXT_CHARS], None, {"format": suffix.lstrip("."), "blocks": self._text_blocks(text)})
         raise ValueError(f"Formato documental no soportado sin un extractor explícito: {filename}")
+
+    def _office(self, filename: str, media_type: str, content: bytes, kind: str) -> ExtractedSource:
+        self._validate_office_source(content, kind)
+        try:
+            parser = self._docx if kind == "docx" else self._xlsx
+            return parser(filename, media_type, content)
+        except (XMLSyntaxError, BadZipFile, KeyError) as exc:
+            # Only expected package/parser failures become document errors.
+            # Programming, storage and database errors retain their own paths.
+            raise ValueError("La fuente Office contiene XML inválido o partes ausentes.") from exc
 
     def _validate_office_source(self, content: bytes, kind: str) -> None:
         """Bound OOXML before a parser inflates it; never rewrite the original."""
