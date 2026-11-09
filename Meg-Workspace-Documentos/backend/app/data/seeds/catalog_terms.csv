@@ -1,0 +1,38 @@
+domain,code,label,sort_order,active
+PROCEDURES,LICITACION_PUBLICA,Licitación pública,0,true
+PROCEDURES,INVITACION,Invitación a cuando menos tres personas,1,true
+PROCEDURES,ADJUDICACION,Adjudicación directa,2,true
+CONTRACT_TYPES,UNIT_PRICES,Precios unitarios,0,true
+CONTRACT_TYPES,LUMP_SUM,Precio alzado,1,true
+CONTRACT_TYPES,MIXED,Mixto,2,true
+EVALUATION_CRITERIA,BINARY,Binario,0,true
+EVALUATION_CRITERIA,POINTS_PERCENTAGES,Puntos y porcentajes,1,true
+EVALUATION_CRITERIA,COST_BENEFIT,Costo-beneficio,2,true
+PROJECT_TYPES,NEW_CONSTRUCTION,Construcción nueva,0,true
+PROJECT_TYPES,REMODELING,Remodelación,1,true
+PROJECT_TYPES,REHABILITATION,Rehabilitación,2,true
+PROJECT_TYPES,MAINTENANCE,Mantenimiento/conservación,3,true
+PROJECT_TYPES,EXPANSION,Ampliación,4,true
+PROJECT_TYPES,INFRASTRUCTURE,Infraestructura,5,true
+PROJECT_TYPES,RELATED_SERVICE,Servicio relacionado con obra,6,true
+FUNDING_SOURCES,FEDERAL,Recurso federal,0,true
+FUNDING_SOURCES,STATE,Recurso estatal,1,true
+FUNDING_SOURCES,MUNICIPAL,Recurso municipal,2,true
+FUNDING_SOURCES,MIXED,Recurso mixto,3,true
+FUNDING_SOURCES,INTERNATIONAL,Recurso internacional,4,true
+FUNDING_SOURCES,CONVENIO,Convenio/cofinanciamiento,5,true
+OBJECT_CLASSES,PUBLIC_WORKS,Obra pública,0,true
+OBJECT_CLASSES,RELATED_SERVICE,Servicio relacionado con obra,1,true
+OBJECT_CLASSES,ACQUISITION,Adquisición,2,true
+OBJECT_CLASSES,SERVICE,Servicio,3,true
+OBJECT_CLASSES,MIXED_SCOPE,Objeto mixto: validar régimen por componente,4,true
+LEGAL_REGIMES,LOPSRM,LOPSRM + RLOPSRM,0,true
+LEGAL_REGIMES,LAASSP,LAASSP + RLAASSP,1,true
+LEGAL_REGIMES,LOCAL_PUBLIC_WORKS,Ley/reglamento local de obra pública,2,true
+LEGAL_REGIMES,LOCAL_PROCUREMENT,Ley/reglamento local de adquisiciones/servicios,3,true
+LEGAL_REGIMES,ENTITY_SPECIFIC,Régimen específico de la entidad,4,true
+SCOPE_SCALES,SMALL,Pequeña,0,true
+SCOPE_SCALES,MEDIUM,Mediana,1,true
+SCOPE_SCALES,LARGE,Grande,2,true
+SCOPE_SCALES,INDUSTRIAL,Industrial,3,true
+SCOPE_SCALES,UNBOUNDED,Sin límite artificial de escala,4,true

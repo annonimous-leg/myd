@@ -1,0 +1,407 @@
+- id: LGRA_108
+  articulo: Art. 108 LGRA
+  descripcion: "El recurso será resuelto tomando en consideración la investigación\
+    \ que conste en el \nExpediente de presunta responsabilidad administrativa y los\
+    \ elementos que aporten el Denunciant"
+  tipo: regla
+  estado: sistema
+  texto_completo: "Artículo 108.  El recurso será resuelto tomando en consideración\
+    \ la investigación que conste en el \nExpediente de presunta responsabilidad administrativa\
+    \ y los elementos que aporten el Denunciante o el \npresunto infractor. Contra\
+    \ la resolución que se dicte no procederá recurso alguno ."
+- id: LGRA_109
+  articulo: Art. 109 LGRA
+  descripcion: "El escrito por el cual se interponga el recurso de inconformidad deberá\
+    \ contener los \nsiguientes requisitos:  \n \nI. Nombre y domicilio del recurrente;\
+    \  \n \nII. La fecha en que se le"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 109. El escrito por el cual se interponga el recurso de\
+    \ inconformidad deberá contener los \nsiguientes requisitos:  \n \nI. Nombre y\
+    \ domicilio del recurrente;  \n \nII. La fecha en que se le notificó la calificación\
+    \ en términos de este Capítulo;  \n \nIII. Las razon es y fundamentos por los\
+    \ que, a juicio del recurrente, la calificación del acto es \nindebida, y  \n\
+    \ \nIV. Firma autógrafa del recurrente. La omisión de este requisito dará lugar\
+    \ a que no se tenga \npor presentado el recurso, por lo qu"
+- id: LGRA_110
+  articulo: Art. 110 LGRA
+  descripcion: "La resolución del recurso consistirá en:  \n \nI. Confirmar la calificación\
+    \ o abstención, o  \n \n \n LEY GENERAL DE RESPONSABILIDADES ADMINISTRATIVAS \
+    \ \n \nSecretaría de Servicios Parlam"
+  tipo: facultad
+  estado: sistema
+  texto_completo: "Artículo 110. La resolución del recurso consistirá en:  \n \nI.\
+    \ Confirmar la calificación o abstención, o  \n \n \n LEY GENERAL DE RESPONSABILIDADES\
+    \ ADMINISTRATIVAS  \n \nSecretaría de Servicios Parlamentarios   \n \n34 de 79\
+    \ II. Dejar sin efectos la calificación o absten ción, para lo cual la autoridad\
+    \ encargada para \nresolver el recurso, estará facultada para recalificar el acto\
+    \ u omisión; o bien ordenar se \ninicie el procedimiento correspondiente.  \n\
+    \ \nTÍTULO SEGUNDO  \nDEL PROCEDIMIENTO DE RESPONSABILI"
+- id: LGRA_111
+  articulo: Art. 111 LGRA
+  descripcion: "En los procedimientos de responsabilidad administrativa deberán observarse\
+    \ los  \nprincipios de legalidad, presunción de inocencia, imparcialidad, objetividad,\
+    \ congruencia, exhausti"
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 111. En los procedimientos de responsabilidad administrativa\
+    \ deberán observarse los  \nprincipios de legalidad, presunción de inocencia,\
+    \ imparcialidad, objetividad, congruencia, exhaustividad, \nverdad material y\
+    \ respeto a los derechos humanos."
+- id: LGRA_112
+  articulo: Art. 112 LGRA
+  descripcion: "El procedimiento de responsabilidad administrativa dará inicio cuando\
+    \ las autoridade s \nsubstanciadoras, en el ámbito de su competencia, admitan\
+    \ el Informe de Presunta Responsabili"
+  tipo: procedimiento
+  estado: sistema
+  texto_completo: "Artículo 112. El procedimiento de responsabilidad administrativa\
+    \ dará inicio cuando las autoridade s \nsubstanciadoras, en el ámbito de su competencia,\
+    \ admitan el Informe de Presunta Responsabilidad \nAdministrativa."
+- id: LGRA_113
+  articulo: Art. 113 LGRA
+  descripcion: "La admisión del Informe de Presunta Responsabilidad Administrativa\
+    \ interrumpirá los \nplazos de prescripción señalados en el artí culo 74 de esta\
+    \ Ley y fijará la materia del procedi"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 113. La admisión del Informe de Presunta Responsabilidad\
+    \ Administrativa interrumpirá los \nplazos de prescripción señalados en el artí\
+    \ culo 74 de esta Ley y fijará la materia del procedimiento de \nresponsabilidad\
+    \ administrativa."
+- id: LGRA_114
+  articulo: Art. 114 LGRA
+  descripcion: "En caso de que con posterioridad a la admisión del informe las autoridades\
+    \ \ninvestigadoras adviertan la probable comisión de cualquier otra falta adm\
+    \ inistrativa imputable a la mis"
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 114. En caso de que con posterioridad a la admisión del\
+    \ informe las autoridades \ninvestigadoras adviertan la probable comisión de cualquier\
+    \ otra falta adm inistrativa imputable a la misma \npersona señalada como presunto\
+    \ responsable, deberán elaborar un diverso Informe de Presunta \nResponsabilidad\
+    \ Administrativa y promover el respectivo procedimiento de responsabilidad administrativa\
+    \ \npor separado, sin perjuicio  de que, en el momento procesal oportuno, puedan\
+    \ solicitar su acumulación."
+- id: LGRA_115
+  articulo: Art. 115 LGRA
+  descripcion: "La autoridad a quien se encomiende la substanciación y, en su caso,\
+    \ resolución del \nprocedimiento de responsabilidad administrativa, deberá ser\
+    \ distinto de aquél o aqu ellos encarg"
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 115. La autoridad a quien se encomiende la substanciación\
+    \ y, en su caso, resolución del \nprocedimiento de responsabilidad administrativa,\
+    \ deberá ser distinto de aquél o aqu ellos encargados de \nla investigación. Para\
+    \ tal efecto, las Secretarías, los Órganos internos de control, la Auditoría Superior,\
+    \ \nlas entidades de fiscalización superior de las entidades federativas, así\
+    \ como las unidades de \nresponsabilidades de las empresas  productivas del Estado,\
+    \ contarán con la estructura orgáni"
+- id: LGRA_116
+  articulo: Art. 116 LGRA
+  descripcion: "Son partes en el procedimiento de responsabilidad administrativa:\
+    \  \n \nI. La Autoridad investigadora;  \n \nII. El servidor público señalado\
+    \ como presunto responsable de la Falta admi"
+  tipo: procedimiento
+  estado: sistema
+  texto_completo: "Artículo 116. Son partes en el procedimiento de responsabilidad\
+    \ administrativa:  \n \nI. La Autoridad investigadora;  \n \nII. El servidor público\
+    \ señalado como presunto responsable de la Falta administrativa grave  o \nno\
+    \ grave;  \n \nIII. El particular, sea persona física o moral,  señalado como\
+    \ presunto responsable en la \ncomisión de Faltas de particulares, y  \n \nIV.\
+    \ Los terceros, que son todos aquellos a quienes pueda afectar la resolución que\
+    \ se dicte en \nel procedimiento de responsabilidad admini"
+- id: LGRA_117
+  articulo: Art. 117 LGRA
+  descripcion: "Las partes señaladas en las fracciones II, III y IV del artículo anterior\
+    \ podrán autorizar \npara oír notificaciones en su nombre, a una o varias personas\
+    \ con capacidad legal, quien"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 117. Las partes señaladas en las fracciones II, III y\
+    \ IV del artículo anterior podrán autorizar \npara oír notificaciones en su nombre,\
+    \ a una o varias personas con capacidad legal, quienes quedarán \nfacultadas para\
+    \ interponer los recursos que procedan,  ofrecer e intervenir en el desahogo de\
+    \ pruebas, \nalegar en las audiencias, pedir se dicte sentencia para evitar la\
+    \ consumación del término de caducidad \npor inactividad procesal y realizar cualquier\
+    \ acto que resulte ser necesario para la "
+- id: LGRA_118
+  articulo: Art. 118 LGRA
+  descripcion: "En lo que no se oponga a lo dispuesto en el procedimiento de responsabilidad\
+    \ \nadministrativa, será de aplicación supletoria lo dispuesto en la Ley Federal\
+    \ de Procedimiento Contenci"
+  tipo: procedimiento
+  estado: sistema
+  texto_completo: "Artículo 118. En lo que no se oponga a lo dispuesto en el procedimiento\
+    \ de responsabilidad \nadministrativa, será de aplicación supletoria lo dispuesto\
+    \ en la Ley Federal de Procedimiento Contencioso \nAdministrati vo o las leyes\
+    \ que rijan en esa materia en las entidades federativas, según corresponda."
+- id: LGRA_119
+  articulo: Art. 119 LGRA
+  descripcion: "En los procedimientos de responsabilidad administrativa se estimarán\
+    \ como días hábiles \ntodos los del año, con excepción de aquellos días que, por\
+    \ virtud  de ley, algún decreto o d"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 119. En los procedimientos de responsabilidad administrativa\
+    \ se estimarán como días hábiles \ntodos los del año, con excepción de aquellos\
+    \ días que, por virtud  de ley, algún decreto o disposición \nadministrativa,\
+    \ se determine como inhábil, durante los que no se practicará actuación alguna.\
+    \ Serán \nhoras hábiles las que medien entre las 9:00 y las 18:00 horas. Las autoridades\
+    \ substanciadoras o \nresolución del asunto,  podrán habilitar días y horas inhábiles\
+    \ para la práctica de aquellas di"
+- id: LGRA_120
+  articulo: Art. 120 LGRA
+  descripcion: "Las autoridades substanciadoras o resolutoras, podrán hacer uso de\
+    \ los siguientes \nmedios de apremio para hacer cumplir sus determinaciones: \
+    \ \n \nI. Multa de cien a ciento cincuenta"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 120. Las autoridades substanciadoras o resolutoras, podrán\
+    \ hacer uso de los siguientes \nmedios de apremio para hacer cumplir sus determinaciones:\
+    \  \n \nI. Multa de cien a ciento cincuenta veces el valor diario de la Unidad\
+    \ de Medida y \nActualización, la cual podrá duplicarse o triplicarse en cada\
+    \ ocasión, hasta alcanzar dos mil \n \n LEY GENERAL DE RESPONSABILIDADES ADMINISTRATIVAS\
+    \  \n \nSecretaría de Servicios Parlamentarios   \n \n36 de 79 veces el valor\
+    \ diario de la Un idad de Medida y Actua"
+- id: LGRA_121
+  articulo: Art. 121 LGRA
+  descripcion: "Las medidas de apremio podrán ser decretadas sin seguir rigurosamente\
+    \ el orden en \nque han sido enlistadas en el artículo que antecede, o bien, decretar\
+    \ la aplicación de más de una"
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 121. Las medidas de apremio podrán ser decretadas sin\
+    \ seguir rigurosamente el orden en \nque han sido enlistadas en el artículo que\
+    \ antecede, o bien, decretar la aplicación de más de una de \nellas, para lo cual\
+    \ la autoridad deberá ponderar las circunstancias del caso."
+- id: LGRA_122
+  articulo: Art. 122 LGRA
+  descripcion: "En caso de que pese a la aplicación de las medidas de apremio no se\
+    \ logre el \ncumplimiento de las determinaciones ordenadas, se dará vista a la\
+    \ autoridad penal competente para que "
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 122. En caso de que pese a la aplicación de las medidas\
+    \ de apremio no se logre el \ncumplimiento de las determinaciones ordenadas, se\
+    \ dará vista a la autoridad penal competente para que \nproceda en los términos\
+    \ de la legislación aplicable.  \n \nSección Tercera  \nMedidas cautelares"
+- id: LGRA_123
+  articulo: Art. 123 LGRA
+  descripcion: "Las autoridades investigadoras podrán solicitar a la autoridad substanciadora\
+    \ o \nresolutora, que decrete aquellas medidas cautelares que:  \n \nI. Eviten\
+    \ el ocult amiento o destrucci"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 123. Las autoridades investigadoras podrán solicitar a\
+    \ la autoridad substanciadora o \nresolutora, que decrete aquellas medidas cautelares\
+    \ que:  \n \nI. Eviten el ocult amiento o destrucción de pruebas;  \n \nII. Impidan\
+    \ la continuación de los efectos perjudiciales de la presunta falta administrativa;\
+    \  \n \nIII. Eviten la obstaculización del adecuado desarrollo del procedimiento\
+    \ de responsabilidad \nadministrativa;  \n \nIV. Eviten un dañ o irreparable a\
+    \ la Hacienda Pública Federal, o de las enti"
+- id: LGRA_124
+  articulo: Art. 124 LGRA
+  descripcion: "Podrán ser decretadas como medidas cautelares las siguientes:  \n\
+    \ \nI. Suspensión temporal del servidor público señalado como presuntamente responsable\
+    \ del \nempleo, cargo o comisión "
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 124. Podrán ser decretadas como medidas cautelares las\
+    \ siguientes:  \n \nI. Suspensión temporal del servidor público señalado como\
+    \ presuntamente responsable del \nempleo, cargo o comisión que desempeñe. Dicha\
+    \ suspensió n no prejuzgará ni será indicio  \nde la responsabilidad que se le\
+    \ impute, lo cual se hará constar en la resolución en la que \nse decrete. Mientras\
+    \ dure la suspensión temporal se deberán decretar, al mismo tiempo, \nlas medidas\
+    \ necesarias que le garanticen al pr esunto respons"
+- id: LGRA_125
+  articulo: Art. 125 LGRA
+  descripcion: "El otorgamiento de medidas cautelares se tramitará de manera incidental.\
+    \ El escrito en \nel que se soliciten se deberá señalar las pruebas cuyo  ocultamiento\
+    \ o destrucción se preten"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 125. El otorgamiento de medidas cautelares se tramitará\
+    \ de manera incidental. El escrito en \nel que se soliciten se deberá señalar\
+    \ las pruebas cuyo  ocultamiento o destrucción se pretende impedir; \nlos efectos\
+    \ perjudiciales que produce la presunta falta administrativa; los actos que obstaculizan\
+    \ el \nadecuado desarrollo del procedimiento de responsabilidad administrativa;\
+    \ o bien, el daño irreparable a la  \nHacienda Pública Federal, o de las entidades\
+    \ federativas, municipios, alcaldías, o"
+- id: LGRA_126
+  articulo: Art. 126 LGRA
+  descripcion: "Con el escrito por el que se soliciten las medidas cautelares se dará\
+    \ vista a t odos \naquellos que serán directamente afectados con las mismas, para\
+    \ que en un término de cinco días"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 126. Con el escrito por el que se soliciten las medidas\
+    \ cautelares se dará vista a t odos \naquellos que serán directamente afectados\
+    \ con las mismas, para que en un término de cinco días hábiles \nmanifiesten lo\
+    \ que a su derecho convenga. Si la autoridad que conozca del incidente lo estima\
+    \ necesario, \nen el acuerdo de admisión podrá conceder pr ovisionalmente las\
+    \ medidas cautelares solicitadas."
+- id: LGRA_127
+  articulo: Art. 127 LGRA
+  descripcion: "Transcurrido el plazo señalado en el artículo anterior la Autoridad\
+    \ resolutora dictará la \nresolución interlocutoria que corresponda dentro de\
+    \ los cinco días hábiles siguientes. En"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 127. Transcurrido el plazo señalado en el artículo anterior\
+    \ la Autoridad resolutora dictará la \nresolución interlocutoria que corresponda\
+    \ dentro de los cinco días hábiles siguientes. En contra de dicha \ndeterminación\
+    \ no procederá recurso alguno."
+- id: LGRA_128
+  articulo: Art. 128 LGRA
+  descripcion: "Las medidas cautelares que tengan por objeto impedir daños a la Hacienda\
+    \ Pública \nFederal o de las entidades federativas, municipios o alcaldías, o\
+    \ bien, al patrimonio de los entes"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 128. Las medidas cautelares que tengan por objeto impedir\
+    \ daños a la Hacienda Pública \nFederal o de las entidades federativas, municipios\
+    \ o alcaldías, o bien, al patrimonio de los entes públicos \nsólo se suspenderán\
+    \ cuando el presunto responsable otorgue garantía suficiente de la reparación\
+    \ del \ndaño y los perjuicios ocasionados."
+- id: LGRA_129
+  articulo: Art. 129 LGRA
+  descripcion: "Se podrá solicitar la suspensión de las medidas cautelares en cualquier\
+    \ momento del \nprocedimiento, debiéndose  justificar las razones por las que\
+    \ se estime innecesario que éstas c"
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 129. Se podrá solicitar la suspensión de las medidas cautelares\
+    \ en cualquier momento del \nprocedimiento, debiéndose  justificar las razones\
+    \ por las que se estime innecesario que éstas continúen, \npara lo cual se deberá\
+    \ seguir el procedimiento incidental descrito en esta sección. Contra la resolución\
+    \ \nque niegue la suspensión de las medidas cautelares no procederá recurso alguno.\
+    \  \n \nSección Cuarta  \nDe las pruebas"
+- id: LGRA_130
+  articulo: Art. 130 LGRA
+  descripcion: "Para conocer la verdad de los hechos las autoridades resolutoras podrán\
+    \ valerse  de \ncualquier persona o documento, ya sea que pertenezca a las partes\
+    \ o a terceros, sin más limitac"
+  tipo: facultad
+  estado: sistema
+  texto_completo: "Artículo 130. Para conocer la verdad de los hechos las autoridades\
+    \ resolutoras podrán valerse  de \ncualquier persona o documento, ya sea que pertenezca\
+    \ a las partes o a terceros, sin más limitación que \nla de que las pr uebas hayan\
+    \ sido obtenidas lícitamente, y con pleno respeto a los derechos humanos,  \n\
+    solo estará excluida la confesional a cargo de las partes por absolución de posiciones.\
+    \  \n \n \n LEY GENERAL DE RESPONSABILIDADES ADMINISTRATIVAS  \n \nSecretaría\
+    \ de Servicios Parlamentarios   \n \n38"
+- id: LGRA_131
+  articulo: Art. 131 LGRA
+  descripcion: "Las pruebas serán valoradas atendiendo a las reglas de la lógica,\
+    \ la sana crítica  y de la \nexperiencia."
+  tipo: regla
+  estado: sistema
+  texto_completo: "Artículo 131. Las pruebas serán valoradas atendiendo a las reglas\
+    \ de la lógica, la sana crítica  y de la \nexperiencia."
+- id: LGRA_132
+  articulo: Art. 132 LGRA
+  descripcion: "Las autoridades resolutoras recibirán por sí mismas las declaraciones\
+    \ de testigos y \nperitos, y presidirán todos los actos de prueba bajo su más\
+    \ estricta responsabilidad."
+  tipo: regla
+  estado: sistema
+  texto_completo: "Artículo 132. Las autoridades resolutoras recibirán por sí mismas\
+    \ las declaraciones de testigos y \nperitos, y presidirán todos los actos de prueba\
+    \ bajo su más estricta responsabilidad."
+- id: LGRA_133
+  articulo: Art. 133 LGRA
+  descripcion: "Las documentales emiti das por las autoridades en ejercicio de sus\
+    \ funciones tendrán \nvalor probatorio pleno por lo que respecta a su autenticidad\
+    \ o a la veracidad de los hechos a "
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 133. Las documentales emiti das por las autoridades en\
+    \ ejercicio de sus funciones tendrán \nvalor probatorio pleno por lo que respecta\
+    \ a su autenticidad o a la veracidad de los hechos a los que se \nrefieran, salvo\
+    \ prueba en contrario."
+- id: LGRA_134
+  articulo: Art. 134 LGRA
+  descripcion: "Las documentales privadas, las testim oniales, las inspecciones y\
+    \ las periciales y demás \nmedios de prueba lícitos que se ofrezcan por las partes,\
+    \ solo harán prueba plena cuando a "
+  tipo: regla
+  estado: sistema
+  texto_completo: "Artículo 134. Las documentales privadas, las testim oniales, las\
+    \ inspecciones y las periciales y demás \nmedios de prueba lícitos que se ofrezcan\
+    \ por las partes, solo harán prueba plena cuando a juicio de la \nAutoridad resolutora\
+    \ del asunto resulten fiables y coherentes de acuerdo con la verdad conocida y\
+    \ el \nrecto raciocinio de la relación que guarden entre sí, de forma tal que\
+    \ generen convicción sobre la \nveracidad de los hechos."
+- id: LGRA_135
+  articulo: Art. 135 LGRA
+  descripcion: "Toda persona señalada como responsable de una falta administrativa\
+    \ tiene derecho a \nque se presuma su inocencia hasta q ue no se demuestre, más\
+    \ allá de toda duda razonable, su \ncul"
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 135. Toda persona señalada como responsable de una falta\
+    \ administrativa tiene derecho a \nque se presuma su inocencia hasta q ue no se\
+    \ demuestre, más allá de toda duda razonable, su \nculpabilidad. Las autoridades\
+    \ investigadoras tendrán la carga de la prueba para demostrar la veracidad \n\
+    sobre los hechos que demuestren la existencia de tales faltas, así como la responsabilidad\
+    \ de aqu ellos a \nquienes se imputen las mismas. Quienes sean señalados como\
+    \ presuntos responsables de una falta \nad"
+- id: LGRA_136
+  articulo: Art. 136 LGRA
+  descripcion: "Las pruebas deberán ofrecerse en los plazos señalados en esta Ley.\
+    \ Las que se \nofrezcan fuera de ellos no serán admitidas salvo que se trate de\
+    \ pruebas superve nientes, entendiéndo"
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 136. Las pruebas deberán ofrecerse en los plazos señalados\
+    \ en esta Ley. Las que se \nofrezcan fuera de ellos no serán admitidas salvo que\
+    \ se trate de pruebas superve nientes, entendiéndose \npor tales, aquellas que\
+    \ se hayan producido con posterioridad al vencimiento del plazo para ofrecer \n\
+    pruebas; o las que se hayan producido antes, siempre que el que las ofrezca manifieste\
+    \ bajo protesta de \ndecir verdad que no tuvo la po sibilidad de conocer su existencia."
+- id: LGRA_137
+  articulo: Art. 137 LGRA
+  descripcion: "De toda prueba superveniente se dará vista a las partes por un término\
+    \ de tres días \npara que manifiesten lo que a su derecho convenga."
+  tipo: plazo
+  estado: sistema
+  texto_completo: "Artículo 137. De toda prueba superveniente se dará vista a las\
+    \ partes por un término de tres días \npara que manifiesten lo que a su derecho\
+    \ convenga."
+- id: LGRA_138
+  articulo: Art. 138 LGRA
+  descripcion: "Los hechos notorios no serán objeto de prueba, pudiendo  la autoridad\
+    \ que resuelva el \nasunto referirse a ellos aun cuando las partes no los hubieren\
+    \ mencionado."
+  tipo: regla
+  estado: sistema
+  texto_completo: "Artículo 138. Los hechos notorios no serán objeto de prueba, pudiendo\
+    \  la autoridad que resuelva el \nasunto referirse a ellos aun cuando las partes\
+    \ no los hubieren mencionado."
+- id: LGRA_139
+  articulo: Art. 139 LGRA
+  descripcion: "En caso de que cualquiera de las partes hubiere solicitado la expedición\
+    \ de un \ndocumento o informe que obre en poder de cualquier person a o Ente público,\
+    \ y no se haya expedido si"
+  tipo: facultad
+  estado: sistema
+  texto_completo: "Artículo 139. En caso de que cualquiera de las partes hubiere solicitado\
+    \ la expedición de un \ndocumento o informe que obre en poder de cualquier person\
+    \ a o Ente público, y no se haya expedido sin \ncausa justificada, la Autoridad\
+    \ resolutora del asunto ordenará que se expida la misma, para lo cual podrá \n\
+    hacer uso de los medios de apremio previstos en esta Ley."
+- id: LGRA_140
+  articulo: Art. 140 LGRA
+  descripcion: "Cualquier persona, aun cuando no sea parte en el procedimiento, tiene\
+    \ la obligación de \nprestar auxilio a las autoridades resolutoras del asunto\
+    \ para la averiguación de la verdad, "
+  tipo: obligacion
+  estado: sistema
+  texto_completo: "Artículo 140. Cualquier persona, aun cuando no sea parte en el\
+    \ procedimiento, tiene la obligación de \nprestar auxilio a las autoridades resolutoras\
+    \ del asunto para la averiguación de la verdad, por lo que \ndeberán exhibir cualquier\
+    \ documento o cosa, o rendir su testimonio en el momento en que sea requeri da\
+    \ \npara ello. Estarán exentos de tal obligación los ascendientes, descendientes,\
+    \ cónyuges y personas que \ntengan la obligación de mantener el secreto profesional,\
+    \ en los casos en que se trate d"

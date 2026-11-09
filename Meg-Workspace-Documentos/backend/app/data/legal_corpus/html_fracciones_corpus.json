@@ -1,0 +1,615 @@
+{
+  "DOF - Diario Oficial de la Federación": {
+    "total_fracciones": 0,
+    "total_parrafos": 1164,
+    "citas_articulos": [
+      "1",
+      "14",
+      "29",
+      "40",
+      "50",
+      "41",
+      "12 Bis",
+      "51",
+      "38",
+      "42",
+      "47",
+      "2",
+      "12",
+      "17"
+    ],
+    "fracciones": [],
+    "parrafos_muestra": [
+      "ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionados con las mismas",
+      "por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y",
+      "Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función",
+      "SALVADOR VEGA CASILLAS, Secretario de la Función Pública, con fundamento en los artículos 37,",
+      "fracción XIX de la Ley Orgánica de la Administración Pública Federal; 1, sexto párrafo, 28, quinto párrafo, 36,",
+      "48, segundo párrafo, y 51, primer párrafo de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector",
+      "Público; 1, séptimo párrafo, 38, 42, fracción XIV y 48, último párrafo, de la Ley de Obras Públicas y Servicios",
+      "Relacionados con las Mismas; Quinto y Décimo Tercero Transitorios del Decreto por el que se reforman,",
+      "adicionan y derogan diversas disposiciones de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector",
+      "Público, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, de la Ley Federal de"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (1)": {
+    "total_fracciones": 7,
+    "total_parrafos": 1239,
+    "citas_articulos": [
+      "52",
+      "13",
+      "42",
+      "47",
+      "32",
+      "50",
+      "41",
+      "12 Bis",
+      "26",
+      "55 Bis",
+      "56",
+      "46",
+      "8",
+      "12",
+      "81",
+      "28",
+      "40",
+      "54 Bis",
+      "44",
+      "48",
+      "19",
+      "51"
+    ],
+    "fracciones": [
+      {
+        "numeral": "II",
+        "texto": "Glosario de términos, acrónimos y siglas",
+        "sub_fracciones": [],
+        "linea": 32
+      },
+      {
+        "numeral": "III",
+        "texto": "Ámbito de aplicación y materia que regula",
+        "sub_fracciones": [],
+        "linea": 33
+      },
+      {
+        "numeral": "IV",
+        "texto": "Políticas para la orientación de los procedimientos de contratación y la ejecución de los contratos",
+        "sub_fracciones": [],
+        "linea": 34
+      },
+      {
+        "numeral": "II",
+        "texto": "Glosario de acrónimos, siglas y términos. Para efectos de las presentes Políticas, Bases y Lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la Función Pública, deberán tenerse por reproducidas, como si a la letra se insertaran, las definiciones contenidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, 2 de su reglamento, así como las incluidas en el Manual Administrativo de Aplicación General en Materia de Adquisiciones, Arrendamientos y Servicios del Sector Público. AC. Área convocante o área contratante. AD. Adjudicación directa. AR. Área requirente. AT. Área técnica. CAAS. Comité de adquisiciones, arrendamientos y servicios. CFDI. Comprobante Fiscal Digital por Internet. COG.",
+        "sub_fracciones": [],
+        "linea": 265
+      },
+      {
+        "numeral": "III",
+        "texto": "Ámbito de aplicación y materia que regula. Las POBALINES proporcionan elementos normativos y criterios uniformes que permiten a las personas servidoras públicas adscritas a la SFP, operar eficiente y oportunamente con estricto cumplimiento del artículo 134 de la Constitución Política de los Estados Unidos Mexicanos, la LAASSP, el RLAASSP y demás disposiciones vigentes aplicables, por lo que son de observancia para quienes intervienen en los procesos y procedimientos de contratación en materia de adquisiciones, arrendamientos y servicios de la SFP, así como en la ejecución de los contratos. Los supuestos no previstos en las presentes POBALINES serán autorizados por el CAAS, sometiéndolos a la consideración del titular de la SFP.",
+        "sub_fracciones": [],
+        "linea": 462
+      },
+      {
+        "numeral": "IV",
+        "texto": "Políticas para la orientación de los procedimientos de contratación y la ejecución de los contratos.",
+        "sub_fracciones": [],
+        "linea": 471
+      },
+      {
+        "numeral": "V",
+        "texto": "Bases y Lineamientos.",
+        "sub_fracciones": [],
+        "linea": 756
+      }
+    ],
+    "parrafos_muestra": [
+      "POLÍTICAS, bases y lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la Función Pública",
+      "bases y lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la",
+      "Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- FUNCIÓN PÚBLICA.-",
+      "ROBERTO SALCEDO AQUINO, Secretario de la Función Pública, con fundamento en los artículos 134 de",
+      "la Constitución Política de los Estados Unidos Mexicanos; 26 y 37 de la Ley Orgánica de la Administración",
+      "Pública Federal; 1, penúltimo párrafo de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector",
+      "Público; 3 del Reglamento de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público; 10,",
+      "fracciones I y III, y 11, fracción IX, inciso f) del Reglamento Interior de la Secretaría de la Función Pública,",
+      "publicado en el Diario Oficial de la Federación el 4 de septiembre de 2023; y de conformidad con el capítulo",
+      "De los Lineamientos Generales para la expedición de Políticas, Bases y Lineamientos"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (2)": {
+    "total_fracciones": 0,
+    "total_parrafos": 246,
+    "citas_articulos": [],
+    "fracciones": [],
+    "parrafos_muestra": [
+      "ACUERDO por el que se expide el protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licencias, permisos, autorizaciones y concesiones",
+      "por el que se expide el protocolo de actuación en materia de contrataciones públicas, otorgamiento y",
+      "Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función",
+      "VIRGILIO ANDRADE MARTÍNEZ, Secretario de la Función Pública, con fundamento en  los artículos 37,",
+      "fracciones VI, XIX, XXV y XXVII de la Ley Orgánica de la Administración Pública Federal, en relación con el",
+      "Segundo Transitorio del Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley",
+      "Orgánica de la Administración Pública Federal, publicado en el Diario Oficial de la Federación el 2 de enero de",
+      "2013; 1, 2, 3, fracción III, 7, 8, fracciones VI, XII y XIII, 40 y 48 de la Ley Federal de Responsabilidades",
+      "Administrativas de los Servidores Públicos; 5 y 6, fracciones I, V y XXIV del Reglamento Interior de la",
+      "Que el ejercicio de la función pública debe apegarse a los principios de legalidad, honradez, lealtad,"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (3)": {
+    "total_fracciones": 3,
+    "total_parrafos": 146,
+    "citas_articulos": [],
+    "fracciones": [
+      {
+        "numeral": "I",
+        "texto": "Contrataciones públicas;",
+        "sub_fracciones": [],
+        "linea": 426
+      },
+      {
+        "numeral": "II",
+        "texto": "Otorgamiento y prórroga de concesiones, y",
+        "sub_fracciones": [],
+        "linea": 427
+      },
+      {
+        "numeral": "III",
+        "texto": "Otorgamiento y prórroga de licencias, permisos y autorizaciones que se encuentren enlistados en la liga www.gob.mx/sfp.",
+        "sub_fracciones": [],
+        "linea": 428
+      }
+    ],
+    "parrafos_muestra": [
+      "ACUERDO por el que se modifica el diverso que expide el Protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licencias, permisos, autorizaciones y concesiones",
+      "por el que se modifica el diverso que expide el Protocolo de actuación en materia de contrataciones",
+      "públicas, otorgamiento y prórroga de licencias, permisos, autorizaciones y concesiones.",
+      "Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función",
+      "VIRGILIO ANDRADE MARTÍNEZ, Secretario de la Función Pública, con fundamento en los artículos 37,",
+      "fracciones VI, XIX, XXV y XXVII de la Ley Orgánica de la Administración Pública Federal, en relación con el",
+      "Segundo Transitorio del Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley",
+      "Orgánica de la Administración Pública Federal, publicado en el Diario Oficial de la Federación el 2 de enero de",
+      "2013; 1, 2, 3, fracción III, 7, 8, fracciones VI, XI, XII y XIII, 40 y 48 de la Ley Federal de Responsabilidades",
+      "Administrativas de los Servidores Públicos; 5, 6, fracciones I, V y XXIV, y 17 BIS del Reglamento Interior de la"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (4)": {
+    "total_fracciones": 0,
+    "total_parrafos": 279,
+    "citas_articulos": [],
+    "fracciones": [],
+    "parrafos_muestra": [
+      "ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se aprueban los Lineamientos técnicos generales para la publicación, homologación y estandarización de la inf",
+      "del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y",
+      "Protección de Datos Personales, por el que se aprueban los Lineamientos técnicos generales para la publicación,",
+      "fracción IV del artículo 31 de la Ley General de Transparencia y Acceso a la Información Pública, que deben de",
+      "Al margen un logotipo, que dice: Sistema Nacional de Transparencia, Acceso a la Información Pública y",
+      "deberá actualizarse por lo menos cada tres meses, de acuerdo con el artículo 62 de la Ley General,",
+      "_______________________________________________________________________________________",
+      "_______________________________________________________________________________________",
+      "_______________________________________________________________________________________",
+      "_______________________________________________________________________________________"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (5)": {
+    "total_fracciones": 0,
+    "total_parrafos": 514,
+    "citas_articulos": [],
+    "fracciones": [],
+    "parrafos_muestra": [
+      "ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se aprueban los Lineamientos generales en materia de clasificación y desclasificación de la información, así",
+      "del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y",
+      "Protección de Datos Personales, por el que se aprueban los Lineamientos generales en materia de clasificación y",
+      "Al margen un logotipo, que dice: Sistema Nacional de Transparencia, Acceso a la Información Pública y",
+      "Que el Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y",
+      "Protección de Datos Personales, con fundamento en lo establecido por los artículos 31, fracción I de la",
+      "General de Transparencia y Acceso a la Información Pública; y 10, fracciones II y VII del Reglamento del",
+      "Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de",
+      "Datos Personales, tiene dentro de sus atribuciones las de establecer reglamentos, lineamientos, criterios y",
+      "demás instrumentos normativos necesarios para cumplir con los objetivos del Sistema Nacional, la Plataforma"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (6)": {
+    "total_fracciones": 0,
+    "total_parrafos": 29,
+    "citas_articulos": [],
+    "fracciones": [],
+    "parrafos_muestra": [
+      "Decreto por el que se adiciona un numeral 3 al artículo 283 del Reglamento de la Cámara de Diputados",
+      "Extracto de la solicitud de registro de la agrupación denominada Comunidad Cristiana Vid, para constituirse en asociación religiosa",
+      "Extracto de la solicitud de registro de la entidad interna denominada Iglesia de Cristo Ministerios Llamada Final Ríos de Cristal para constituirse en asociación religiosa; derivada de Iglesia de Cristo Ministerios Llamada Final, A.R.",
+      "Extracto de la solicitud de registro de la entidad interna denominada Iglesia de Cristo Ministerios Llamada Final Querétaro para constituirse en asociación religiosa; derivada de Iglesia de Cristo Ministerios Llamada Final, A.R.",
+      "Extracto de la solicitud de registro de la entidad interna denominada Iglesia del Nazareno en México, el Buen Samaritano para constituirse en asociación religiosa; derivada de Iglesia del Nazareno en México, A.R.",
+      "Aviso de prórroga de vigencia con motivo de la expedición por segunda ocasión de la Norma Oficial Mexicana de Emergencia NOM-EM-016-SCFI-2015, Productos. Sistemas de radiocomunicación que emplean la técnica de espectro disperso-Equipos de radiocomunicación por salto de frecuencia y por modulación digital a operar en las bandas 902-928 MHz, 2400-2483.5 MHz y 5725-5850 MHz-Especificaciones y métodos de prueba",
+      "-->&nbsp;SECRETARIA DE AGRICULTURA, GANADERIA, DESARROLLO RURAL, PESCA Y ALIMENTACION",
+      "Convenio de Coordinación para realizar acciones de verificación e inspección vinculadas al control de la movilización agropecuaria, acuícola y pesquera, que celebran la Secretaría de Agricultura, Ganadería, Desarrollo Rural, Pesca y Alimentación y el Estado de Morelos",
+      "Declaratoria de Sujeción al Régimen de Dominio Público de la Federación, del inmueble Federal denominado CAPEP Gustavo A. Madero 2, ubicado en Calle Cienfuegos No. 1071 interior b, Colonia San Pedro Zacatenco, C.P. 07360, Delegación Gustavo A. Madero, Ciudad de México, con superficie de 1,374.00 metros cuadrados",
+      "Declaratoria de Sujeción al Régimen de Dominio Público de la Federación, del inmueble Federal denominado CAPEP Gustavo A Madero 1, ubicado en Calle Oriente 95 s/ n, Colonia Emiliano Zapata, C.P. 07850, Delegación Gustavo A. Madero, Ciudad de México, con superficie de 1,304.00 metros cuadrados"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (7)": {
+    "total_fracciones": 0,
+    "total_parrafos": 1164,
+    "citas_articulos": [
+      "1",
+      "14",
+      "29",
+      "40",
+      "50",
+      "41",
+      "12 Bis",
+      "51",
+      "38",
+      "42",
+      "47",
+      "2",
+      "12",
+      "17"
+    ],
+    "fracciones": [],
+    "parrafos_muestra": [
+      "ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionados con las mismas",
+      "por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y",
+      "Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función",
+      "SALVADOR VEGA CASILLAS, Secretario de la Función Pública, con fundamento en los artículos 37,",
+      "fracción XIX de la Ley Orgánica de la Administración Pública Federal; 1, sexto párrafo, 28, quinto párrafo, 36,",
+      "48, segundo párrafo, y 51, primer párrafo de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector",
+      "Público; 1, séptimo párrafo, 38, 42, fracción XIV y 48, último párrafo, de la Ley de Obras Públicas y Servicios",
+      "Relacionados con las Mismas; Quinto y Décimo Tercero Transitorios del Decreto por el que se reforman,",
+      "adicionan y derogan diversas disposiciones de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector",
+      "Público, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, de la Ley Federal de"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (8)": {
+    "total_fracciones": 22,
+    "total_parrafos": 1846,
+    "citas_articulos": [],
+    "fracciones": [
+      {
+        "numeral": "1",
+        "texto": "Contrataciones entre Dependencias, Entidades y otras personas morales a las que hace referencia el artículo 1o. del Reglamento Bases: A fin de garantizar el adecuado cumplimiento de las obligaciones que se derivan de los contratos a que se refiere el segundo, tercer y cuarto párrafos del artículo 1o. del Reglamento, como excepciones a esta normatividad, la convocante deberá asegurarse que los proveedores cuenten con los recursos suficientes para realizar o prestar los servicios contratados. Lineamiento: Para la asignación de contratos o pedidos bajo el supuesto de los párrafos segundo, tercero y cuarto del artículo 1o. del Reglamento, se considerará que los sujetos a los que alude el citado precepto, que funjan como proveedores, tienen capacidad para entregar un bien o prestar un servicio por sí mismos, cuando para cumplir con el convenio, contrato o pedido no requiera celebrar otro contrato con terceros, o bien, de requerirlo, éste no exceda del cuarenta y nueve por ciento del importe total del contrato celebrado con el Instituto. Si el contrato se integra por varias partidas, el porcentaje se aplicará para cada una de ellas. En el supuesto a que se refiere el párrafo anterior, los procedimientos de contratación con terceros y la ejecución de los contratos celebrados con éstos, se rigen por las disposiciones del Reglamento. Para la asignación del contrato bajo el supuesto del párrafo segundo de este artículo, el Área requirente deberá solicitar a la dependencia, entidad o persona que funja como proveedor, la documentación que acredite que cuenta con la capacidad técnica, material y humana para la realización del objeto del contrato y que, por ello, no requerirá de la contratación con terceros en un porcentaje mayor al señalado. Dicha",
+        "sub_fracciones": [],
+        "linea": 199
+      },
+      {
+        "numeral": "2",
+        "texto": "Arrendamiento de bienes Bases: En caso de arrendamiento de bienes muebles, las áreas requirentes determinarán la conveniencia de su contratación. Lineamientos: Para asegurar al Instituto las mejores condiciones a que hace referencia el artículo 134 constitucional, el área requirente llevará a cabo los estudios de factibilidad debiendo analizar la conveniencia para la adquisición, arrendamiento o arrendamiento con opción a compra de bienes, para lo cual se considerarán, entre otros aspectos, los costos de mantenimiento y consumibles que se tengan que pagar en cada caso.",
+        "sub_fracciones": [],
+        "linea": 221
+      },
+      {
+        "numeral": "4",
+        "texto": "De las contrataciones consolidadas de bienes, arrendamientos o contratación de servicios &nbsp; Bases: El Instituto promoverá iniciativas de contratos consolidados que contribuyan a reducir costos y optimizar el proceso de suministros a través de nuevas o mejores condiciones de abastecimiento, en un marco de transparencia y rendición de cuentas. La consolidación de los contratos podrá realizarse dentro del Instituto considerando las áreas requirentes o a partir de los que promueva la Administración Pública Federal u otros Organismos Autónomos. Lineamientos: En cuanto a la consolidación de necesidades de las unidades responsables que establece el artículo 17 del Reglamento, se efectuará en los términos siguientes: a) &nbsp;&nbsp;&nbsp;&nbsp; Para la Dirección General de Tecnologías de la Información (DGTI) El titular de la DGTI será el responsable de autorizar la adquisición o arrendamiento consolidada de bienes informáticos relacionados con las Tecnologías de la Información y Comunicaciones (TICÂ´s), así como los servicios que las áreas requirentes necesiten para llevar a cabo sus funciones y dar cumplimiento a sus programas, metas y objetivos institucionales. Dichas áreas deberán solicitar, a través de la DGTI la adquisición, arrendamiento o servicios. Asimismo, será responsabilidad de la DGTI la consolidación de las contrataciones del servicio de telefonía",
+        "sub_fracciones": [],
+        "linea": 246
+      },
+      {
+        "numeral": "5",
+        "texto": "De la contratación de sistemas informáticos o tecnologías de la información a través del mecanismo denominado \" retos públicos \" Bases: A fin de disponer de mejores tecnologías de información que apoyen en esta materia al Instituto, así como incentivar la libre participación de los interesados, se promoverá el mecanismo denominado \" retos públicos \" que permita desarrollar sistemas informáticos o solución tecnológica que mejor se adapten a sus requerimientos técnicos y económicos. Lineamientos: Las unidades administrativas a partir de las necesidades que tengan para el cumplimiento de sus responsabilidades, analizarán la posibilidad de realizar un reto público a fin de solicitar a los interesados sus propuestas de desarrollo de software libre, bajo estándares abiertos, y cuyo uso no esté condicionado al pago de un derecho de propiedad intelectual o industrial, a efecto de proponer contratación sujetándose a las disposiciones de este Reglamento.",
+        "sub_fracciones": [],
+        "linea": 323
+      },
+      {
+        "numeral": "6",
+        "texto": "De la suscripción de convenios específicos derivados de la celebración de Contratos Marco de la Secretaría de la Función Pública Base: El Instituto podrá realizar la contratación de servicios, arrendamientos y bienes a través de los convenios específicos derivados de los contratos marco que tenga suscritos la Secretaría de la Función Pública, siempre y cuando se determine que los mismos permitan obtener las mejores condiciones en calidad, precio y oportunidad. Lineamientos: Los convenios específicos derivados de los contratos marco a que se refiere el artículo 18 del Reglamento, son los instrumentos jurídicos que podrá celebrar el Instituto con uno o más posibles proveedores, mediante los cuales se establecen de manera general las especificaciones técnicas y de calidad, alcances, precios y condiciones que regularán la adquisición o arrendamiento de bienes o la prestación de servicios que se formalizarán, con fundamento en la fracción XII del artículo 41 del Reglamento. La celebración de los convenios específicos derivados de los contratos marco no estará sujeta a los procedimientos de contratación previstos en el Reglamento. En dicha celebración, se atenderán los principios de economía, eficacia, eficiencia, imparcialidad y honradez que aseguren las mejores condiciones para el Instituto, mismos que deberán contener dichos instrumentos jurídicos. Las modificaciones a los convenios específicos derivados de los contratos marco que las partes acuerden realizar, deberán formalizarse a través de convenios modificatorios.",
+        "sub_fracciones": [],
+        "linea": 342
+      },
+      {
+        "numeral": "1",
+        "texto": "El titular del Área requirente identificará los documentos clasificados como reservados o confidenciales que estime necesarios para elaborar la proposición;",
+        "sub_fracciones": [],
+        "linea": 2753
+      },
+      {
+        "numeral": "2",
+        "texto": "A la solicitud de adjudicación directa deberá adjuntarse copia de las carátulas o leyendas elaboradas en términos de la Ley Federal de Transparencia y Acceso a la Información Pública y las demás disposiciones aplicables, firmadas por el servidor público respectivo, mediante las cuales se acredite que la información correspondiente se encuentra clasificada como reservada o confidencia l, y",
+        "sub_fracciones": [],
+        "linea": 2755
+      },
+      {
+        "numeral": "3",
+        "texto": "Deberá justificarse fehacientemente mediante la investigación de mercado, la selección de la persona que se propone para la adjudicación directa, con respecto a otras existentes, así como que el precio del servicio refleja las mejores condiciones para el Instituto. En el caso de que la contratación de servicios de consultorías, asesorías, estudios o investigaciones se realice mediante el procedimiento de invitación a cuando menos tres personas, se invitará al menos a una institución de educación superior y, cuando proceda, a un centro público de investigación establecido en el país, los cuales deberán tener experiencia acreditada sobre la materia vinculada a la consultoría, asesoría, estudio o investigación que se requiere contratar. Cuando no existan instituciones o centros con las características indicadas en el párrafo anterior, deberá integrarse al expediente un escrito firmado por el titular del Área requirente que así lo indique, adjuntando las constancias que lo acrediten. En la contratación de los servicios a que hace referencia esta fracción, en la invitación a cuando menos tres personas o en la solicitud de cotización y en el contrato invariablemente deberá precisarse el número de entregables y las fechas en que deberán presentarse; adicionalmente, en los contratos deberá indicarse el precio o porcentaje de pago que corresponderá a cada entregable. Sólo para las contrataciones que se fundamenten en el supuesto de excepción a que se refiere la presente fracción, al escrito que señala el segundo párrafo del artículo 40 del Reglamento se deberá acompañar la autorización y el dictamen a que alude el penúltimo párrafo del artículo 19",
+        "sub_fracciones": [],
+        "linea": 2771
+      },
+      {
+        "numeral": "1",
+        "texto": "De las infracciones y sanciones Se sancionará en términos del primer párrafo del artículo 62 del Reglamento, a los licitantes que injustificadamente y por causas imputables a los mismos se abstengan de firmar contratos o pedidos según lo previsto por el segundo párrafo del artículo 46 de dicho ordenamiento jurídico, cuando el monto de éstos exceda de cincuenta veces el salario mínimo general vigente en la Ciudad de México elevado al mes. Los licitantes que injustificadamente y por causas imputables a ellos no formalicen dos o más contratos o pedidos con el Instituto, dentro del plazo de dos años, serán sancionados en términos del primer párrafo del artículo 62 del Reglamento, por lo que respecta al segundo y sucesivos contratos no firmados, y se les inhabilitará conforme a lo dispuesto por la fracción I del artículo 63 del Reglamento. Se presumirá que la falta de firma del contrato o pedido por parte del licitante a quien se le adjudicó el mismo le es imputable a éste, salvo prueba en contrario que aporte durante el procedimiento administrativo sancionador con la que justifique dicha omisión. Cuando una instancia de inconformidad sea sobreseída o resuelta como infundada y en la misma se determine que se promovió para retrasar o entorpecer la contratación, se sancionará al inconforme con inhabilitación en términos de la fracción IV del artículo 63 del Reglamento y multa de acuerdo con el primer párrafo del artículo 62 de dicho ordenamiento jurídico.",
+        "sub_fracciones": [],
+        "linea": 3932
+      },
+      {
+        "numeral": "5",
+        "texto": "De las notificaciones Las notificaciones relativas al procedimiento de sanción, así como aquéllas vinculadas con las investigaciones a que se refiere el párrafo anterior, podrán realizarse de acuerdo con lo previsto en las presentes Bases y Lineamientos.",
+        "sub_fracciones": [],
+        "linea": 3992
+      },
+      {
+        "numeral": "6",
+        "texto": "Del inicio del procedimiento Si desahogadas las investigaciones se concluye que existen elementos suficientes para sustentar la imputación al licitante o proveedor, se iniciará el procedimiento para imponer sanciones previsto en el Título Sexto del Reglamento; de lo contrario, se acordará la improcedencia y el archivo del expediente. CAP TULO XIV DE LAS INCONFORMIDADES",
+        "sub_fracciones": [],
+        "linea": 3997
+      },
+      {
+        "numeral": "1",
+        "texto": "De los requisitos para las inconformidades promovidas en contra de la convocatoria a la licitación, y a las juntas de aclaraciones Al escrito inicial de las inconformidades a que se refiere la fracción I del artículo 68 del Reglamento deberá acompañarse la manifestación a que se refiere el tercer párrafo del artículo 33 del Reglamento, con el acuse de recibo o sello de la convocante, o bien, la constancia que se obtenga de su envío en forma electrónica, a través de COMPRANET. La omisión de exhibir el documento referido en el párrafo anterior será motivo de prevención en términos de lo dispuesto por el penúltimo párrafo del artículo 69 del Reglamento.",
+        "sub_fracciones": [],
+        "linea": 4004
+      },
+      {
+        "numeral": "2",
+        "texto": "Del plazo para promover la inconformidad en la invitación a cuando menos tres personas En los procedimientos de invitación a cuando menos tres personas en las que se celebre junta de aclaraciones, el plazo para promover la inconformidad comenzará a partir del día siguiente al de la celebración de la última junta. En caso de que no se realice la junta de aclaraciones, el plazo se computará a partir del día siguiente al de la recepción de la invitación.",
+        "sub_fracciones": [],
+        "linea": 4013
+      },
+      {
+        "numeral": "3",
+        "texto": "De las notificaciones Para la práctica de notificaciones personales fuera del lugar de residencia del rgano Interno de Control, ésta podrá auxiliarse de cualquier autoridad federal, quien la llevará a cabo de acuerdo a la normatividad aplicable y tendrá la obligación de remitir las constancias respectivas o el resultado de la diligencia, dentro de los tres días siguientes a aquél en que se practicó la misma. Para los efectos señalados en el párrafo anterior, la autoridad que instruya la inconformidad también podrá auxiliarse de autoridades estatales o municipales, conforme a los convenios que para ello suscriba el Instituto.",
+        "sub_fracciones": [],
+        "linea": 4018
+      },
+      {
+        "numeral": "5",
+        "texto": "Del informe circunstanciado En el informe circunstanciado que rinda la convocante, deberá indicar las razones y fundamentos para hacer valer, en su caso, la improcedencia o sobreseimiento de la instancia de inconformidad, así como las razones y fundamentos para sostener la legalidad del acto impugnado, debiendo contestar todos los motivos de inconformidad planteados en el escrito inicial o en la ampliación. La convocante deberá acompañar original o copia certificada de las pruebas documentales que se vinculen con los motivos de inconformidad, así como aquéllas ofrecidas como pruebas por el inconforme. Para efectos del párrafo anterior, la convocante podrá autorizar copias de las constancias que formen parte del procedimiento de contratación, incluyendo las proposiciones presentadas por los licitantes, sin mayor formalidad que el señalamiento de que la copia que se expide es fiel reproducción del documento con el que fue cotejado. La copia autorizada tendrá un valor probatorio equivalente al documento con el cual fue cotejado.",
+        "sub_fracciones": [],
+        "linea": 4043
+      },
+      {
+        "numeral": "6",
+        "texto": "De la ampliación de la inconformidad Los argumentos que se hagan valer en la ampliación de la inconformidad deberán sustentarse en hechos o actos conocidos con motivo del informe circunstanciado rendido por la convocante; de lo contrario, dichos argumentos serán desestimados por el rgano Interno de Control. En el escrito de ampliación de la inconformidad deberán indicarse las pruebas que ofrece el inconforme en relación con los nuevos motivos de inconformidad, así como sendas copias para el traslado a la convocante y al o los terceros interesados, la omisión de las mismas será motivo de prevención en términos de lo dispuesto por el penúltimo párrafo del artículo 69 del Reglamento.",
+        "sub_fracciones": [],
+        "linea": 4056
+      },
+      {
+        "numeral": "8",
+        "texto": "De la intervención de oficio A partir de la información que obtenga el rgano Interno de Control en ejercicio de sus facultades de verificación a que se refiere el artículo 60 del Reglamento, podrá iniciar, en cualquier tiempo, intervenciones de oficio, las cuales en ningún caso procederán a petición de parte. CAP TULO XV DEL PROCEDIMIENTO DE CONCILIACI N",
+        "sub_fracciones": [],
+        "linea": 4069
+      },
+      {
+        "numeral": "1",
+        "texto": "De los efectos de la solicitud de conciliación La presentación de la solicitud de conciliación y su atención por el rgano Interno de Control, cuando así lo acuerde la DGA, no suspende los efectos del contrato o los actos derivados del mismo. No obstante, lo señalado en el párrafo anterior, por acuerdo de las partes se podrá diferir el cumplimiento de una obligación o el ejercicio de un derecho hasta el término del procedimiento de conciliación.",
+        "sub_fracciones": [],
+        "linea": 4078
+      },
+      {
+        "numeral": "2",
+        "texto": "Improcedencia de la conciliación No procederá la conciliación respecto de los contratos que hayan sido administrativamente rescindidos, sin perjuicio de que se solicite conciliación respecto del finiquito que deban formular las dependencias y entidades como consecuencia de la rescisión determinada. Cuando se siga juicio ante instancia judicial, se podrá solicitar conciliación a efecto de que el acuerdo al que se llegue sirva para formular convenio judicial. En este supuesto, la validez del convenio de conciliación al que lleguen las partes, estará condicionada a la formalización del convenio judicial. No podrá iniciarse otra conciliación sobre los mismos aspectos cuando las partes en un procedimiento anterior no hayan logrado un arreglo, salvo que en la nueva solicitud de conciliación se aporten elementos no contemplados en la negociación anterior.",
+        "sub_fracciones": [],
+        "linea": 4084
+      },
+      {
+        "numeral": "3",
+        "texto": "De los requisitos de la solicitud de conciliación El escrito de solicitud de conciliación que presente el proveedor o la DGA, además de contener los elementos previstos en el artículo 15 de la Ley Federal de Procedimiento Administrativo, deberá hacer referencia al objeto, vigencia y monto del contrato y, en su caso, a los convenios modificatorios, debiendo adjuntar copia de dichos instrumentos debidamente suscritos. En los casos en que el solicitante no cuente con dichos instrumentos, por no haberse formalizado, deberá presentar copia del fallo correspondiente. Una vez que se satisfagan los requisitos del caso, correrá el plazo previsto en el segundo párrafo del artículo 80 del Reglamento. Si el escrito de solicitud de conciliación no reúne los requisitos indicados, la autoridad que conozca del caso se sujetará a lo dispuesto en el artículo 17-A de la Ley Federal de Procedimiento Administrativo, debiendo prevenir al interesado que su omisión provocará el desechamiento de la solicitud.",
+        "sub_fracciones": [],
+        "linea": 4095
+      },
+      {
+        "numeral": "4",
+        "texto": "De la admisión a trámite de la solicitud de conciliación El rgano Interno de Control emitirá acuerdo por el que se admita a trámite la solicitud de conciliación y lo notificará a las partes, corriendo traslado a la que corresponda con copia de la solicitud de conciliación, solicitándole que, dentro de un plazo no mayor a diez días hábiles, remita los argumentos con los que dé contestación a cada uno de los hechos y argumentos manifestados por el solicitante, anexando copia de la documentación relacionada con los mismos.",
+        "sub_fracciones": [],
+        "linea": 4106
+      },
+      {
+        "numeral": "7",
+        "texto": "De la conclusión de la conciliación Los convenios celebrados en los procedimientos de conciliación podrán servir para efectos de solventar las observaciones de los órganos de control y fiscalización. Si las partes no llegan a un acuerdo respecto de la desavenencia, podrán designar a su costa, ante el propio rgano Interno de Control, a un tercero o perito que emita su opinión sobre los puntos controvertidos, a efecto de lograr que las partes concilien sus intereses. En cualquier tiempo las partes podrán manifestar su deseo de no continuar con el procedimiento de conciliación, señalando las razones que tengan para ello; en consecuencia, la autoridad que conozca del caso procederá a asentarlo en el acta correspondiente dando por concluido el procedimiento y dejando a salvo los derechos de las partes en términos del artículo 82 del Reglamento. El procedimiento de conciliación concluye con: a) &nbsp;&nbsp;&nbsp;&nbsp; La celebración del convenio respectivo; b) &nbsp;&nbsp;&nbsp;&nbsp; La determinación de cualquiera de las partes de no conciliar, o c)",
+        "sub_fracciones": [],
+        "linea": 4147
+      }
+    ],
+    "parrafos_muestra": [
+      "BASES y Lineamientos en materia de adquisiciones, arrendamientos y servicios del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales",
+      "y Lineamientos en materia de adquisiciones, arrendamientos y servicios del Instituto Nacional de",
+      "Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Instituto Nacional de",
+      "BASES Y LINEAMIENTOS EN MATERIA DE ADQUISICIONES, ARRENDAMIENTOS Y SERVICIOS DEL INSTITUTO",
+      "Las presentes Bases y Lineamientos en Materia de Adquisiciones, Arrendamientos y Servicios del Instituto",
+      "Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales, tienen como objeto",
+      "establecer el marco regulatorio específico que deberá considerarse para llevar a cabo las adquisiciones,",
+      "Son de observancia obligatoria en los procedimientos celebrados por el Instituto Nacional",
+      "Transparencia, Acceso a la Información y Protección de Datos Personales, en materia de adquisiciones de",
+      "bienes, arrendamientos y de servicios que estén regulados por el Reglamento de Adquisiciones,"
+    ]
+  },
+  "DOF - Diario Oficial de la Federación (9)": {
+    "total_fracciones": 46,
+    "total_parrafos": 532,
+    "citas_articulos": [
+      "1",
+      "47",
+      "22"
+    ],
+    "fracciones": [
+      {
+        "numeral": "4",
+        "texto": "Perfiles de usuario y modelo de administración",
+        "sub_fracciones": [],
+        "linea": 79
+      },
+      {
+        "numeral": "6",
+        "texto": "Generalidades del sistema informático BESA",
+        "sub_fracciones": [],
+        "linea": 81
+      },
+      {
+        "numeral": "10",
+        "texto": "Registro inicial de contratos de adquisiciones",
+        "sub_fracciones": [],
+        "linea": 95
+      },
+      {
+        "numeral": "11",
+        "texto": "Modificación del contrato de adquisiciones",
+        "sub_fracciones": [],
+        "linea": 109
+      },
+      {
+        "numeral": "12",
+        "texto": "Registro de administradores del contrato",
+        "sub_fracciones": [],
+        "linea": 110
+      },
+      {
+        "numeral": "13",
+        "texto": "Convenios modificatorios",
+        "sub_fracciones": [],
+        "linea": 111
+      },
+      {
+        "numeral": "14",
+        "texto": "Consulta de contratos",
+        "sub_fracciones": [],
+        "linea": 112
+      },
+      {
+        "numeral": "15",
+        "texto": "Consulta de contratos por estatus",
+        "sub_fracciones": [],
+        "linea": 113
+      },
+      {
+        "numeral": "16",
+        "texto": "Consulta de convenios modificatorios",
+        "sub_fracciones": [],
+        "linea": 114
+      },
+      {
+        "numeral": "17",
+        "texto": "Registro de entregables de contrato abierto",
+        "sub_fracciones": [],
+        "linea": 115
+      },
+      {
+        "numeral": "18",
+        "texto": "Avance de entregables de contrato abierto",
+        "sub_fracciones": [],
+        "linea": 116
+      },
+      {
+        "numeral": "19",
+        "texto": "Avance de entregables de contrato cerrado",
+        "sub_fracciones": [],
+        "linea": 117
+      },
+      {
+        "numeral": "23",
+        "texto": "Registro de capturistas del contrato",
+        "sub_fracciones": [],
+        "linea": 122
+      },
+      {
+        "numeral": "24",
+        "texto": "Registro de suficiencia presupuestal del contrato",
+        "sub_fracciones": [],
+        "linea": 123
+      },
+      {
+        "numeral": "26",
+        "texto": "Registro de conclusión",
+        "sub_fracciones": [],
+        "linea": 126
+      },
+      {
+        "numeral": "27",
+        "texto": "Incidencias en contratos",
+        "sub_fracciones": [],
+        "linea": 127
+      },
+      {
+        "numeral": "28",
+        "texto": "Consulta de contratos",
+        "sub_fracciones": [],
+        "linea": 128
+      },
+      {
+        "numeral": "29",
+        "texto": "Consulta de contratos por estatus",
+        "sub_fracciones": [],
+        "linea": 129
+      },
+      {
+        "numeral": "30",
+        "texto": "Consulta de garantías a contrato",
+        "sub_fracciones": [],
+        "linea": 130
+      },
+      {
+        "numeral": "31",
+        "texto": "Consulta de sanciones a contrato",
+        "sub_fracciones": [],
+        "linea": 131
+      },
+      {
+        "numeral": "32",
+        "texto": "Consulta de facturas por contrato",
+        "sub_fracciones": [],
+        "linea": 132
+      },
+      {
+        "numeral": "33",
+        "texto": "Consulta de entregables por contrato",
+        "sub_fracciones": [],
+        "linea": 133
+      },
+      {
+        "numeral": "34",
+        "texto": "Informe general de adquisiciones",
+        "sub_fracciones": [],
+        "linea": 134
+      },
+      {
+        "numeral": "4",
+        "texto": "Perfiles de usuario y modelo de administración Los perfiles diseñados para las personas servidoras públicas adscritas a las dependencias y entidades de la APF, entes públicos estatales y municipales, son los siguientes: Perfiles de Operación Actividad Coordinador Oficiales mayores de las secretarias de Hacienda y Crédito Público, de la Defensa Nacional y de Marina; las personas titulares de las unidades de administración y finanzas (TUAF) de las dependencias y entidades de la APF, y sus homólogos en los entes públicos estatales y municipales; las personas titulares de las unidades de fiscalización, los OIC de la SFP, el personal adscritos a los OIC en las entidades de la APF; asimismo, los órganos estatales y municipales de control, y las alcaldías de la Ciudad de México; las personas servidoras públicas que de acuerdo con sus atribuciones o funciones sean designados. Operador del contrato Persona servidora pública responsable del registro del contrato de adquisiciones, arrendamientos y servicios en la BESA. Administrador del",
+        "sub_fracciones": [],
+        "linea": 181
+      },
+      {
+        "numeral": "6",
+        "texto": "Generalidades de la BESA",
+        "sub_fracciones": [],
+        "linea": 325
+      },
+      {
+        "numeral": "8",
+        "texto": "Registro de usuarios BESA Para obtener la habilitación de acceso a la BESA, es un requisito que la persona titular de la Unidad de Administración y Finanzas u homologo, de la dependencia o entidad de la Administración Pública Federal, estatal y municipal, así como las alcaldías de la Ciudad de México, solicite al Administrador de la BESA (la persona titular de la UACP de la SFP) o, en su caso, la persona servidora pública que designe para tal fin, su alta como coordinador; asimismo, el alta de las personas servidoras públicas que requiera con los perfiles de coordinador y operador, considerando que el operador es el responsable del registro del contrato en la BESA, en tanto que el coordinador sólo podrá supervisar y consultar el registro del contrato. Los titulares de las unidades de fiscalización, los órganos internos de control de la SFP y de los órganos estatales y municipales de control, deberán solicitar su acceso a la BESA con el perfil de coordinador. Asimismo, el acceso para las personas servidoras públicas que requiera, con el mismo perfil.",
+        "sub_fracciones": [],
+        "linea": 408
+      },
+      {
+        "numeral": "10",
+        "texto": "Registro inicial de contratos de adquisiciones en el sistema BESA",
+        "sub_fracciones": [],
+        "linea": 523
+      },
+      {
+        "numeral": "11",
+        "texto": "Modificación del contrato de adquisiciones ADVERTENCIA : La apertura de un contrato ya finalizado en el registro se hará efectivo por la autoridad competente mediante solicitud formal y solo por un periodo de 72 horas para realizar las modificaciones solicitadas; al término de dicho plazo, el sistema se cerrará en automático, por lo que es necesario considerar el correo de respuesta que remite el personal de la mesa de ayuda de la BESA a la solicitud de apertura del contrato solicitado. Si el registro NO fue finalizado, se procede a modificar los datos del contrato realizando el siguiente procedimiento: Desde la pantalla de \" Registro/modificación de contratos \" se accede a la sección de Consulta, en donde se selecciona la institución pública o la unidad compradora o el número de contrato formalizado, o bien los tres datos juntos y se selecciona el botón \"",
+        "sub_fracciones": [],
+        "linea": 1048
+      },
+      {
+        "numeral": "12",
+        "texto": "Registro de administradores del contrato Se selecciona en el menú la opción \" Registro de Contratos \" , luego seleccionamos \" Adquisiciones Públicas \" y por último \" Registro de administradores del contrato \" . En la siguiente ventana, agregamos los datos solicitados del contrato. Se mostrará un resumen con los datos generales del contrato y en la parte inferior se encuentra el administrador del contrato que se registró en la sección número 5 del \" Registro del contrato",
+        "sub_fracciones": [],
+        "linea": 1099
+      },
+      {
+        "numeral": "13",
+        "texto": "Convenios modificatorios Seleccionar en el menú la opción \" Registro de contratos \" , seguido de \" Adquisiciones Públicas \" y por último \" Convenios modificatorios \" . La captura de los convenios modificatorios inicia con la captura de los nombres de la institución pública, de la unidad compradora y por último del número de contrato formalizado. En el presente apartado se ingresan los convenios modificatorios y se capturan los datos en todas las áreas necesarias para el registro de éste en la BESA. Al registrar el convenio, podemos observar los datos referentes a éste, seleccionando el botón \"",
+        "sub_fracciones": [],
+        "linea": 1248
+      }
+    ],
+    "parrafos_muestra": [
+      "MANUAL del Usuario de la Bitácora Electrónica de Seguimiento de Adquisiciones (BESA)",
+      "Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- FUNCIÓN PÚBLICA.-",
+      "EDUARDO GURZA CURIEL, Coordinador General de Fiscalización de la Secretaría de la Función Pública,",
+      "los artículos 2, fracción I, 26 y 37 de la Ley Orgánica de la Administración Pública Federal;",
+      "4, fracción II, 7, apartado C, 15, fracción II, y 64, fracción I, del Reglamento Interior de la Secretaría de la",
+      "obligatoriedad del registro de contratos y operaciones de adquisiciones, arrendamientos y servicios del sector",
+      "público en la Bitácora Electrónica de Seguimiento de Adquisiciones y sus Lineamientos",
+      "Que la Secretaría de la Función Pública es la dependencia de la Administración Pública Federal a la que",
+      "corresponde coordinar el sistema de control interno e inspeccionar el ejercicio del gasto público federal y su",
+      "congruencia con los presupuestos de egresos; fiscalizar que las dependencias y entidades de la"
+    ]
+  }
+}

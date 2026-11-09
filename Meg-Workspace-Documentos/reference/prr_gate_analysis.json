@@ -1,0 +1,171 @@
+{
+  "reference": {
+    "authority": "DOF / SIDOFSegob",
+    "procedure_number": "LO-48-E00-048E00994-N-3-2026",
+    "entity": "Instituto Nacional de Bellas Artes y Literatura",
+    "procedure_type": "Licitación Pública Nacional",
+    "publication_date": "2026-03-03",
+    "site_visit": "2026-03-05T12:00:00-06:00",
+    "clarification_meeting": "2026-03-06T13:00:00-06:00",
+    "proposal_opening": "2026-03-13T17:00:00-06:00",
+    "award": "2026-03-19T17:00:00-06:00",
+    "subject": "Trabajos de conservación y mantenimiento de los muros colindantes del atrio del templo y del lucernario, así como mantenimiento a módulos sanitarios en el Museo Laboratorio Arte Alameda.",
+    "source_url": "https://sidof.segob.gob.mx/notas/docFuente/5781605"
+  },
+  "route_runtime_replay": "Current function bodies executed directly via AST harness; full FastAPI runtime blocked by missing declared dependencies.",
+  "route_checks": [
+    {
+      "function": "crear_planeacion",
+      "line": 29,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": false,
+      "hardcoded_180": false,
+      "hardcoded_2026_dates": [],
+      "hardcoded_plan_uuid": true,
+      "hardcoded_prop_uuid": false
+    },
+    {
+      "function": "obtener_planeacion",
+      "line": 47,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": true,
+      "hardcoded_180": true,
+      "hardcoded_2026_dates": [
+        "2026-08-01"
+      ],
+      "hardcoded_plan_uuid": false,
+      "hardcoded_prop_uuid": false
+    },
+    {
+      "function": "publicar_convocatoria",
+      "line": 69,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": false,
+      "hardcoded_180": false,
+      "hardcoded_2026_dates": [
+        "2026-07-20",
+        "2026-08-10"
+      ],
+      "hardcoded_plan_uuid": false,
+      "hardcoded_prop_uuid": false
+    },
+    {
+      "function": "obtener_convocatoria",
+      "line": 93,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": true,
+      "hardcoded_180": true,
+      "hardcoded_2026_dates": [
+        "2026-07-20",
+        "2026-08-10T10:00:00"
+      ],
+      "hardcoded_plan_uuid": false,
+      "hardcoded_prop_uuid": false
+    },
+    {
+      "function": "registrar_proposicion",
+      "line": 128,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": false,
+      "hardcoded_180": true,
+      "hardcoded_2026_dates": [
+        "2026-07-25T14:30:00"
+      ],
+      "hardcoded_plan_uuid": false,
+      "hardcoded_prop_uuid": true
+    },
+    {
+      "function": "listar_proposiciones",
+      "line": 149,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": false,
+      "hardcoded_180": true,
+      "hardcoded_2026_dates": [
+        "2026-07-25T10:00:00",
+        "2026-07-26T11:30:00",
+        "2026-07-27T09:15:00"
+      ],
+      "hardcoded_plan_uuid": false,
+      "hardcoded_prop_uuid": true
+    },
+    {
+      "function": "evaluar_proposiciones",
+      "line": 192,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": false,
+      "hardcoded_180": false,
+      "hardcoded_2026_dates": [],
+      "hardcoded_plan_uuid": false,
+      "hardcoded_prop_uuid": true
+    },
+    {
+      "function": "emitir_fallo",
+      "line": 235,
+      "uses_db_name": false,
+      "uses_current_user_name": false,
+      "hardcoded_5000000": false,
+      "hardcoded_180": false,
+      "hardcoded_2026_dates": [
+        "2026-08-15"
+      ],
+      "hardcoded_plan_uuid": false,
+      "hardcoded_prop_uuid": false
+    }
+  ],
+  "contradictions_against_fixture_and_official_reference": [
+    [
+      "monto_estimado",
+      12850000.0,
+      5000000.0
+    ],
+    [
+      "plazo_ejecucion",
+      60,
+      180
+    ],
+    [
+      "fecha_publicacion",
+      "2026-03-03",
+      "2026-07-20"
+    ],
+    [
+      "fecha_apertura",
+      "2026-03-13T17:00:00-06:00",
+      "2026-08-10T10:00:00"
+    ],
+    [
+      "planeacion.presupuesto_base",
+      12850000.0,
+      5000000.0
+    ],
+    [
+      "planeacion.programa_obra.duracion",
+      60,
+      180
+    ]
+  ],
+  "integration_evidence": {
+    "PlaneacionExpediente": [
+      "app/models/__init__.py",
+      "app/models/planeacion.py"
+    ],
+    "InvestigacionMercado": [
+      "app/schemas/licitacion.py"
+    ],
+    "SelectorProcedimiento": [
+      "app/engines/juridico/selector_procedimiento.py",
+      "app/schemas/licitacion.py"
+    ],
+    "DocumentCompiler": [],
+    "CrossConsistency": [],
+    "Outbox": [],
+    "Idempotency": []
+  }
+}

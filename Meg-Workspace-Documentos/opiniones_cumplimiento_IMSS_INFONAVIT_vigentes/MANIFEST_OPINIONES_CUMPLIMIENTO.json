@@ -1,0 +1,62 @@
+{
+  "generated_at": "2026-08-27",
+  "purpose": "Normativa secundaria vigente para opinión de cumplimiento IMSS e INFONAVIT (REQ-002/003)",
+  "imss": {
+    "base": {
+      "titulo": "Reglas de carácter general para la obtención de la opinión del cumplimiento de obligaciones fiscales en materia de seguridad social",
+      "acuerdo": "ACDO.AS2.HCT.270422/107.P.DIR",
+      "publicacion": "DOF 22-09-2022",
+      "url": "https://dof.gob.mx/nota_detalle.php?codigo=5665196&fecha=22/09/2022",
+      "archivo": "IMSS_Reglas_opinion_cumplimiento_base_DOF_2022-09-22.txt",
+      "status": "VIGENTE como base (modificada en 2024 y 2025)"
+    },
+    "modificacion_actual": {
+      "titulo": "Modificación a la Regla Quinta y disposiciones transitorias",
+      "acuerdo": "ACDO.AS2.HCT.300925/288.P.DIR",
+      "publicacion": "DOF 06-10-2025",
+      "vigencia": "1 de octubre de 2025",
+      "cambio_clave": "Única modalidad de obtención: Buzón IMSS (www.imss.gob.mx/buzonimss)",
+      "url": "https://dof.gob.mx/nota_detalle.php?codigo=5769333&fecha=06/10/2025",
+      "archivo": "IMSS_ACDO_300925_288_modificacion_Regla_Quinta_DOF_2025-10-06.txt",
+      "status": "VIGENTE",
+      "validez_opinion_contrataciones": {
+        "LAASSP": "15 días hábiles (20 si consolidado)",
+        "LOPSRM": "15 días naturales",
+        "ancla_legal": "CFF Art. 32-D"
+      }
+    },
+    "nota": "No es la LSS. Estas Reglas son el fundamento operativo de la 'opinión de cumplimiento' IMSS para contrataciones públicas."
+  },
+  "infonavit": {
+    "instrumento": "Reglas para la obtención de la constancia de situación fiscal en materia de aportaciones patronales y entero de descuentos",
+    "modificacion": {
+      "publicacion": "DOF 22-04-2024",
+      "resolucion": "RCA-13138-01/24 (31-ene-2024)",
+      "url": "https://dof.gob.mx/nota_detalle.php?codigo=5724104&fecha=22/04/2024",
+      "archivo": "INFONAVIT_Reglas_constancia_situacion_fiscal_mod_DOF_2024-04-22.txt",
+      "status": "VIGENTE según portal INFONAVIT (marco normativo actualizado 2026)",
+      "validez": "30 días naturales desde emisión (según reglas)",
+      "medio": "Portal Empresarial / Portal Institucional con e.firma"
+    },
+    "nota": "No es el Art. 136 de la Ley del INFONAVIT. La constancia de situación fiscal es el documento equivalente a la 'opinión' para contrataciones (CFF 32-D).",
+    "portal": "https://portalmx.infonavit.org.mx (sección Constancia de Situación Fiscal)"
+  },
+  "documents": [
+    {
+      "filename": "IMSS_ACDO_300925_288_modificacion_Regla_Quinta_DOF_2025-10-06.txt",
+      "sha256_text": "cbfe84bb5bf1644d0d68b8f32d186190fd1183d5f5a917a083c27a6ea2c5b552",
+      "chars": 8973
+    },
+    {
+      "filename": "IMSS_Reglas_opinion_cumplimiento_base_DOF_2022-09-22.txt",
+      "sha256_text": "254f1e53e04fcc82a00105c1d917a10f2c31aeb67735b173a5e3e3eeec4ce9cb",
+      "chars": 25471
+    },
+    {
+      "filename": "INFONAVIT_Reglas_constancia_situacion_fiscal_mod_DOF_2024-04-22.txt",
+      "sha256_text": "f5736676fbf73dcb0c2a1ebdecae0124120d1c5feb970c2879b771da1482c8ac",
+      "chars": 10786
+    }
+  ],
+  "disclaimer": "Textos extraídos de páginas DOF (HTML). No son PDF binario oficial del DOF; para autoridad de producción preferir PDF/impresión oficial del DOF si se obtiene. Suficientes para fundamentar LegalRule con source_ref al DOF."
+}

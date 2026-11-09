@@ -1,0 +1,78 @@
+{
+  "reference": {
+    "authority": "DOF / SIDOFSegob",
+    "procedure_number": "LO-48-E00-048E00994-N-3-2026",
+    "entity": "Instituto Nacional de Bellas Artes y Literatura",
+    "procedure_type": "Licitación Pública Nacional",
+    "publication_date": "2026-03-03",
+    "site_visit": "2026-03-05T12:00:00-06:00",
+    "clarification_meeting": "2026-03-06T13:00:00-06:00",
+    "proposal_opening": "2026-03-13T17:00:00-06:00",
+    "award": "2026-03-19T17:00:00-06:00",
+    "subject": "Trabajos de conservación y mantenimiento de los muros colindantes del atrio del templo y del lucernario, así como mantenimiento a módulos sanitarios en el Museo Laboratorio Arte Alameda.",
+    "source_url": "https://sidof.segob.gob.mx/notas/docFuente/5781605"
+  },
+  "synthetic_operational_input": {
+    "note": "Only the fields in reference are official. The following technical/financial fields are synthetic test data built to exercise Megalodon's pipeline.",
+    "tenant": "tenant-prr-a",
+    "expediente": {
+      "identificador": "PRR-INBAL-N3-2026",
+      "titulo": "Conservación y mantenimiento del Museo Laboratorio Arte Alameda",
+      "organo": "Instituto Nacional de Bellas Artes y Literatura",
+      "unidad_administrativa": "Dirección de Recursos Materiales",
+      "ubicacion_obra": "Centro Histórico, Alcaldía Cuauhtémoc, Ciudad de México",
+      "tipo_contrato": "PRECIOS_UNITARIOS",
+      "plazo_dias": 60,
+      "monto_estimado": 12850000.00
+    },
+    "planeacion": {
+      "necesidad": "Conservar y mantener elementos del inmueble para preservar funcionalidad, seguridad y operación del recinto.",
+      "justificacion": "Se requiere atender deterioros y mantenimiento preventivo/correctivo identificados en el inmueble.",
+      "objetivo": "Ejecutar trabajos de conservación y mantenimiento conforme al proyecto y especificaciones.",
+      "alcance": [
+        "muros colindantes",
+        "lucernario",
+        "módulos sanitarios",
+        "trabajos complementarios"
+      ],
+      "fuente_financiamiento": "Recursos federales 2026"
+    },
+    "topografia": {
+      "levantamiento_id": "LEV-PRR-001",
+      "puntos": 184,
+      "superficie_m2": 2310.0
+    },
+    "bim": {
+      "modelo_id": "BIM-PRR-001",
+      "elementos": 427,
+      "clashes": 3,
+      "clashes_resueltos": 3
+    },
+    "catalogo_conceptos": [
+      {"codigo":"PREL-001","descripcion":"Protección de áreas de trabajo","unidad":"m2","cantidad":2310,"pu":185.0},
+      {"codigo":"MURO-001","descripcion":"Tratamiento y mantenimiento de muros","unidad":"m2","cantidad":820,"pu":2450.0},
+      {"codigo":"LUC-001","descripcion":"Mantenimiento de lucernario","unidad":"m2","cantidad":240,"pu":6100.0},
+      {"codigo":"SAN-001","descripcion":"Mantenimiento de módulos sanitarios","unidad":"pza","cantidad":18,"pu":28750.0}
+    ],
+    "presupuesto": {
+      "directo": 10240000.00,
+      "indirectos": 1228800.00,
+      "financiamiento": 102400.00,
+      "utilidad": 1280000.00,
+      "total_sin_iva": 12851200.00 
+    },
+    "investigacion_mercado": {
+      "fecha": "2026-02-10",
+      "cotizaciones": 3,
+      "proveedores_contactados": 3,
+      "precio_referencia": 12850000.00,
+      "conclusion": "Existe oferta suficiente para procedimiento de licitación pública nacional."
+    },
+    "proposicion": {
+      "licitante": {"razon_social":"PRR CONSTRUCTORA SA DE CV","rfc":"PRR260101XX1"},
+      "monto_total": 12790000.00,
+      "plazo_ofertado": 60,
+      "documentos": ["propuesta_tecnica.pdf","propuesta_economica.pdf","constancia_fiscal.pdf"]
+    }
+  }
+}

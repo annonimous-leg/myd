@@ -1,0 +1,244 @@
+{
+  "crear_planeacion": {
+    "id": "plan-00000000-0000-0000-0000-000000000000",
+    "estado": "PLANEACION",
+    "mensaje": "Planeación creada exitosamente",
+    "fases_completadas": [
+      "dictamen_tecnico",
+      "especificaciones",
+      "presupuesto_base"
+    ],
+    "proximo_paso": "Publicar convocatoria",
+    "data": {
+      "necesidad": "Conservar y mantener elementos del inmueble para preservar funcionalidad, seguridad y operación del recinto.",
+      "justificacion": "Se requiere atender deterioros y mantenimiento preventivo/correctivo identificados en el inmueble.",
+      "objetivo": "Ejecutar trabajos de conservación y mantenimiento conforme al proyecto y especificaciones.",
+      "alcance": [
+        "muros colindantes",
+        "lucernario",
+        "módulos sanitarios",
+        "trabajos complementarios"
+      ],
+      "fuente_financiamiento": "Recursos federales 2026"
+    }
+  },
+  "obtener_planeacion": {
+    "id": "LIC-TEST-001",
+    "estado": "PLANEACION",
+    "bases": {
+      "estado": "COMPLETADO",
+      "url": "/docs/LIC-TEST-001/bases.pdf"
+    },
+    "especificaciones": {
+      "estado": "COMPLETADO",
+      "items": 45
+    },
+    "presupuesto_base": {
+      "monto": 5000000.0,
+      "moneda": "MXN"
+    },
+    "programa_obra": {
+      "duracion_dias": 180,
+      "fecha_inicio": "2026-08-01"
+    },
+    "dictamen_tecnico": {
+      "estado": "APROBADO",
+      "folio": "DT-2026-001"
+    }
+  },
+  "publicar_convocatoria": {
+    "id": "LIC-TEST-001",
+    "estado": "CONVOCATORIA",
+    "convocatoria": {
+      "folio": "CN-LIC-TEST",
+      "fecha_publicacion": "2026-07-20",
+      "fecha_cierre": "2026-08-10",
+      "plazo_dias_habiles": 15,
+      "base_legal": "LOPSRM Art. 40, LAASSP Art. 40",
+      "publicada_compranet": false,
+      "url_convocatoria": "/docs/LIC-TEST-001/convocatoria.pdf"
+    },
+    "proximo_paso": "Recepción de proposiciones"
+  },
+  "obtener_convocatoria": {
+    "licitacion_id": "LIC-TEST-001",
+    "folio": "CN-LIC-TEST",
+    "tipo_procedimiento": "licitacion_publica",
+    "monto_estimado": 5000000.0,
+    "plazo_ejecucion": 180,
+    "fecha_publicacion": "2026-07-20",
+    "fecha_apertura": "2026-08-10T10:00:00",
+    "lugar_apertura": "Sala de Juntas, Edificio Central",
+    "requisitos_participacion": [
+      "Constancia de situación fiscal vigente",
+      "Opinión de cumplimiento SAT",
+      "Registro en el Padrón de Contratistas",
+      "Experiencia mínima: 3 años en obras similares",
+      "Capacidad financiera: 20% del monto del contrato"
+    ],
+    "garantias_requeridas": {
+      "seriedad": {
+        "monto": 250000.0,
+        "porcentaje": 5
+      },
+      "cumplimiento": {
+        "monto": 500000.0,
+        "porcentaje": 10
+      },
+      "vicios_ocultos": {
+        "monto": 250000.0,
+        "porcentaje": 5
+      }
+    }
+  },
+  "registrar_proposicion": {
+    "id": "prop-00000000-0000-0000-0000-000000000000",
+    "licitacion_id": "LIC-TEST-001",
+    "estado": "REGISTRADA",
+    "licitante": {
+      "razon_social": "PRR CONSTRUCTORA SA DE CV",
+      "rfc": "PRR260101XX1"
+    },
+    "monto_total": 12790000.0,
+    "plazo_ofertado": 60,
+    "garantias_presentadas": [],
+    "documentos": [
+      "propuesta_tecnica.pdf",
+      "propuesta_economica.pdf",
+      "constancia_fiscal.pdf"
+    ],
+    "fecha_registro": "2026-07-25T14:30:00"
+  },
+  "listar_proposiciones": {
+    "licitacion_id": "LIC-TEST-001",
+    "total": 3,
+    "proposiciones": [
+      {
+        "id": "prop-001",
+        "licitante": {
+          "razon_social": "Constructora del Norte S.A. de C.V.",
+          "rfc": "CON123456ABC"
+        },
+        "monto_total": 4850000.0,
+        "plazo_ofertado": 175,
+        "estado": "REGISTRADA",
+        "fecha_registro": "2026-07-25T10:00:00"
+      },
+      {
+        "id": "prop-002",
+        "licitante": {
+          "razon_social": "Obras y Proyectos del Sur S.A. de C.V.",
+          "rfc": "OPS789012DEF"
+        },
+        "monto_total": 5100000.0,
+        "plazo_ofertado": 170,
+        "estado": "REGISTRADA",
+        "fecha_registro": "2026-07-26T11:30:00"
+      },
+      {
+        "id": "prop-003",
+        "licitante": {
+          "razon_social": "Infraestructura Mexicana S.A. de C.V.",
+          "rfc": "IMX345678GHI"
+        },
+        "monto_total": 4950000.0,
+        "plazo_ofertado": 180,
+        "estado": "REGISTRADA",
+        "fecha_registro": "2026-07-27T09:15:00"
+      }
+    ]
+  },
+  "evaluar_proposiciones": {
+    "licitacion_id": "LIC-TEST-001",
+    "estado": "EVALUACION",
+    "resultados": [
+      {
+        "proposicion_id": "prop-001",
+        "licitante": "Constructora del Norte S.A. de C.V.",
+        "evaluacion_tecnica": {
+          "puntaje": 85,
+          "maximo": 100,
+          "estado": "ACEPTABLE"
+        },
+        "evaluacion_economica": {
+          "monto": 4850000.0,
+          "descuento_sobre_base": 3.0
+        },
+        "evaluacion_global": {
+          "puntaje": 88.5,
+          "posicion": 1
+        }
+      },
+      {
+        "proposicion_id": "prop-003",
+        "licitante": "Infraestructura Mexicana S.A. de C.V.",
+        "evaluacion_tecnica": {
+          "puntaje": 80,
+          "maximo": 100,
+          "estado": "ACEPTABLE"
+        },
+        "evaluacion_economica": {
+          "monto": 4950000.0,
+          "descuento_sobre_base": 1.0
+        },
+        "evaluacion_global": {
+          "puntaje": 84.0,
+          "posicion": 2
+        }
+      },
+      {
+        "proposicion_id": "prop-002",
+        "licitante": "Obras y Proyectos del Sur S.A. de C.V.",
+        "evaluacion_tecnica": {
+          "puntaje": 75,
+          "maximo": 100,
+          "estado": "ACEPTABLE"
+        },
+        "evaluacion_economica": {
+          "monto": 5100000.0,
+          "descuento_sobre_base": -2.0
+        },
+        "evaluacion_global": {
+          "puntaje": 78.5,
+          "posicion": 3
+        }
+      }
+    ],
+    "ganador_preliminar": "prop-001",
+    "base_legal": "LOPSRM Art. 55-58, LAASSP Art. 52-55"
+  },
+  "emitir_fallo": {
+    "licitacion_id": "LIC-TEST-001",
+    "estado": "FALLO_EMITIDO",
+    "fallo": {
+      "folio": "F-LIC-TEST",
+      "fecha": "2026-08-15",
+      "ganador": {
+        "razon_social": "Constructora del Norte S.A. de C.V.",
+        "rfc": "CON123456ABC",
+        "monto_contrato": 4850000.0,
+        "plazo_ejecucion": 175
+      },
+      "segundo_lugar": {
+        "razon_social": "Infraestructura Mexicana S.A. de C.V.",
+        "monto": 4950000.0
+      },
+      "motivacion": "Mejor puntaje global en evaluación técnica-económica",
+      "documentos_generados": [
+        {
+          "tipo": "acta_fallo",
+          "url": "/docs/LIC-TEST-001/acta_fallo.pdf"
+        },
+        {
+          "tipo": "notificacion_ganador",
+          "url": "/docs/LIC-TEST-001/notif_ganador.pdf"
+        },
+        {
+          "tipo": "notificacion_perdedores",
+          "url": "/docs/LIC-TEST-001/notif_perdedores.pdf"
+        }
+      ]
+    },
+    "proximo_paso": "Elaborar contrato de precios unitarios"
+  }
+}

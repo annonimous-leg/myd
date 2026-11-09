@@ -1,0 +1,42 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST
+      manageAlerts: true
+      alertmanagerUid: alertmanager
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: loki
+        tags: ['service.name', 'service.namespace']
+      tracesToMetrics:
+        datasourceUid: prometheus
+        tags: ['service.name', 'service.namespace']
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+
+  - name: Alertmanager
+    type: alertmanager
+    uid: alertmanager
+    access: proxy
+    url: http://alertmanager:9093
+    editable: false
+    jsonData:
+      implementation: prometheus

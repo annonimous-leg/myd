@@ -1,0 +1,179 @@
+{
+  "DOF - Diario Oficial de la Federación": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "SFP (Secretaría de la Función Pública)",
+    "total_caracteres": 167947,
+    "lineas": 3024,
+    "articulos_propios": 0,
+    "capitulos": 0,
+    "fracciones": 139,
+    "muestra_articulos": [],
+    "muestra_capitulos": [],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (1)": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "SFP (Secretaría de la Función Pública)",
+    "total_caracteres": 184858,
+    "lineas": 4039,
+    "articulos_propios": 0,
+    "capitulos": 2,
+    "fracciones": 147,
+    "muestra_articulos": [],
+    "muestra_capitulos": [
+      {
+        "num": "5000",
+        "texto": "del COG, y"
+      },
+      {
+        "num": "5000",
+        "texto": "hasta por un importe señalado en"
+      }
+    ],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(1)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (2)": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "SFP (Secretaría de la Función Pública)",
+    "total_caracteres": 35135,
+    "lineas": 829,
+    "articulos_propios": 0,
+    "capitulos": 0,
+    "fracciones": 32,
+    "muestra_articulos": [],
+    "muestra_capitulos": [],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(2)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (3)": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "SFP (Secretaría de la Función Pública)",
+    "total_caracteres": 24306,
+    "lineas": 764,
+    "articulos_propios": 0,
+    "capitulos": 0,
+    "fracciones": 32,
+    "muestra_articulos": [],
+    "muestra_capitulos": [],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(3)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (4)": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "INAI (Instituto Nacional de Transparencia)",
+    "total_caracteres": 411068,
+    "lineas": 52003,
+    "articulos_propios": 3,
+    "capitulos": 2,
+    "fracciones": 79,
+    "muestra_articulos": [
+      {
+        "num": "51",
+        "texto": "de la Ley General de Contabilidad Gubernamental."
+      },
+      {
+        "num": "52",
+        "texto": "de la Ley General de Contabilidad Gubernamental."
+      },
+      {
+        "num": "79",
+        "texto": "de la Constitución Política de los Estados Unidos Mexicanos."
+      }
+    ],
+    "muestra_capitulos": [
+      {
+        "num": "3700",
+        "texto": "Servicios de Traslado y Viáticos con las"
+      },
+      {
+        "num": "II",
+        "texto": "de la Ley del Servicio Exterior Mexicano)."
+      }
+    ],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(4)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (5)": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "INAI (Instituto Nacional de Transparencia)",
+    "total_caracteres": 78794,
+    "lineas": 1461,
+    "articulos_propios": 0,
+    "capitulos": 3,
+    "fracciones": 135,
+    "muestra_articulos": [],
+    "muestra_capitulos": [
+      {
+        "num": "IX",
+        "texto": "de los presentes lineamientos."
+      },
+      {
+        "num": "VIII",
+        "texto": "de los presentes lineamientos."
+      },
+      {
+        "num": "II",
+        "texto": "del Título III de la Ley de"
+      }
+    ],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(5)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (6)": {
+    "tipo_documento": "Decreto",
+    "entidad_emisora": "INAI (Instituto Nacional de Transparencia)",
+    "total_caracteres": 11212,
+    "lineas": 449,
+    "articulos_propios": 0,
+    "capitulos": 0,
+    "fracciones": 0,
+    "muestra_articulos": [],
+    "muestra_capitulos": [],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(6)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (7)": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "SFP (Secretaría de la Función Pública)",
+    "total_caracteres": 167947,
+    "lineas": 3024,
+    "articulos_propios": 0,
+    "capitulos": 0,
+    "fracciones": 139,
+    "muestra_articulos": [],
+    "muestra_capitulos": [],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(7)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (8)": {
+    "tipo_documento": "Lineamientos",
+    "entidad_emisora": "SFP (Secretaría de la Función Pública)",
+    "total_caracteres": 244411,
+    "lineas": 4237,
+    "articulos_propios": 0,
+    "capitulos": 3,
+    "fracciones": 167,
+    "muestra_articulos": [],
+    "muestra_capitulos": [
+      {
+        "num": "VII",
+        "texto": "de estas Bases"
+      },
+      {
+        "num": "VII",
+        "texto": "de estas Bases y Lineamientos"
+      },
+      {
+        "num": "VI",
+        "texto": "de estas Bases y Lineamientos, y"
+      }
+    ],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(8)_LIMPIO.txt"
+  },
+  "DOF - Diario Oficial de la Federación (9)": {
+    "tipo_documento": "Acuerdo",
+    "entidad_emisora": "SFP (Secretaría de la Función Pública)",
+    "total_caracteres": 101903,
+    "lineas": 2638,
+    "articulos_propios": 0,
+    "capitulos": 0,
+    "fracciones": 0,
+    "muestra_articulos": [],
+    "muestra_capitulos": [],
+    "txt_file": "HTML_DOF_-_Diario_Oficial_de_la_Federación_(9)_LIMPIO.txt"
+  }
+}

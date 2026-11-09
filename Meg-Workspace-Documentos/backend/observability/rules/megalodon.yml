@@ -1,0 +1,62 @@
+groups:
+  - name: megalodon-api
+    interval: 30s
+    rules:
+      - alert: MegalodonHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{service="megalodon-api",status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{service="megalodon-api"}[5m]))
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: megalodon-api
+        annotations:
+          summary: "High error rate on Megalodon API"
+          description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes"
+
+      - alert: MegalodonHighLatency
+        expr: |
+          histogram_quantile(0.99,
+            sum(rate(http_request_duration_seconds_bucket{service="megalodon-api"}[5m])) by (le)
+          ) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: megalodon-api
+        annotations:
+          summary: "High latency on Megalodon API"
+          description: "P99 latency is {{ $value }}s over the last 5 minutes"
+
+      - alert: MegalodonDatabaseConnectionsExhausted
+        expr: |
+          sqlalchemy_pool_checkedin / sqlalchemy_pool_checkedin > 0.9
+        for: 1m
+        labels:
+          severity: critical
+          service: megalodon-api
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Pool utilization is above 90%"
+
+      - alert: MegalodonWorkerQueueBacklog
+        expr: celery_tasks_pending > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: megalodon-worker
+        annotations:
+          summary: "Celery worker queue backlog"
+          description: "{{ $value }} tasks pending in queue"
+
+      - alert: MegalodonDown
+        expr: up{job="megalodon-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: megalodon-api
+        annotations:
+          summary: "Megalodon API is down"
+          description: "No metrics received from Megalodon API for 1 minute"

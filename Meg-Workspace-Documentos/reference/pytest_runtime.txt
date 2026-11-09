@@ -1,0 +1,29 @@
+ImportError while loading conftest '/mnt/data/prr_runtime/backend/tests/conftest.py'.
+tests/conftest.py:12: in <module>
+    from app.main import app
+app/main.py:19: in <module>
+    from app.config import settings
+app/config.py:246: in <module>
+    settings = get_settings()
+               ^^^^^^^^^^^^^^
+app/config.py:243: in get_settings
+    return Settings()
+           ^^^^^^^^^^
+/opt/pyvenv/lib/python3.13/site-packages/pydantic_settings/main.py:247: in __init__
+    super().__init__(**__pydantic_self__.__class__._settings_build_values(sources, init_kwargs))
+E   pydantic_core._pydantic_core.ValidationError: 5 validation errors for Settings
+E   DATABASE_URL
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   REDIS_URL
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   CELERY_BROKER_URL
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   CELERY_RESULT_BACKEND
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing
+E   SECRET_KEY
+E     Field required [type=missing, input_value={}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.13/v/missing

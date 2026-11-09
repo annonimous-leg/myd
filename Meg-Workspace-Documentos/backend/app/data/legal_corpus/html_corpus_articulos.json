@@ -1,0 +1,839 @@
+{
+  "DOF - Diario Oficial de la Federación": {
+    "titulo": "ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionado",
+    "ley_principal": "LAASSP",
+    "total_caracteres": 167947,
+    "citas_articulos": [
+      {
+        "articulo": "2",
+        "contexto": "los Lineamientos establecidos en el presente Capítulo, además de las definiciones contenidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público y 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ley de Ad",
+        "posicion": 7860
+      },
+      {
+        "articulo": "1",
+        "contexto": ";&nbsp;&nbsp; POBALINES: las políticas, bases y lineamientos a que se refieren el párrafo sexto del artículo 1 de la Ley de Adquisiciones y el párrafo séptimo del artículo 1 de la Ley de Obras. TERCERO .- En la elaboración de las POBALINES, las dependencias y entidades deberán atender lo siguiente: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs",
+        "posicion": 8440
+      },
+      {
+        "articulo": "12",
+        "contexto": " la adquisición, arrendamiento o arrendamiento con opción a compra de bienes, de conformidad con el artículo 12 de la Ley de Adquisiciones; V. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El área responsable de efectuar el estudio de costo beneficio para determinar la conveniencia de la adquisición de bienes muebles usados o reconstruidos",
+        "posicion": 13526
+      },
+      {
+        "articulo": "12 Bis",
+        "contexto": "o el nivel jerárquico del servidor público responsable de autorizar dicha contratación, conforme al artículo 12 Bis de la Ley de Adquisiciones; &nbsp; VI. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El cargo de los servidores públicos o el área o áreas responsables de realizar la investigación de mercado de conformidad con las disposiciones del Re",
+        "posicion": 13873
+      },
+      {
+        "articulo": "47",
+        "contexto": "o contratar servicios, así como de supervisar el cumplimiento de dichos contratos, regulados por el artículo 47 de la Ley de Adquisiciones; IX. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Los niveles jerárquicos de los servidores públicos facultados para llevar a cabo los diversos actos de los procedimientos de contratación o que se relacionen",
+        "posicion": 14777
+      },
+      {
+        "articulo": "40",
+        "contexto": " las áreas requirentes facultado para suscribir el escrito a que se refieren el párrafo segundo del artículo 40 de la Ley de Adquisiciones o bien, el párrafo segundo del artículo 41 de la Ley de Obras, así como la forma en que deben acreditarse los supuestos de excepción a la licitación pública a que hacen referencia las fracciones II, ",
+        "posicion": 16094
+      },
+      {
+        "articulo": "41",
+        "contexto": "blica a que hacen referencia las fracciones II, IV, V, VI, VII, IX primer párrafo, XI, XII y XX del artículo 41 de la Ley de Adquisiciones o los supuestos de excepción contenidos en las fracciones II, IV, V, VI y VII del artículo 42 de la Ley de Obras; XII. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El cargo de los servidores públicos responsables ",
+        "posicion": 16384
+      },
+      {
+        "articulo": "8",
+        "contexto": "ipación de las empresas nacionales, en especial de las micro, pequeñas y medianas, a que aluden los artículos 8 de la Ley de Adquisiciones o 9 de la Ley de Obras; XIV. &nbsp;&nbsp;&nbsp;&nbsp; El área responsable de incorporar la información a CompraNet para que se integre y mantenga actualizado el registro único de proveedores y el reg",
+        "posicion": 17134
+      },
+      {
+        "articulo": "81",
+        "contexto": " la firma del convenio escrito posterior a la suscripción de aquél, conforme a lo dispuesto por los artículos 81 de la Ley de Adquisiciones o 99 de la Ley de Obras y su respectivo Reglamento; XVIII. &nbsp;&nbsp; El cargo del servidor público que determinará la cancelación de una licitación pública, la rescisión o la terminación anticipad",
+        "posicion": 18401
+      },
+      {
+        "articulo": "12",
+        "contexto": " la adquisición, arrendamiento o arrendamiento con opción a compra de bienes, de conformidad con el artículo 12 de la Ley de Adquisiciones; III. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La determinación de los bienes, arrendamientos o servicios de diversas unidades administrativas o, en su caso, órganos desconcentrados en una misma dependen",
+        "posicion": 21407
+      },
+      {
+        "articulo": "17",
+        "contexto": "olo procedimiento de contratación, así como las condiciones para ello, acorde a lo dispuesto por el artículo 17 de la Ley de Adquisiciones; IV. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Las condiciones conforme a las cuales deberá sujetarse la adquisición o arrendamiento de bienes, la contratación de servicios, la ejecución de obras o la con",
+        "posicion": 21792
+      },
+      {
+        "articulo": "47",
+        "contexto": "uiridos o arrendados bajo la modalidad de contrato abierto, de conformidad con lo establecido en el artículo 47 de la Ley de Adquisiciones; VI. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Los criterios para determinar la adquisición de bienes muebles usados o reconstruidos, así como para solicitar el avalúo correspondiente, en términos de lo d",
+        "posicion": 22572
+      },
+      {
+        "articulo": "12 Bis",
+        "contexto": "econstruidos, así como para solicitar el avalúo correspondiente, en términos de lo dispuesto por el artículo 12 Bis de la Ley de Adquisiciones; VII. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; En su caso, el porcentaje menor al utilizado para determinar el precio no aceptable en la adquisición o arrendamiento de bienes o contratación de servicios, confo",
+        "posicion": 22826
+      },
+      {
+        "articulo": "38",
+        "contexto": "o no aceptable en la adquisición o arrendamiento de bienes o contratación de servicios, conforme al artículo 38 de la Ley de Adquisiciones; VIII. &nbsp;&nbsp;&nbsp;&nbsp; El porcentaje para determinar el precio conveniente a que se refiere la fracción XII del artículo 2 de la Ley de Adquisiciones; &nbsp; IX. &nbsp;&nbsp;&nbsp;&nbsp;&nbs",
+        "posicion": 23075
+      },
+      {
+        "articulo": "2",
+        "contexto": "bsp;&nbsp; El porcentaje para determinar el precio conveniente a que se refiere la fracción XII del artículo 2 de la Ley de Adquisiciones; &nbsp; IX. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Los aspectos de sustentabilidad ambiental, incluyendo la evaluación de las tecnologías que permitan la reducción de la emisión de gases de efecto inve",
+        "posicion": 23235
+      },
+      {
+        "articulo": "50",
+        "contexto": "dicar contratos a los proveedores que se encuentren en la hipótesis prevista en la fracción III del artículo 50 de la Ley de Adquisiciones, y XI. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La forma y términos para la devolución o destrucción de las proposiciones, conforme a lo dispuesto en los artículos 56 último párrafo de la Ley de Adquisic",
+        "posicion": 24020
+      },
+      {
+        "articulo": "2",
+        "contexto": "as. SEGUNDO .- Para los efectos de estos Lineamientos, además de las definiciones contenidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público y 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Bienes Mu",
+        "posicion": 28229
+      },
+      {
+        "articulo": "14",
+        "contexto": "&nbsp;&nbsp;&nbsp;&nbsp; En este rubro, se deberá considerar lo dispuesto en el segundo párrafo del artículo 14 de la Ley de Adquisiciones, a efecto de otorgar puntuación o unidades porcentuales a personas con discapacidad, a empresas que cuenten con trabajadores con discapacidad y a MIPYMES que produzcan bienes con innovación tecnológi",
+        "posicion": 36987
+      },
+      {
+        "articulo": "29",
+        "contexto": "en o la realización de pruebas de laboratorio, de conformidad con lo dispuesto en la fracción X del artículo 29 de la Ley de Adquisiciones; ii. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Capacidad del licitante. Este rubro tendrá un rango de 5 a 15 puntos o unidades porcentuales. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La convocante para distrib",
+        "posicion": 43302
+      },
+      {
+        "articulo": "14",
+        "contexto": "stituto Mexicano de la Propiedad Industrial, en términos de lo dispuesto por el segundo párrafo del artículo 14 de la Ley de Adquisiciones. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; En el caso de que la convocante determine evaluar características o condiciones adicionales a las mínimas requeridas, podrá incluir dentro de este rubro lo",
+        "posicion": 45274
+      },
+      {
+        "articulo": "14",
+        "contexto": "stituto Mexicano de la Propiedad Industrial, en términos de lo dispuesto por el segundo párrafo del artículo 14 de la Ley de Adquisiciones, y e) &nbsp;&nbsp;&nbsp;&nbsp; Subcontratación de MIPYMES. El presente subrubro sólo se aplicará en los procedimientos de contratación de servicios relacionados con obras. La convocante deberá asigna",
+        "posicion": 96675
+      },
+      {
+        "articulo": "14",
+        "contexto": ";&nbsp;&nbsp;&nbsp;&nbsp; En este rubro, deberá considerarse lo dispuesto en el segundo párrafo del artículo 14 de la Ley de Adquisiciones, o en el segundo párrafo del artículo 38 de la Ley de Obras, a efecto de otorgar puntuación o unidades porcentuales a personas con discapacidad y a empresas que cuenten con trabajadores con discapaci",
+        "posicion": 110766
+      },
+      {
+        "articulo": "2",
+        "contexto": "O .- Para los efectos de los presentes Lineamientos, además de las definiciones establecidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público o 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas , se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ley de Adquisiciones: la L",
+        "posicion": 135340
+      },
+      {
+        "articulo": "2",
+        "contexto": "DO .- Para los efectos de los presentes Lineamientos, además de las definiciones establecidas en el artículo 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, se entenderá por : I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Grupo de partidas: la reunión de partidas de bienes, servicios o de bienes y ser",
+        "posicion": 140516
+      },
+      {
+        "articulo": "2",
+        "contexto": "bsp;&nbsp;&nbsp; OSD: la o las ofertas subsecuentes de descuentos previstas en la fracción VIII del artículo 2 de la Ley de Adquisiciones; Las menciones que se hagan en los presentes Lineamientos a las dependencias y entidades, se entenderán hechas en lo conducente, a las entidades federativas, a los municipios y a los entes públicos d",
+        "posicion": 141308
+      },
+      {
+        "articulo": "38",
+        "contexto": "otal o parcial por el propio servidor público en términos de lo dispuesto por el párrafo cuarto del artículo 38 de la Ley de Adquisiciones y se podrá emitir una nueva convocatoria por la o las partidas pendientes de someterse a OSD. El procedimiento de contratación que hubiera sido interrumpido y cancelado en los términos del párrafo an",
+        "posicion": 149759
+      },
+      {
+        "articulo": "2",
+        "contexto": ". SEGUNDO .- Para efectos de estos Lineamientos, serán aplicables las definiciones contenidas en el artículo 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, y a ésta se le denominará como Ley de Adquisiciones. TERCERO .- El plazo máximo que deberá mediar entre la fecha en que el proveedor acredite la entreg",
+        "posicion": 151120
+      },
+      {
+        "articulo": "51",
+        "contexto": "les, dentro de los cuales quedará comprendido el plazo a que hace referencia el párrafo primero del artículo 51 de la Ley de Adquisiciones . CUARTO .- Para cumplir con lo dispuesto en el lineamiento anterior, atendiendo a la naturaleza y características de los bienes muebles o servicios y a la complejidad de la contratación, como pudier",
+        "posicion": 151573
+      },
+      {
+        "articulo": "51",
+        "contexto": "motivo para realizar el pago correspondiente fuera del plazo a que se refiere el primer párrafo del artículo 51 de la Ley de Adquisiciones . SEXTO .- Las dependencias y entidades para agilizar el trámite de recepción, aceptación y pago de la factura o del documento que reúna los requisitos fiscales correspondientes, además de lo señalad",
+        "posicion": 155338
+      },
+      {
+        "articulo": "42",
+        "contexto": " tienen por objeto definir y establecer el procedimiento que de conformidad con la fracción XIV del artículo 42 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, deberán observar los sujetos a que se refiere el artículo 1 fracciones I a VI de esa Ley para la determinación de los precios de los servicios necesarios para",
+        "posicion": 160165
+      },
+      {
+        "articulo": "2",
+        "contexto": "ncias y entidades para ejecutar dichas obras. SEGUNDO .- Además de las definiciones previstas en el artículo 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, para los efectos de los presentes Lineamientos se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disposiciones de Carácter General: aquéll",
+        "posicion": 161012
+      }
+    ],
+    "articulos_unicos": [
+      "1",
+      "14",
+      "29",
+      "40",
+      "50",
+      "41",
+      "12 Bis",
+      "51",
+      "38",
+      "17",
+      "42",
+      "47",
+      "8",
+      "12",
+      "81",
+      "2"
+    ],
+    "texto_completo": "DOF - Diario Oficial de la Federación ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionados con las mismas ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionados con las mismas. Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función Pública. SALVADOR VEGA CASILLAS, Secretario de la Función Pública, con fundamento en los artículos 37, fracción XIX de la Ley Orgánica de la Administración Pública Federal; 1, sexto párrafo, 28, quinto párrafo, 36, 48, segundo párrafo, y 51, primer párrafo de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público; 1, séptimo párrafo, 38, 42, fracción XIV y 48, último párrafo, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas; Quinto y Décimo Tercero Transitorios del Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, de la Ley Federal de Responsabilidades Administrativas de los Servidores Públicos y del Código Penal Federal, publicado en el Diario Oficial de la Federación el 28 de mayo de 2009, y 6, fracción I del Reglamento Interior de la Secretaría de la Función Pública, y CONSIDERANDO Que con fecha 28 de mayo de 2009 se publicó en el Diario Oficial de la Federación , el Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, de la Ley Federal de Responsabilidades Administrativas de los Servidores Públicos y del Código Penal Federal; Que con motivo del Decreto a que se refiere el considerando anterior, diversos preceptos de la Ley de Adqu"
+  },
+  "DOF - Diario Oficial de la Federación (1)": {
+    "titulo": "bases y lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la Función Pública POLÍTICAS, bases y lineamientos en",
+    "ley_principal": "LAASSP",
+    "total_caracteres": 184858,
+    "citas_articulos": [
+      {
+        "articulo": "1",
+        "contexto": ".2. Montos de actuación V.3. Bienes y servicios restringidos V.4. Contrataciones en términos de los artículos 1 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público y 4 de su reglamento V.5. Solicitudes de arrendamientos, bienes o servicios V.5.1. Solicitud del procedimiento de contratación al área contratante V.5.2",
+        "posicion": 2927
+      },
+      {
+        "articulo": "12",
+        "contexto": "ios V.5.8. Solicitud de suficiencia presupuestal V.6. Estudio de factibilidad de conformidad con el artículo 12 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público V.7. Estudio de costo beneficio en la adquisición de bienes muebles usados o reconstruidos, conforme al artículo 12 Bis de la Ley de Adquisiciones, Arre",
+        "posicion": 4249
+      },
+      {
+        "articulo": "12 Bis",
+        "contexto": " Estudio de costo beneficio en la adquisición de bienes muebles usados o reconstruidos, conforme al artículo 12 Bis de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público V.8. Contrataciones consolidadas V.8.1. Contrataciones conjuntas entre unidades administrativas de la Secretaría de la Función Pública V.9. Contratos y ",
+        "posicion": 4439
+      },
+      {
+        "articulo": "41",
+        "contexto": "isiciones, Arrendamientos y Servicios del Sector Público V.13.2. Adjudicación directa fundada en el artículo 41 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público V.13.2.1 Contrataciones al amparo del artículo 41, fracción XIV, de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público para el forta",
+        "posicion": 5766
+      },
+      {
+        "articulo": "42",
+        "contexto": "ateria encomiendan a la Secretaría de la Función Pública V.13.3. Adjudicación directa fundada en el artículo 42 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público V.13.4. Adquisiciones y servicios que podrán realizar las unidades administrativas V.14. Comité de adquisiciones, arrendamientos y servicios V.14.1. For",
+        "posicion": 6185
+      },
+      {
+        "articulo": "41",
+        "contexto": "lica a que hacen referencia las fracciones II, IV, V, VI, VII, IX, primer párrafo, XI, XII y XX del artículo 41 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público V.15. Programa de desarrollo de proveedores V.16. CompraNet V.17. Contratos o pedidos V.17.1. Nivel jerárquico de las personas servidoras públicas que p",
+        "posicion": 6597
+      },
+      {
+        "articulo": "2",
+        "contexto": "erán tenerse por reproducidas, como si a la letra se insertaran, las definiciones contenidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, 2 de su reglamento, así como las incluidas en el Manual Administrativo de Aplicación General en Materia de Adquisiciones, Arrendamientos y Servicios de",
+        "posicion": 10799
+      },
+      {
+        "articulo": "26",
+        "contexto": ";&nbsp;&nbsp;&nbsp;&nbsp; Identificación de los procedimientos de contratación a seguir conforme al artículo 26 de la LAASSP y al FO-CON-05, y III. &nbsp;&nbsp;&nbsp;&nbsp; Los bienes y servicios a contratar y las fechas estimadas de la contratación de los mismos. IV.2.2. La adquisición, arrendamiento o prestación de servi",
+        "posicion": 22842
+      },
+      {
+        "articulo": "42",
+        "contexto": "ayor de la SHCP, el 18 de febrero de 2021. IV.3.5. Para aquellas contrataciones fundamentadas en el artículo 42 de la LAASSP, las UA podrán solicitar se lleve a cabo la SDI por medio de CompraNet para solventar la investigación de mercado en los procedimientos de AD independientemente del número de cotizaciones recibidas. ",
+        "posicion": 24472
+      },
+      {
+        "articulo": "42",
+        "contexto": "didos a las UA mediante un oficio circular. b. &nbsp;&nbsp;&nbsp;&nbsp; La AC, con fundamento en el artículo 42 de la LAASSP y en los montos máximos de actuación determinados por el CAAS, definirá el procedimiento de contratación mediante el cual adjudicarán los contratos o pedidos tomando en cuenta los importes de cada op",
+        "posicion": 37892
+      },
+      {
+        "articulo": "1",
+        "contexto": " de autorización presupuestaria en materia de austeridad \" . V.4. Contrataciones en términos de los artículos 1 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público y 4 de su Reglamento. Base La AR que solicite la contratación de bienes o servicios proporcionados o prestados por dependencias, entidades o personas de",
+        "posicion": 40253
+      },
+      {
+        "articulo": "1",
+        "contexto": "oporcionados o prestados por dependencias, entidades o personas de derecho público señaladas en los artículos 1 de la LAASSP y 4 del RLAASSP, se sujetarán a los siguientes: Lineamientos a. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La AR deberá contar con la investigación de mercado en la cual, se advierta que el organismo público cum",
+        "posicion": 40525
+      },
+      {
+        "articulo": "26",
+        "contexto": "la contratación de servicios, de conformidad con los procedimientos de contratación señalados en el artículo 26 de la LAASSP y el artículo 27 del RLAASSP, se sujetarán a los siguientes: Lineamientos a. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La DGRMSG por conducto de la DPyA atenderá la solicitud de procedimiento de contratación qu",
+        "posicion": 43567
+      },
+      {
+        "articulo": "42",
+        "contexto": "eral del AR. Solicitud de investigación de mercado. Solicitud de compra o servicio. Solicitud de AD artículo 42 LAASSP. Solicitud de ITP, artículo 42 y 43 de la LAASSP. Solicitud de Excepción a la LP artículo 40 y 41 LAASSP. Solicitud de LP artículo 28 LAASSP. Tipo de acto Nivel jerárquico de quien firma Emitir el In",
+        "posicion": 52297
+      },
+      {
+        "articulo": "28",
+        "contexto": "ículo 42 y 43 de la LAASSP. Solicitud de Excepción a la LP artículo 40 y 41 LAASSP. Solicitud de LP artículo 28 LAASSP. Tipo de acto Nivel jerárquico de quien firma Emitir el Informe sobre asesorías, consultorías, estudios e investigaciones. Titular del AR con nivel mínimo de director general. Autorizar otorgamiento ",
+        "posicion": 52438
+      },
+      {
+        "articulo": "42",
+        "contexto": "endencia de su carácter 25 &nbsp; b. Los procedimientos de contratación por AD con fundamento en el artículo 42 de la LAASSP, cuyo objeto sea la contratación de bienes o servicios que se requieran con carácter urgente, podrá ser en un plazo de atención mínimo de 16 (dieciséis) días naturales. V.5.5. Investigación de mercad",
+        "posicion": 53947
+      },
+      {
+        "articulo": "36",
+        "contexto": "a atención y desahogo de los comentarios; 25) &nbsp;&nbsp; Criterios de evaluación señalados en los artículos 36 de la LAASSP y 51, 52 y 53 del RLAASSP, en concordancia con los \" Lineamientos para la Aplicación del Criterio de Evaluación de Proposiciones a través del mecanismo de Puntos o Porcentajes en los Procedimientos d",
+        "posicion": 63887
+      },
+      {
+        "articulo": "41",
+        "contexto": "nvitados que serán susceptibles de considerarse en el procedimiento; 7) &nbsp;&nbsp;&nbsp; Para AD (artículo 41 de la LAASSP), escrito de justificación al que alude el artículo 40, segundo párrafo de la LAASSP y 71 del RLAASSP; 8) &nbsp;&nbsp;&nbsp; Para AD (artículo 42 de la LAASSP) el original de por lo menos 3 cotizacio",
+        "posicion": 66111
+      },
+      {
+        "articulo": "42",
+        "contexto": "alude el artículo 40, segundo párrafo de la LAASSP y 71 del RLAASSP; 8) &nbsp;&nbsp;&nbsp; Para AD (artículo 42 de la LAASSP) el original de por lo menos 3 cotizaciones que, en su caso, harán las veces de investigación de mercado; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Lo anterior, para verificar que se agotaron las fuentes ",
+        "posicion": 66270
+      },
+      {
+        "articulo": "36",
+        "contexto": "bsp; Investigación de mercado. d. &nbsp;&nbsp;&nbsp;&nbsp; Criterios de evaluación señalados en los artículos 36 de la LAASSP y 51, 52 y 53 del RLAASSP, en concordancia con lo dispuesto por los \" Lineamientos para la Aplicación del Criterio de Evaluación de Puntos o Porcentajes en los Procedimientos de Contratación \" del \" ",
+        "posicion": 73815
+      },
+      {
+        "articulo": "42",
+        "contexto": "bsp;&nbsp; Para ITP, relación de los posibles invitados. j. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Para AD (artículo 42 de la LAASSP), el original de por lo menos tres cotizaciones que, en su caso, harán las veces de investigación de mercado, a efecto de agregar la SDI respectiva. k. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El AR que necesi",
+        "posicion": 75848
+      },
+      {
+        "articulo": "19",
+        "contexto": "nbsp; La UAF a través de la DGRMSG y la DGRH será la encargada de dar respuesta en cumplimiento del artículo 19 de la LAASSP, para el caso de la contratación de servicios de consultorías, asesorías, estudios e investigaciones que se realicen con cargo al presupuesto de la SFP. r. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Para la cont",
+        "posicion": 77617
+      },
+      {
+        "articulo": "41",
+        "contexto": ", de la LAASSP, salvo que se acrediten los supuestos previstos en las fracciones I a VII del propio artículo 41 de la LAASSP, de acuerdo con lo siguiente: 1) &nbsp;&nbsp;&nbsp; Para la realización del procedimiento de ITP, el AR deberá remitir la lista de los posibles invitados entre los que se incluirá al menos a una inst",
+        "posicion": 78863
+      },
+      {
+        "articulo": "12",
+        "contexto": "GPyP el registro del compromiso correspondiente. V.6. Estudio de factibilidad de conformidad con el artículo 12 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público. Base El AR que necesite del arrendamiento de bienes muebles, deberá elaborar el estudio de factibilidad, que servirá para evaluar y determinar la conve",
+        "posicion": 82112
+      },
+      {
+        "articulo": "12 Bis",
+        "contexto": " Estudio de costo beneficio en la adquisición de bienes muebles usados o reconstruidos, conforme al artículo 12 Bis de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público. Base El AR que necesite la adquisición de bienes muebles usados o reconstruidos elaborará el Estudio de costo beneficio, con el objeto de que demuestre",
+        "posicion": 83408
+      },
+      {
+        "articulo": "12 Bis",
+        "contexto": "nbsp;&nbsp;&nbsp; Cuando corresponda, el avalúo se llevará a cabo en términos de lo dispuesto en el artículo 12 Bis de la LAASSP, el cual deberá estar vigente al momento de la adjudicación del contrato o pedido. II. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Oficio de Liberación de Inversión autorizado por el titular de la UAF, para el ca",
+        "posicion": 84195
+      },
+      {
+        "articulo": "47",
+        "contexto": " AR solicitará por escrito a la DGRMSG la contratación abierta de bienes o servicios, atendiendo al artículo 47 de la LAASSP, debiendo indicar el AR en las ET, las cantidades mínimas y máximas a adquirir, o el presupuesto mínimo y máximo que se ejercerá. b. &nbsp;&nbsp;&nbsp;&nbsp; La DGRMSG asesorará al AR a efecto de que",
+        "posicion": 88151
+      },
+      {
+        "articulo": "26",
+        "contexto": "miento de bienes y contratación de servicios que podrá realizar el AC, serán los establecidos en el artículo 26 de la LAASSP. B. &nbsp;&nbsp;&nbsp;&nbsp; Las personas titulares de la DGRMSG o de la DPyA, en su carácter de AC podrán convocar a LP, ITP y AD y suscribir las convocatorias e invitaciones, respectivas. C. &nbsp;",
+        "posicion": 89257
+      },
+      {
+        "articulo": "32",
+        "contexto": "tir de la fecha de publicación de la convocatoria, conforme a lo dispuesto en el tercer párrafo del artículo 32 de la LAASSP. Lineamiento La justificación y petición correspondientes deberá constar por escrito y ser firmada por el titular del AR. V.11.3. Proyecto de convocatoria. Base En la LP se podrá llevar a cabo la dif",
+        "posicion": 95119
+      },
+      {
+        "articulo": "50",
+        "contexto": " plazo de seis meses, contados a partir de que concluya el término previsto en la fracción XIII del artículo 50 de la LAASSP. b. &nbsp;&nbsp;&nbsp;&nbsp; El AC establecerá en las convocatorias e invitaciones que las personas físicas o morales a las que la SFP, a través del AC les haya rescindido administrativamente más de ",
+        "posicion": 105288
+      },
+      {
+        "articulo": "43",
+        "contexto": "ión de servicios mediante el procedimiento de ITP, observando las disposiciones establecidas en los artículos 43 de la LAASSP, 77 y 78 del RLAASSP, y en lo aplicable de los numerales V.5.2., V.5.6 y V.5.7 de las presentes POBALINES, según sea el caso. B. &nbsp;&nbsp;&nbsp;&nbsp; La contratación de bienes, arrendamientos y s",
+        "posicion": 108821
+      },
+      {
+        "articulo": "41",
+        "contexto": "La contratación de bienes, arrendamientos y servicios, con base en los supuestos establecidos en el artículo 41 de la LAASSP se podrán llevar a cabo, por medio de las siguientes modalidades: I. &nbsp;&nbsp;&nbsp;&nbsp; Por dictaminación del CAAS, o II. &nbsp;&nbsp;&nbsp; Por dictamen del AR. Lineamientos a. &nbsp;&nbsp;&nb",
+        "posicion": 109101
+      },
+      {
+        "articulo": "41",
+        "contexto": ";&nbsp;&nbsp; En el caso de las fracciones II, IV, V, VI, VII, IX primer párrafo, XI, XII y XX, del artículo 41 de la LAASSP, será responsabilidad del AR, por conducto de su titular o director general, emitir el dictamen de procedencia de la excepción a la LP, por lo que este deberá incluir en la justificación correspondie",
+        "posicion": 109885
+      },
+      {
+        "articulo": "42",
+        "contexto": "ón que se autoriza. c. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La ITP que se pretenda realizar al amparo del artículo 42 de la LAASSP, se efectuará conforme a los rangos de actuación determinados por el CAAS. d. &nbsp;&nbsp;&nbsp;&nbsp; Cuando el AR envíe una fuente de investigación específica, la actividad comercial o profesional ",
+        "posicion": 110329
+      },
+      {
+        "articulo": "41",
+        "contexto": "á hasta el día en que se emita el fallo correspondiente. V.13.2. Adjudicación directa fundada en el artículo 41 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público. Bases A. &nbsp;&nbsp;&nbsp;&nbsp; El AR que pretenda realizar contrataciones al amparo del artículo 41 de la LAASSP, deberá observar, en lo aplicable, ",
+        "posicion": 112186
+      },
+      {
+        "articulo": "41",
+        "contexto": "Público. Bases A. &nbsp;&nbsp;&nbsp;&nbsp; El AR que pretenda realizar contrataciones al amparo del artículo 41 de la LAASSP, deberá observar, en lo aplicable, lo dispuesto a los numerales V.5.2., V.5.6 y V.5.7 de las presentes POBALINES. B. &nbsp;&nbsp;&nbsp;&nbsp; La contratación de bienes, arrendamientos y servicios, co",
+        "posicion": 112364
+      },
+      {
+        "articulo": "41",
+        "contexto": "La contratación de bienes, arrendamientos y servicios, con base en los supuestos establecidos en el artículo 41 de la LAASSP se llevará a cabo, en las siguientes modalidades: I. &nbsp;&nbsp;&nbsp;&nbsp; Por dictaminación del CAAS, o II. &nbsp;&nbsp;&nbsp; Por dictamen del AR. Lineamientos a. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ",
+        "posicion": 112631
+      },
+      {
+        "articulo": "41",
+        "contexto": ";&nbsp;&nbsp; En el caso de las fracciones II, IV, V, VI, VII, IX primer párrafo, XI, XII y XX, del artículo 41 de la LAASSP, será responsabilidad del AR, por conducto de su titular o director general, emitir el dictamen de procedencia de la AD, por lo que este deberá incluir en la justificación correspondiente un punto en",
+        "posicion": 113399
+      },
+      {
+        "articulo": "41",
+        "contexto": "cción VIII del artículo 72 del RLAASSP. d. &nbsp;&nbsp;&nbsp;&nbsp; Tratándose de la fracción I del artículo 41 de la LAASSP, antes del inicio del procedimiento de contratación, el titular del AR realizará el análisis técnico correspondiente en el cual acredite que no existen bienes o servicios alternativos o sustitutos té",
+        "posicion": 114161
+      },
+      {
+        "articulo": "41",
+        "contexto": "luirse en la justificación. e. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Para el caso de la fracción VIII, del artículo 41 de la LAASSP, antes del inicio del procedimiento de contratación, el AR deberá acreditar que no existen otras marcas alternativas o sustitutas técnicamente razonables, dejando constancia de ello en la justificaci",
+        "posicion": 114536
+      },
+      {
+        "articulo": "42",
+        "contexto": "puestos señalados en los artículos 50 y 60 de la LAASSP. V.13.3. Adjudicación directa fundada en el artículo 42 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público. Bases A. &nbsp;&nbsp;&nbsp;&nbsp; La AD que se pretenda realizar al amparo del artículo 42 de la LAASSP, se efectuará conforme a los montos de actuació",
+        "posicion": 117910
+      },
+      {
+        "articulo": "42",
+        "contexto": " del Sector Público. Bases A. &nbsp;&nbsp;&nbsp;&nbsp; La AD que se pretenda realizar al amparo del artículo 42 de la LAASSP, se efectuará conforme a los montos de actuación determinados por el CAAS. B. &nbsp;&nbsp;&nbsp;&nbsp; El AR que pretenda realizar contrataciones al amparo del artículo 42 de la LAASSP, deberá observ",
+        "posicion": 118076
+      },
+      {
+        "articulo": "42",
+        "contexto": "s por el CAAS. B. &nbsp;&nbsp;&nbsp;&nbsp; El AR que pretenda realizar contrataciones al amparo del artículo 42 de la LAASSP, deberá observar, en lo aplicable, lo dispuesto en los numerales V.5.2., V.5.6 y V.5.7 de las presentes POBALINES. Lineamientos a. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; En las contrataciones por AD, la inve",
+        "posicion": 118261
+      },
+      {
+        "articulo": "40",
+        "contexto": "n correspondiente, acompañando la documentación soporte y adjuntando el escrito a que se refiere el artículo 40 de la LAASSP. V.14.1. Forma en que deben acreditarse los supuestos de excepción a la licitación pública a que hace referencia el artículo 41, fracciones II, IV, V, VI, VII, IX, primer párrafo, XI, XII y XX de la ",
+        "posicion": 125500
+      },
+      {
+        "articulo": "40",
+        "contexto": "servidor público que realiza la solicitud, deberá remitir a la DAyC el dictamen a que se refiere el artículo 40 de la LAASSP. V.15. Programa de desarrollo de proveedores. Base El programa de desarrollo de proveedores y los programas que tengan por objeto promover la participación de las empresas nacionales, en especial de ",
+        "posicion": 127934
+      },
+      {
+        "articulo": "8",
+        "contexto": "to promover la participación de las empresas nacionales, en especial de las MIPYMES, a que alude el artículo 8 de la LAASSP, estarán a cargo de la DPyA. Lineamiento El Subdirector de Planeación adscrito a la DPyA elaborará y dará seguimiento al programa de desarrollo de proveedores y los programas que tengan por objeto pr",
+        "posicion": 128186
+      },
+      {
+        "articulo": "56",
+        "contexto": "rmación que se cargue, a fin de mantener la actualización a que se refieren los incisos a) a h) del artículo 56 de la LAASSP en dicho sistema. Lineamiento El titular de la DPyA, instruirá a las personas servidoras públicas que tengan las funciones de operación en CompraNet, para que obtengan la constancia que acredite el u",
+        "posicion": 128855
+      },
+      {
+        "articulo": "52",
+        "contexto": " servicios solicitados, mediante la modificación a los instrumentos jurídicos vigentes, conforme al artículo 52 de la LAASSP. B. &nbsp;&nbsp;&nbsp;&nbsp; El AR deberá presentar sus solicitudes dentro de la vigencia del contrato o pedido y ser firmadas por el titular o el director general. Lineamientos a. &nbsp;&nbsp;&nbsp;",
+        "posicion": 134829
+      },
+      {
+        "articulo": "46",
+        "contexto": " de los mismos que se está cediendo. b. &nbsp;&nbsp;&nbsp;&nbsp; En términos del último párrafo del artículo 46 de la LAASSP, el administrador del contrato o pedido del que se pretende se lleve a cabo la cesión, emitirá por oficio el consentimiento para la Cesión de Derechos de Cobro. c. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El A",
+        "posicion": 140688
+      },
+      {
+        "articulo": "81",
+        "contexto": " solicitar a la AC, se estipule una cláusula de arbitraje en el contrato o convenio en términos del artículo 81 de la LAASSP, en las contrataciones que así lo consideren necesario por la complejidad de las mismas y previamente justificadas, fundadas y motivadas. Lineamiento El nivel jerárquico del servidor público responsa",
+        "posicion": 144911
+      },
+      {
+        "articulo": "54 Bis",
+        "contexto": "inación anticipada se sustentará en un dictamen que precise alguna de las hipótesis señaladas en el artículo 54 Bis de la LAASSP, suscrito por el administrador del contrato o pedido, el cual deberá remitirse dentro del periodo de vigencia del contrato o pedido a la DGRMSG para que esta lleve a cabo el procedimiento. B. &nbsp;&",
+        "posicion": 147439
+      },
+      {
+        "articulo": "55 Bis",
+        "contexto": "ilidad podrá suspender la prestación del servicio, previo acuerdo con el proveedor, en términos del artículo 55 Bis de la LAASSP. B. &nbsp;&nbsp;&nbsp;&nbsp; El administrador del contrato o pedido deberá informar a la DGRMSG la suspensión del servicio. Lineamientos a. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; En la suspensión de los serv",
+        "posicion": 149487
+      },
+      {
+        "articulo": "48",
+        "contexto": "sp; La garantía de cumplimiento deberá presentarse en los plazos señalados en el último párrafo del artículo 48 de la LAASSP. V.20.1.1. Casos de excepción al otorgamiento de la garantía de cumplimiento. Base El titular del AC podrá exceptuar al proveedor de presentar la garantía de cumplimiento siempre y cuando el AR lo so",
+        "posicion": 155079
+      },
+      {
+        "articulo": "48",
+        "contexto": "azo para la presentación del endoso de garantía a la SFP, será el señalado en el último párrafo del artículo 48 de la LAASSP. V.20.2. Garantía de Anticipo. Base El proveedor garantizará el monto total del anticipo, seleccionando y presentando la garantía, conforme al orden de prelación que se indica en el lineamiento a, de",
+        "posicion": 156107
+      },
+      {
+        "articulo": "48",
+        "contexto": " para la presentación de dicha carta o endoso en su caso, será el previsto en el cuarto párrafo del artículo 48 de la LAASSP. c. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La póliza deberá entregarse al administrador del contrato o pedido, quien la validará y extenderá el acuse de recibo correspondiente, notificando al proveedor de su",
+        "posicion": 158286
+      },
+      {
+        "articulo": "51",
+        "contexto": "nbsp;&nbsp;&nbsp;&nbsp; El plazo para el pago a los proveedores no podrá exceder del señalado en el artículo 51 de la LAASSP y se estará a lo dispuesto por el numeral Sexto de los \" Lineamientos para Promover la Agilización del Pago a Proveedores \" del \" Acuerdo por el que se emiten diversos lineamientos en materia de adqu",
+        "posicion": 162523
+      },
+      {
+        "articulo": "42",
+        "contexto": "entes: Lineamientos Tipo de procedimiento *Nivel jerárquico mínimo de quien firma la solicitud* AD. artículo 42 de la LAASSP Titular del AR o director general ITP. artículos 42 y 43 de la LAASSP LP artículo 28 de la LAASSP Excepción a la LP. artículo 41 de la LAASSP *En caso de que en la estructura orgánica no exista el ni",
+        "posicion": 165611
+      },
+      {
+        "articulo": "28",
+        "contexto": ". artículo 42 de la LAASSP Titular del AR o director general ITP. artículos 42 y 43 de la LAASSP LP artículo 28 de la LAASSP Excepción a la LP. artículo 41 de la LAASSP *En caso de que en la estructura orgánica no exista el nivel citado, podrá considerarse el nivel inmediato inferior. V.21.3. Otorgamiento de anticipos. Bas",
+        "posicion": 165709
+      },
+      {
+        "articulo": "41",
+        "contexto": "director general ITP. artículos 42 y 43 de la LAASSP LP artículo 28 de la LAASSP Excepción a la LP. artículo 41 de la LAASSP *En caso de que en la estructura orgánica no exista el nivel citado, podrá considerarse el nivel inmediato inferior. V.21.3. Otorgamiento de anticipos. Base El titular del AR podrá solicitar que se o",
+        "posicion": 165753
+      },
+      {
+        "articulo": "13",
+        "contexto": "á solicitar que se otorgue anticipo para aquellas contrataciones que se ubican en los supuestos del artículo 13 de la LAASSP, sin que se entienda que el otorgamiento del anticipo constituye un financiamiento al proveedor. Lineamiento El otorgamiento del anticipo se sujetará a los siguientes criterios: I. &nbsp;&nbsp;&nbsp;",
+        "posicion": 166057
+      },
+      {
+        "articulo": "13",
+        "contexto": "ndo la fabricación de los bienes requiera un periodo superior al señalado en el segundo párrafo del artículo 13 de la LAASSP, deberá otorgarse en igualdad de circunstancias, un anticipo cuando se trate de MIPYMES del 10%, salvo que existan circunstancias que justifique por escrito el titular del AR para otorgar un porcenta",
+        "posicion": 166913
+      },
+      {
+        "articulo": "42",
+        "contexto": "iguientes: Tipo de procedimiento Nivel jerárquico mínimo de quien administra el contrato/pedido AD. artículo 42 de la LAASSP Director de área ITP. artículos 42 y 43 de la LAASSP Excepción a la ITP. artículo 42, párrafo 2 de la LAASSP LP. artículo 28 de la LAASSP Excepción a la LP. artículo 41 de la LAASSP &nbsp; V.23. Modi",
+        "posicion": 171078
+      },
+      {
+        "articulo": "28",
+        "contexto": "rea ITP. artículos 42 y 43 de la LAASSP Excepción a la ITP. artículo 42, párrafo 2 de la LAASSP LP. artículo 28 de la LAASSP Excepción a la LP. artículo 41 de la LAASSP &nbsp; V.23. Modificaciones a las Políticas, Bases y Lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la Función Pú",
+        "posicion": 171216
+      },
+      {
+        "articulo": "41",
+        "contexto": "pción a la ITP. artículo 42, párrafo 2 de la LAASSP LP. artículo 28 de la LAASSP Excepción a la LP. artículo 41 de la LAASSP &nbsp; V.23. Modificaciones a las Políticas, Bases y Lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la Función Pública. Base Cuando se modifique la normativa",
+        "posicion": 171260
+      },
+      {
+        "articulo": "56",
+        "contexto": "de las proposiciones. Base La devolución, destrucción y conservación se llevarán a cabo conforme al artículo 56 de la LAASSP y 104 del RLAASSP. Lineamientos a. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El AC devolverá las proposiciones de aquellos licitantes que hayan sido desechadas en los procedimientos de LP o ITP a solicitud por ",
+        "posicion": 175845
+      },
+      {
+        "articulo": "42",
+        "contexto": "opia de garantía de vicios ocultos, en su caso. II. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AD al amparo del artículo 42 de la LAASSP a) &nbsp;&nbsp;&nbsp; El oficio de solicitud del AR, ET, anexos técnicos, FO-CON-03, y la investigación de mercado; b) &nbsp;&nbsp;&nbsp; La SUPRE del ejercicio correspondiente, o bien, la autorizaci",
+        "posicion": 179532
+      },
+      {
+        "articulo": "41",
+        "contexto": " en su caso. III. &nbsp;&nbsp;&nbsp;&nbsp; Adquisiciones, Arrendamientos y Servicios, al amparo del artículo 41 de la LAASSP. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; En estos casos, los expedientes del procedimiento de contratación contendrán en lo aplicable, la documentación indicada en los numerales V.5.2, V.5.6. y V.",
+        "posicion": 181325
+      },
+      {
+        "articulo": "40",
+        "contexto": "como la documentación que se indica a continuación: a) &nbsp;&nbsp;&nbsp; Justificación conforme al artículo 40 de la LAASSP y 71 del RLAASSP; b) &nbsp;&nbsp;&nbsp; Dictamen de excepción a la LP emitido por el CAAS, en su caso; c) &nbsp;&nbsp;&nbsp; Dictamen conforme al artículo 40 de la LAASSP, en su caso; d) &nbsp;&nbsp;",
+        "posicion": 181705
+      },
+      {
+        "articulo": "40",
+        "contexto": "en de excepción a la LP emitido por el CAAS, en su caso; c) &nbsp;&nbsp;&nbsp; Dictamen conforme al artículo 40 de la LAASSP, en su caso; d) &nbsp;&nbsp;&nbsp; Documentación del proveedor; e) &nbsp;&nbsp;&nbsp; Copia de la opinión de cumplimiento de obligaciones fiscales en sentido positivo, emitida por el Servicio de Admi",
+        "posicion": 181876
+      },
+      {
+        "articulo": "44",
+        "contexto": "ET podrá solicitar que en el contrato o pedido se consideren ajustes de precios en los términos del artículo 44 de la LAASSP. Lineamientos a. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cuando el AR por la naturaleza de los bienes a adquirir o el servicio a contratar requiera ajustes en los precios por medio de decrementos o incremento",
+        "posicion": 183144
+      }
+    ],
+    "articulos_unicos": [
+      "1",
+      "52",
+      "13",
+      "42",
+      "47",
+      "2",
+      "32",
+      "50",
+      "41",
+      "12 Bis",
+      "26",
+      "43",
+      "55 Bis",
+      "56",
+      "46",
+      "8",
+      "12",
+      "81",
+      "28",
+      "40",
+      "54 Bis",
+      "44",
+      "36",
+      "48",
+      "19",
+      "51"
+    ],
+    "texto_completo": "DOF - Diario Oficial de la Federación POLÍTICAS, bases y lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la Función Pública POLÍTICAS, bases y lineamientos en materia de adquisiciones, arrendamientos y servicios de la Secretaría de la Función Pública. Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- FUNCIÓN PÚBLICA.- Secretaría de la Función Pública. POLÍTICAS, BASES Y LINEAMIENTOS EN MATERIA DE ADQUISICIONES, ARRENDAMIENTOS Y SERVICIOS DE LA SECRETARÍA DE LA FUNCIÓN PÚBLICA ROBERTO SALCEDO AQUINO, Secretario de la Función Pública, con fundamento en los artículos 134 de la Constitución Política de los Estados Unidos Mexicanos; 26 y 37 de la Ley Orgánica de la Administración Pública Federal; 1, penúltimo párrafo de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público; 3 del Reglamento de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público; 10, fracciones I y III, y 11, fracción IX, inciso f) del Reglamento Interior de la Secretaría de la Función Pública, publicado en el Diario Oficial de la Federación el 4 de septiembre de 2023; y de conformidad con el capítulo primero denominado \" De los Lineamientos Generales para la expedición de Políticas, Bases y Lineamientos \" , del \" Acuerdo por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionados con las mismas \" , publicado en el Diario Oficial de la Federación el 9 de septiembre de 2010, he tenido a bien emitir las siguientes: POLÍTICAS, BASES Y LINEAMIENTOS EN MATERIA DE ADQUISICIONES, ARRENDAMIENTOS Y SERVICIOS DE LA SECRETARÍA DE LA FUNCIÓN PÚBLICA Índice I. Introducción II. Glosario de términos, acrónimos y siglas III. Ámbito de aplicación y materia que regula IV. Políticas para la orientación de los procedimientos de contratación y la ejecución de los contratos IV.1. Políticas de planeación IV.2. Políticas de programación IV.3"
+  },
+  "DOF - Diario Oficial de la Federación (2)": {
+    "titulo": "ACUERDO por el que se expide el protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licencias, permisos, autoriza",
+    "ley_principal": "LAASSP",
+    "total_caracteres": 35137,
+    "citas_articulos": [
+      {
+        "articulo": "22",
+        "contexto": "Conflictos de Interés. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Los comités a que se refieren los artículos 22 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, y 25 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, respectivamente, estarán obligados a considerar al resolver el procedimiento ",
+        "posicion": 32515
+      }
+    ],
+    "articulos_unicos": [
+      "22"
+    ],
+    "texto_completo": "DOF - Diario Oficial de la Federación --> --> --> × buscar &nbsp; Búsqueda personalizada Ordenar por Relevance Date Usuario Clave Entrar ¿Olvidó su clave? ¿Olvidó su usuario? Inicio | Directorio | --> Contacto | Mapa del Sitio | Ayuda . www.dof.gob.mx &nbsp; --> Busqueda Ejemplar de hoy Trámites Servicios Leyes y Reglamentos Preguntas Frecuentes Publicación de documentos Distribuci&oacute;n de ejemplares --> Adquisición de ejemplares Cotizador de publicaciones Distribuidores autorizados --> Consulta de existencias de ejemplares Solicitud de publicación de documentos en forma electrónica ﻿ &nbsp; DOF: 20/08/2015 ACUERDO por el que se expide el protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licencias, permisos, autorizaciones y concesiones ACUERDO por el que se expide el protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licencias, permisos, autorizaciones y concesiones. Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función Pública. VIRGILIO ANDRADE MARTÍNEZ, Secretario de la Función Pública, con fundamento en los artículos 37, fracciones VI, XIX, XXV y XXVII de la Ley Orgánica de la Administración Pública Federal, en relación con el Segundo Transitorio del Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley Orgánica de la Administración Pública Federal, publicado en el Diario Oficial de la Federación el 2 de enero de 2013; 1, 2, 3, fracción III, 7, 8, fracciones VI, XII y XIII, 40 y 48 de la Ley Federal de Responsabilidades Administrativas de los Servidores Públicos; 5 y 6, fracciones I, V y XXIV del Reglamento Interior de la Secretaría de la Función Pública, y CONSIDERANDO Que el ejercicio de la función pública debe apegarse a los principios de legalidad, honradez, lealtad, imparcialidad y eficiencia, establecidos en el artículo 113 de la Constitución Política de los Estados Unidos Mexicanos, con el propó"
+  },
+  "DOF - Diario Oficial de la Federación (3)": {
+    "titulo": "ACUERDO por el que se modifica el diverso que expide el Protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licen",
+    "ley_principal": "LAASSP",
+    "total_caracteres": 24310,
+    "citas_articulos": [],
+    "articulos_unicos": [],
+    "texto_completo": "DOF - Diario Oficial de la Federación --> --> --> × buscar &nbsp; Búsqueda personalizada Ordenar por Relevance Date Usuario Clave Entrar ¿Olvidó su clave? ¿Olvidó su usuario? Inicio | Directorio | --> Contacto | Mapa del Sitio | Ayuda . www.dof.gob.mx &nbsp; --> Busqueda Ejemplar de hoy Trámites Servicios Leyes y Reglamentos Preguntas Frecuentes Publicación de documentos Distribuci&oacute;n de ejemplares --> Adquisición de ejemplares Cotizador de publicaciones Distribuidores autorizados --> Consulta de existencias de ejemplares Solicitud de publicación de documentos en forma electrónica ﻿ &nbsp; DOF: 19/02/2016 ACUERDO por el que se modifica el diverso que expide el Protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licencias, permisos, autorizaciones y concesiones ACUERDO por el que se modifica el diverso que expide el Protocolo de actuación en materia de contrataciones públicas, otorgamiento y prórroga de licencias, permisos, autorizaciones y concesiones. Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función Pública. VIRGILIO ANDRADE MARTÍNEZ, Secretario de la Función Pública, con fundamento en los artículos 37, fracciones VI, XIX, XXV y XXVII de la Ley Orgánica de la Administración Pública Federal, en relación con el Segundo Transitorio del Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley Orgánica de la Administración Pública Federal, publicado en el Diario Oficial de la Federación el 2 de enero de 2013; 1, 2, 3, fracción III, 7, 8, fracciones VI, XI, XII y XIII, 40 y 48 de la Ley Federal de Responsabilidades Administrativas de los Servidores Públicos; 5, 6, fracciones I, V y XXIV, y 17 BIS del Reglamento Interior de la Secretaría de la Función Pública, y CONSIDERANDO Que el 20 de agosto de 2015 se publicó en el Diario Oficial de la Federación el \" Acuerdo por el que se expide el protocolo de actuación en materia de contrataciones públicas,"
+  },
+  "DOF - Diario Oficial de la Federación (4)": {
+    "titulo": "ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se ap",
+    "ley_principal": "LAASSP",
+    "total_caracteres": 411068,
+    "citas_articulos": [],
+    "articulos_unicos": [],
+    "texto_completo": "DOF - Diario Oficial de la Federación ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se aprueban los Lineamientos técnicos generales para la publicación, homologación y estandarización de la inf ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se aprueban los Lineamientos técnicos generales para la publicación, homologación y estandarización de la información de las obligaciones establecidas en el título quinto y en la fracción IV del artículo 31 de la Ley General de Transparencia y Acceso a la Información Pública, que deben de difundir los sujetos obligados en los portales de Internet y en la Plataforma Nacional de Transparencia. (Continúa en la Octava Sección) Al margen un logotipo, que dice: Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales.- Consejo Nacional.- CONAIP/SNT/ACUERDO/EXT13/04/2016-08. ACUERDO DEL CONSEJO NACIONAL DEL SISTEMA NACIONAL DE TRANSPARENCIA, ACCESO A LA INFORMACI N P BLICA Y PROTECCI N DE DATOS PERSONALES, POR EL QUE SE APRUEBAN LOS LINEAMIENTOS T CNICOS GENERALES PARA LA PUBLICACI N, HOMOLOGACI N Y ESTANDARIZACI N DE LA INFORMACI N DE LAS OBLIGACIONES ESTABLECIDAS EN EL T TULO QUINTO Y EN LA FRACCI N IV DEL ART CULO 31 DE LA LEY GENERAL DE TRANSPARENCIA Y ACCESO A LA INFORMACI N P BLICA, QUE DEBEN DE DIFUNDIR LOS SUJETOS OBLIGADOS EN LOS PORTALES DE INTERNET Y EN LA PLATAFORMA NACIONAL DE TRANSPARENCIA. Que el Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, con fundamento en lo establecido por los artículos 31, fracción I de la Ley General de Transparencia y Acceso a la Información Pública; y 10, fracciones II y VII del Reglamento del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Prot"
+  },
+  "DOF - Diario Oficial de la Federación (5)": {
+    "titulo": "ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se ap",
+    "ley_principal": "Desconocido",
+    "total_caracteres": 78794,
+    "citas_articulos": [],
+    "articulos_unicos": [],
+    "texto_completo": "DOF - Diario Oficial de la Federación ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se aprueban los Lineamientos generales en materia de clasificación y desclasificación de la información, así ACUERDO del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, por el que se aprueban los Lineamientos generales en materia de clasificación y desclasificación de la información, así como para la elaboración de versiones públicas. Al margen un logotipo, que dice: Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales.- Consejo Nacional. CONAIP/SNT/ACUERDO/EXT18/03/2016-03 ACUERDO DEL CONSEJO NACIONAL DEL SISTEMA NACIONAL DE TRANSPARENCIA, ACCESO A LA INFORMACI N P BLICA Y PROTECCI N DE DATOS PERSONALES, POR EL QUE SE APRUEBAN LOS LINEAMIENTOS GENERALES EN MATERIA DE CLASIFICACI N Y DESCLASIFICACI N DE LA INFORMACI N, AS COMO PARA LA ELABORACI N DE VERSIONES P BLICAS. Que el Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, con fundamento en lo establecido por los artículos 31, fracción I de la Ley General de Transparencia y Acceso a la Información Pública; y 10, fracciones II y VII del Reglamento del Consejo Nacional del Sistema Nacional de Transparencia, Acceso a la Información Pública y Protección de Datos Personales, tiene dentro de sus atribuciones las de establecer reglamentos, lineamientos, criterios y demás instrumentos normativos necesarios para cumplir con los objetivos del Sistema Nacional, la Plataforma Nacional y la Ley; así como la de emitir acuerdos para dar cumplimiento a las funciones del Sistema Nacional establecidas en la Ley General antes citada. Que en el punto número VI del orden del día de la primera sesión extraordinaria, celebrada el dieciocho de marzo de dos mil dieciséi"
+  },
+  "DOF - Diario Oficial de la Federación (6)": {
+    "titulo": "Decreto por el que se adiciona un numeral 3 al artículo 283 del Reglamento de la Cámara de Diputados --> &nbsp; &nbsp;PODER EJECUTIVO -->&nbsp;SECRETA",
+    "ley_principal": "Desconocido",
+    "total_caracteres": 11214,
+    "citas_articulos": [],
+    "articulos_unicos": [],
+    "texto_completo": "DOF - Diario Oficial de la Federación --> --> --> × buscar &nbsp; Búsqueda personalizada Ordenar por Relevance Date Usuario Clave Entrar ¿Olvidó su clave? ¿Olvidó su usuario? Inicio | Directorio | --> Contacto | Mapa del Sitio | Ayuda . www.dof.gob.mx &nbsp; --> Busqueda Ejemplar de hoy Trámites Servicios Leyes y Reglamentos Preguntas Frecuentes ﻿ --> --> --> Indice Portada --> &nbsp; Fecha: 15/04/2016 - Edición Matutina &nbsp; PRIMERA SECCION --> &nbsp; &nbsp;PODER LEGISLATIVO -->&nbsp;CAMARA DE DIPUTADOS --> --> &nbsp;&nbsp; Decreto por el que se adiciona un numeral 3 al artículo 283 del Reglamento de la Cámara de Diputados --> &nbsp; &nbsp;PODER EJECUTIVO -->&nbsp;SECRETARIA DE GOBERNACION --> --> &nbsp;&nbsp; Extracto de la solicitud de registro de la agrupación denominada Comunidad Cristiana Vid, para constituirse en asociación religiosa --> &nbsp;&nbsp; Extracto de la solicitud de registro de la entidad interna denominada Iglesia de Cristo Ministerios Llamada Final Ríos de Cristal para constituirse en asociación religiosa; derivada de Iglesia de Cristo Ministerios Llamada Final, A.R. --> &nbsp;&nbsp; Extracto de la solicitud de registro de la entidad interna denominada Iglesia de Cristo Ministerios Llamada Final Querétaro para constituirse en asociación religiosa; derivada de Iglesia de Cristo Ministerios Llamada Final, A.R. --> &nbsp;&nbsp; Extracto de la solicitud de registro de la entidad interna denominada Iglesia del Nazareno en México, el Buen Samaritano para constituirse en asociación religiosa; derivada de Iglesia del Nazareno en México, A.R. --> -->&nbsp;SECRETARIA DE ECONOMIA --> --> &nbsp;&nbsp; Aviso de prórroga de vigencia con motivo de la expedición por segunda ocasión de la Norma Oficial Mexicana de Emergencia NOM-EM-016-SCFI-2015, Productos. Sistemas de radiocomunicación que emplean la técnica de espectro disperso-Equipos de radiocomunicación por salto de frecuencia y por modulación digital a operar en las bandas 902-928 MHz, 2400-2483.5 MHz y "
+  },
+  "DOF - Diario Oficial de la Federación (7)": {
+    "titulo": "ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionado",
+    "ley_principal": "LAASSP",
+    "total_caracteres": 167947,
+    "citas_articulos": [
+      {
+        "articulo": "2",
+        "contexto": "los Lineamientos establecidos en el presente Capítulo, además de las definiciones contenidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público y 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ley de Ad",
+        "posicion": 7860
+      },
+      {
+        "articulo": "1",
+        "contexto": ";&nbsp;&nbsp; POBALINES: las políticas, bases y lineamientos a que se refieren el párrafo sexto del artículo 1 de la Ley de Adquisiciones y el párrafo séptimo del artículo 1 de la Ley de Obras. TERCERO .- En la elaboración de las POBALINES, las dependencias y entidades deberán atender lo siguiente: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs",
+        "posicion": 8440
+      },
+      {
+        "articulo": "12",
+        "contexto": " la adquisición, arrendamiento o arrendamiento con opción a compra de bienes, de conformidad con el artículo 12 de la Ley de Adquisiciones; V. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El área responsable de efectuar el estudio de costo beneficio para determinar la conveniencia de la adquisición de bienes muebles usados o reconstruidos",
+        "posicion": 13526
+      },
+      {
+        "articulo": "12 Bis",
+        "contexto": "o el nivel jerárquico del servidor público responsable de autorizar dicha contratación, conforme al artículo 12 Bis de la Ley de Adquisiciones; &nbsp; VI. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El cargo de los servidores públicos o el área o áreas responsables de realizar la investigación de mercado de conformidad con las disposiciones del Re",
+        "posicion": 13873
+      },
+      {
+        "articulo": "47",
+        "contexto": "o contratar servicios, así como de supervisar el cumplimiento de dichos contratos, regulados por el artículo 47 de la Ley de Adquisiciones; IX. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Los niveles jerárquicos de los servidores públicos facultados para llevar a cabo los diversos actos de los procedimientos de contratación o que se relacionen",
+        "posicion": 14777
+      },
+      {
+        "articulo": "40",
+        "contexto": " las áreas requirentes facultado para suscribir el escrito a que se refieren el párrafo segundo del artículo 40 de la Ley de Adquisiciones o bien, el párrafo segundo del artículo 41 de la Ley de Obras, así como la forma en que deben acreditarse los supuestos de excepción a la licitación pública a que hacen referencia las fracciones II, ",
+        "posicion": 16094
+      },
+      {
+        "articulo": "41",
+        "contexto": "blica a que hacen referencia las fracciones II, IV, V, VI, VII, IX primer párrafo, XI, XII y XX del artículo 41 de la Ley de Adquisiciones o los supuestos de excepción contenidos en las fracciones II, IV, V, VI y VII del artículo 42 de la Ley de Obras; XII. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; El cargo de los servidores públicos responsables ",
+        "posicion": 16384
+      },
+      {
+        "articulo": "8",
+        "contexto": "ipación de las empresas nacionales, en especial de las micro, pequeñas y medianas, a que aluden los artículos 8 de la Ley de Adquisiciones o 9 de la Ley de Obras; XIV. &nbsp;&nbsp;&nbsp;&nbsp; El área responsable de incorporar la información a CompraNet para que se integre y mantenga actualizado el registro único de proveedores y el reg",
+        "posicion": 17134
+      },
+      {
+        "articulo": "81",
+        "contexto": " la firma del convenio escrito posterior a la suscripción de aquél, conforme a lo dispuesto por los artículos 81 de la Ley de Adquisiciones o 99 de la Ley de Obras y su respectivo Reglamento; XVIII. &nbsp;&nbsp; El cargo del servidor público que determinará la cancelación de una licitación pública, la rescisión o la terminación anticipad",
+        "posicion": 18401
+      },
+      {
+        "articulo": "12",
+        "contexto": " la adquisición, arrendamiento o arrendamiento con opción a compra de bienes, de conformidad con el artículo 12 de la Ley de Adquisiciones; III. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La determinación de los bienes, arrendamientos o servicios de diversas unidades administrativas o, en su caso, órganos desconcentrados en una misma dependen",
+        "posicion": 21407
+      },
+      {
+        "articulo": "17",
+        "contexto": "olo procedimiento de contratación, así como las condiciones para ello, acorde a lo dispuesto por el artículo 17 de la Ley de Adquisiciones; IV. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Las condiciones conforme a las cuales deberá sujetarse la adquisición o arrendamiento de bienes, la contratación de servicios, la ejecución de obras o la con",
+        "posicion": 21792
+      },
+      {
+        "articulo": "47",
+        "contexto": "uiridos o arrendados bajo la modalidad de contrato abierto, de conformidad con lo establecido en el artículo 47 de la Ley de Adquisiciones; VI. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Los criterios para determinar la adquisición de bienes muebles usados o reconstruidos, así como para solicitar el avalúo correspondiente, en términos de lo d",
+        "posicion": 22572
+      },
+      {
+        "articulo": "12 Bis",
+        "contexto": "econstruidos, así como para solicitar el avalúo correspondiente, en términos de lo dispuesto por el artículo 12 Bis de la Ley de Adquisiciones; VII. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; En su caso, el porcentaje menor al utilizado para determinar el precio no aceptable en la adquisición o arrendamiento de bienes o contratación de servicios, confo",
+        "posicion": 22826
+      },
+      {
+        "articulo": "38",
+        "contexto": "o no aceptable en la adquisición o arrendamiento de bienes o contratación de servicios, conforme al artículo 38 de la Ley de Adquisiciones; VIII. &nbsp;&nbsp;&nbsp;&nbsp; El porcentaje para determinar el precio conveniente a que se refiere la fracción XII del artículo 2 de la Ley de Adquisiciones; &nbsp; IX. &nbsp;&nbsp;&nbsp;&nbsp;&nbs",
+        "posicion": 23075
+      },
+      {
+        "articulo": "2",
+        "contexto": "bsp;&nbsp; El porcentaje para determinar el precio conveniente a que se refiere la fracción XII del artículo 2 de la Ley de Adquisiciones; &nbsp; IX. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Los aspectos de sustentabilidad ambiental, incluyendo la evaluación de las tecnologías que permitan la reducción de la emisión de gases de efecto inve",
+        "posicion": 23235
+      },
+      {
+        "articulo": "50",
+        "contexto": "dicar contratos a los proveedores que se encuentren en la hipótesis prevista en la fracción III del artículo 50 de la Ley de Adquisiciones, y XI. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La forma y términos para la devolución o destrucción de las proposiciones, conforme a lo dispuesto en los artículos 56 último párrafo de la Ley de Adquisic",
+        "posicion": 24020
+      },
+      {
+        "articulo": "2",
+        "contexto": "as. SEGUNDO .- Para los efectos de estos Lineamientos, además de las definiciones contenidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público y 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Bienes Mu",
+        "posicion": 28229
+      },
+      {
+        "articulo": "14",
+        "contexto": "&nbsp;&nbsp;&nbsp;&nbsp; En este rubro, se deberá considerar lo dispuesto en el segundo párrafo del artículo 14 de la Ley de Adquisiciones, a efecto de otorgar puntuación o unidades porcentuales a personas con discapacidad, a empresas que cuenten con trabajadores con discapacidad y a MIPYMES que produzcan bienes con innovación tecnológi",
+        "posicion": 36987
+      },
+      {
+        "articulo": "29",
+        "contexto": "en o la realización de pruebas de laboratorio, de conformidad con lo dispuesto en la fracción X del artículo 29 de la Ley de Adquisiciones; ii. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Capacidad del licitante. Este rubro tendrá un rango de 5 a 15 puntos o unidades porcentuales. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; La convocante para distrib",
+        "posicion": 43302
+      },
+      {
+        "articulo": "14",
+        "contexto": "stituto Mexicano de la Propiedad Industrial, en términos de lo dispuesto por el segundo párrafo del artículo 14 de la Ley de Adquisiciones. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; En el caso de que la convocante determine evaluar características o condiciones adicionales a las mínimas requeridas, podrá incluir dentro de este rubro lo",
+        "posicion": 45274
+      },
+      {
+        "articulo": "14",
+        "contexto": "stituto Mexicano de la Propiedad Industrial, en términos de lo dispuesto por el segundo párrafo del artículo 14 de la Ley de Adquisiciones, y e) &nbsp;&nbsp;&nbsp;&nbsp; Subcontratación de MIPYMES. El presente subrubro sólo se aplicará en los procedimientos de contratación de servicios relacionados con obras. La convocante deberá asigna",
+        "posicion": 96675
+      },
+      {
+        "articulo": "14",
+        "contexto": ";&nbsp;&nbsp;&nbsp;&nbsp; En este rubro, deberá considerarse lo dispuesto en el segundo párrafo del artículo 14 de la Ley de Adquisiciones, o en el segundo párrafo del artículo 38 de la Ley de Obras, a efecto de otorgar puntuación o unidades porcentuales a personas con discapacidad y a empresas que cuenten con trabajadores con discapaci",
+        "posicion": 110766
+      },
+      {
+        "articulo": "2",
+        "contexto": "O .- Para los efectos de los presentes Lineamientos, además de las definiciones establecidas en los artículos 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público o 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas , se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ley de Adquisiciones: la L",
+        "posicion": 135340
+      },
+      {
+        "articulo": "2",
+        "contexto": "DO .- Para los efectos de los presentes Lineamientos, además de las definiciones establecidas en el artículo 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, se entenderá por : I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Grupo de partidas: la reunión de partidas de bienes, servicios o de bienes y ser",
+        "posicion": 140516
+      },
+      {
+        "articulo": "2",
+        "contexto": "bsp;&nbsp;&nbsp; OSD: la o las ofertas subsecuentes de descuentos previstas en la fracción VIII del artículo 2 de la Ley de Adquisiciones; Las menciones que se hagan en los presentes Lineamientos a las dependencias y entidades, se entenderán hechas en lo conducente, a las entidades federativas, a los municipios y a los entes públicos d",
+        "posicion": 141308
+      },
+      {
+        "articulo": "38",
+        "contexto": "otal o parcial por el propio servidor público en términos de lo dispuesto por el párrafo cuarto del artículo 38 de la Ley de Adquisiciones y se podrá emitir una nueva convocatoria por la o las partidas pendientes de someterse a OSD. El procedimiento de contratación que hubiera sido interrumpido y cancelado en los términos del párrafo an",
+        "posicion": 149759
+      },
+      {
+        "articulo": "2",
+        "contexto": ". SEGUNDO .- Para efectos de estos Lineamientos, serán aplicables las definiciones contenidas en el artículo 2 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, y a ésta se le denominará como Ley de Adquisiciones. TERCERO .- El plazo máximo que deberá mediar entre la fecha en que el proveedor acredite la entreg",
+        "posicion": 151120
+      },
+      {
+        "articulo": "51",
+        "contexto": "les, dentro de los cuales quedará comprendido el plazo a que hace referencia el párrafo primero del artículo 51 de la Ley de Adquisiciones . CUARTO .- Para cumplir con lo dispuesto en el lineamiento anterior, atendiendo a la naturaleza y características de los bienes muebles o servicios y a la complejidad de la contratación, como pudier",
+        "posicion": 151573
+      },
+      {
+        "articulo": "51",
+        "contexto": "motivo para realizar el pago correspondiente fuera del plazo a que se refiere el primer párrafo del artículo 51 de la Ley de Adquisiciones . SEXTO .- Las dependencias y entidades para agilizar el trámite de recepción, aceptación y pago de la factura o del documento que reúna los requisitos fiscales correspondientes, además de lo señalad",
+        "posicion": 155338
+      },
+      {
+        "articulo": "42",
+        "contexto": " tienen por objeto definir y establecer el procedimiento que de conformidad con la fracción XIV del artículo 42 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, deberán observar los sujetos a que se refiere el artículo 1 fracciones I a VI de esa Ley para la determinación de los precios de los servicios necesarios para",
+        "posicion": 160165
+      },
+      {
+        "articulo": "2",
+        "contexto": "ncias y entidades para ejecutar dichas obras. SEGUNDO .- Además de las definiciones previstas en el artículo 2 de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, para los efectos de los presentes Lineamientos se entenderá por: I. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Disposiciones de Carácter General: aquéll",
+        "posicion": 161012
+      }
+    ],
+    "articulos_unicos": [
+      "1",
+      "14",
+      "29",
+      "40",
+      "50",
+      "41",
+      "12 Bis",
+      "51",
+      "38",
+      "17",
+      "42",
+      "47",
+      "8",
+      "12",
+      "81",
+      "2"
+    ],
+    "texto_completo": "DOF - Diario Oficial de la Federación ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionados con las mismas ACUERDO por el que se emiten diversos lineamientos en materia de adquisiciones, arrendamientos y servicios y de obras públicas y servicios relacionados con las mismas. Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Secretaría de la Función Pública. SALVADOR VEGA CASILLAS, Secretario de la Función Pública, con fundamento en los artículos 37, fracción XIX de la Ley Orgánica de la Administración Pública Federal; 1, sexto párrafo, 28, quinto párrafo, 36, 48, segundo párrafo, y 51, primer párrafo de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público; 1, séptimo párrafo, 38, 42, fracción XIV y 48, último párrafo, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas; Quinto y Décimo Tercero Transitorios del Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, de la Ley Federal de Responsabilidades Administrativas de los Servidores Públicos y del Código Penal Federal, publicado en el Diario Oficial de la Federación el 28 de mayo de 2009, y 6, fracción I del Reglamento Interior de la Secretaría de la Función Pública, y CONSIDERANDO Que con fecha 28 de mayo de 2009 se publicó en el Diario Oficial de la Federación , el Decreto por el que se reforman, adicionan y derogan diversas disposiciones de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, de la Ley de Obras Públicas y Servicios Relacionados con las Mismas, de la Ley Federal de Responsabilidades Administrativas de los Servidores Públicos y del Código Penal Federal; Que con motivo del Decreto a que se refiere el considerando anterior, diversos preceptos de la Ley de Adqu"
+  },
+  "DOF - Diario Oficial de la Federación (8)": {
+    "titulo": "BASES y Lineamientos en materia de adquisiciones, arrendamientos y servicios del Instituto Nacional de Transparencia, Acceso a la Información y Protec",
+    "ley_principal": "Desconocido",
+    "total_caracteres": 244411,
+    "citas_articulos": [],
+    "articulos_unicos": [],
+    "texto_completo": "DOF - Diario Oficial de la Federación BASES y Lineamientos en materia de adquisiciones, arrendamientos y servicios del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales BASES y Lineamientos en materia de adquisiciones, arrendamientos y servicios del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales. Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales. BASES Y LINEAMIENTOS EN MATERIA DE ADQUISICIONES, ARRENDAMIENTOS Y SERVICIOS DEL INSTITUTO NACIONAL DE TRANSPARENCIA, ACCESO A LA INFORMACI N Y PROTECCI N DE DATOS PERSONALES CAP TULO I DISPOSICIONES GENERALES 1. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Objeto Las presentes Bases y Lineamientos en Materia de Adquisiciones, Arrendamientos y Servicios del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales, tienen como objeto establecer el marco regulatorio específico que deberá considerarse para llevar a cabo las adquisiciones, arrendamientos y servicios. 2. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Ámbito de aplicación y materia que regula Son de observancia obligatoria en los procedimientos celebrados por el Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales, en materia de adquisiciones de bienes, arrendamientos y de servicios que estén regulados por el Reglamento de Adquisiciones, Arrendamientos y Servicios del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales. 3. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Glosario de términos Para efectos de estas Bases y Lineamientos se deberán considerar los mismos conceptos establecidos en el artículo 2 del Reglamento de Adquisiciones, Arrendamientos y Servicios del Instituto Nacional de Transparencia, Acceso a la Información y Protección de Datos Personales, así como los siguien"
+  },
+  "DOF - Diario Oficial de la Federación (9)": {
+    "titulo": "MANUAL del Usuario de la Bitácora Electrónica de Seguimiento de Adquisiciones (BESA) MANUAL del Usuario de la Bitácora Electrónica de Seguimiento de A",
+    "ley_principal": "LAASSP",
+    "total_caracteres": 101903,
+    "citas_articulos": [
+      {
+        "articulo": "1",
+        "contexto": " convenios que celebren con el Ejecutivo Federal, que se ubiquen en los supuestos normativos de los artículos 1 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público y artículo 4 de la Ley de Asociaciones Público Privadas. Contenido 1. Introducción 2. Objetivo 3. Antecedentes 4. Perfiles de usuario y modelo de admini",
+        "posicion": 5178
+      },
+      {
+        "articulo": "1",
+        "contexto": "o de las obligaciones patronales . Nota: En los contratos cuyo fundamento legal se establece por el Artículo 1 de la LAASSP , y con referencia a los archivos correspondientes a las obligaciones patronales, éstos no son obligatorios en su captura. De acuerdo con el archivo que sea necesario adjuntar, según sea el caso, se ",
+        "posicion": 35685
+      },
+      {
+        "articulo": "22",
+        "contexto": "Comité de adquisiciones: El comité de adquisiciones, arrendamientos y servicios a que se refiere el artículo 22 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público. Conclusión de contrato: El estatus que especifica el cierre de la bitácora electrónica del contrato en sus diferentes modalidades. Consultor: Perfil as",
+        "posicion": 81790
+      },
+      {
+        "articulo": "47",
+        "contexto": "de la Ley de Asociaciones Público Privadas. Contrato abierto: Acto jurídico que se fundamenta en el artículo 47 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público, que tiene como finalidad que las dependencias y entidades puedan adquirir bienes, arrendamientos o servicios que requieran de manera reiterada, en los ",
+        "posicion": 82775
+      }
+    ],
+    "articulos_unicos": [
+      "1",
+      "47",
+      "22"
+    ],
+    "texto_completo": "DOF - Diario Oficial de la Federación MANUAL del Usuario de la Bitácora Electrónica de Seguimiento de Adquisiciones (BESA) MANUAL del Usuario de la Bitácora Electrónica de Seguimiento de Adquisiciones (BESA). Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- FUNCIÓN PÚBLICA.- Secretaría de la Función Pública. EDUARDO GURZA CURIEL, Coordinador General de Fiscalización de la Secretaría de la Función Pública, con fundamento en los artículos 2, fracción I, 26 y 37 de la Ley Orgánica de la Administración Pública Federal; 4, fracción II, 7, apartado C, 15, fracción II, y 64, fracción I, del Reglamento Interior de la Secretaría de la Función Pública, y cuarto transitorio del \" Acuerdo que modifica el diverso por el que se establece la obligatoriedad del registro de contratos y operaciones de adquisiciones, arrendamientos y servicios del sector público en la Bitácora Electrónica de Seguimiento de Adquisiciones y sus Lineamientos \" , publicado en el Diario Oficial de la Federación el 18 de junio de 2024, y CONSIDERANDO Que la Secretaría de la Función Pública es la dependencia de la Administración Pública Federal a la que corresponde coordinar el sistema de control interno e inspeccionar el ejercicio del gasto público federal y su congruencia con los presupuestos de egresos; fiscalizar que las dependencias y entidades de la Administración Pública Federal cumplan con las normas en materia de sistemas de registro y contabilidad y de contratación de adquisiciones, arrendamientos y servicios, y emitir los manuales necesarios en materia de control interno, prevención, vigilancia, inspección y revisión de contrataciones públicas; Que, para dar cumplimiento a las atribuciones en materia de control interno, prevención, vigilancia, inspección y revisión a las contrataciones públicas, la Secretaría de la Función Pública expidió el \" Acuerdo por el que se establecen las disposiciones generales para la realización del proceso de fiscalización \" , publicado e"
+  }
+}

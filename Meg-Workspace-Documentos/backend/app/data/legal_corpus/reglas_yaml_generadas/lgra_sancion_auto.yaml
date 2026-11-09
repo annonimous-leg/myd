@@ -1,0 +1,216 @@
+- id: LGRA_50
+  articulo: Art. 50 LGRA
+  descripcion: "También se considerará Falta administrativa no grave, los daños y\
+    \ per juicios que, de \nmanera culposa o negligente y sin incurrir en alguna de\
+    \ las faltas administrativas graves señ"
+  tipo: plazo
+  estado: sancion
+  texto_completo: "Artículo 50 . También se considerará Falta administrativa no grave,\
+    \ los daños y per juicios que, de \nmanera culposa o negligente y sin incurrir\
+    \ en alguna de las faltas administrativas graves señaladas en el \nCapítulo siguiente,\
+    \ cause un servidor público a la Hacienda Pública o al patrimonio de un Ente público.\
+    \  \n \nLos entes públicos o los part iculares que, en términos de este artículo,\
+    \ hayan recibido recursos \npúblicos sin tener derecho a los mismos, deberán reintegrar\
+    \ los mismos a la Hacienda "
+- id: LGRA_51
+  articulo: Art. 51 LGRA
+  descripcion: "Las conductas previstas en el presente Capítulo constituyen Faltas\
+    \ administrativas \ngraves de los Servidores Públicos, por lo que deberán abstenerse\
+    \ de realizarlas,  median te cual"
+  tipo: obligacion
+  estado: sancion
+  texto_completo: "Artículo 51.  Las conductas previstas en el presente Capítulo constituyen\
+    \ Faltas administrativas \ngraves de los Servidores Públicos, por lo que deberán\
+    \ abstenerse de realizarlas,  median te cualquier acto \nu omisión."
+- id: LGRA_56
+  articulo: Art. 56 LGRA
+  descripcion: "Para efectos del artículo anterior, se considera información privilegiada\
+    \ la que obtenga e l \nservidor público con motivo de sus funciones y que no sea\
+    \ del dominio público.  \n \nLa "
+  tipo: plazo
+  estado: sancion
+  texto_completo: "Artículo 56.  Para efectos del artículo anterior, se considera\
+    \ información privilegiada la que obtenga e l \nservidor público con motivo de\
+    \ sus funciones y que no sea del dominio público.  \n \nLa restricción prevista\
+    \ en el artículo anterior será aplicable inclusive cuando el servidor público\
+    \ se \nhaya retirado del empleo, cargo o comisión, hasta por un plazo de un añ\
+    \ o."
+- id: LGRA_57
+  articulo: Art. 57 LGRA
+  descripcion: "Incurrirá en abuso de funciones la persona servidora o servidor público\
+    \ que ejerza \natribuciones que no tenga conferidas o se valga de las que tenga,\
+    \ para realizar o inducir actos "
+  tipo: regla
+  estado: sancion
+  texto_completo: "Artículo 57. Incurrirá en abuso de funciones la persona servidora\
+    \ o servidor público que ejerza \natribuciones que no tenga conferidas o se valga\
+    \ de las que tenga, para realizar o inducir actos u \nomisiones arbitrarios, para\
+    \ generar un beneficio para sí o  para las personas a las que se refiere el artículo\
+    \ \n52 de esta Ley o para causar perjuicio a alguna persona o al servicio público;\
+    \ así como cuando realiza \npor sí o a través de un tercero, alguna de las conductas\
+    \ descritas en el artículo 20 Ter"
+- id: LGRA_58
+  articulo: Art. 58 LGRA
+  descripcion: "Incurre en actuación bajo Conflicto de Interés el servidor público\
+    \ que intervenga por \nmotivo de su empleo, cargo o comisión en cualquier forma,\
+    \ e n la atención, tramitación o reso"
+  tipo: plazo
+  estado: sancion
+  texto_completo: "Artículo 58.  Incurre en actuación bajo Conflicto de Interés el\
+    \ servidor público que intervenga por \nmotivo de su empleo, cargo o comisión\
+    \ en cualquier forma, e n la atención, tramitación o resolución de \nasuntos en\
+    \ los que tenga Conflicto de Interés o impedimento legal.  \n \nAl tener conocimiento\
+    \ de los asuntos mencionados en el párrafo anterior, el servidor público informará\
+    \ \ntal situación al jefe inmediato o al órgan o que determine la s disposiciones\
+    \ aplicables de los entes \npúblicos, solicit"
+- id: LGRA_59
+  articulo: Art. 59 LGRA
+  descripcion: "Será responsable de contratación indebida  el servidor público que\
+    \ autorice  cualquier tipo \nde contratación, así como la selección, nombramiento\
+    \ o designación, de quien se encuent"
+  tipo: procedimiento
+  estado: sancion
+  texto_completo: "Artículo 59. Será responsable de contratación indebida  el servidor\
+    \ público que autorice  cualquier tipo \nde contratación, así como la selección,\
+    \ nombramiento o designación, de quien se encuentre impedido por \ndisposici ón\
+    \ legal o inhabilitado por resolución de autoridad competente para ocupar un empleo,\
+    \ cargo o \ncomisión en el servicio público o inhabilitado para realizar contrataciones\
+    \ con los entes públicos, siempre \nque en el caso de las inhabilitaciones, al\
+    \ momento de la autorización, éstas"
+- id: LGRA_60
+  articulo: Art. 60 LGRA
+  descripcion: "Incurrirá en enriquecimiento oculto u ocult amiento de Conflicto de\
+    \ Interés  el servidor \npúblico que falte a la veracidad en la presentación de\
+    \ las declaraciones de situación patr"
+  tipo: regla
+  estado: sancion
+  texto_completo: "Artículo 60. Incurrirá en enriquecimiento oculto u ocult amiento\
+    \ de Conflicto de Interés  el servidor \npúblico que falte a la veracidad en la\
+    \ presentación de las declaraciones de situación patrimonial o de \nintereses,\
+    \ que tenga como fin ocultar, respectivamente, el incremento en su patrimonio\
+    \ o el uso y disfrute \nde bienes o servicios que no sea explicable o justificable,\
+    \ o un Conflicto de Interés."
+- id: LGRA_60_Bis
+  articulo: Art. 60 Bis LGRA
+  descripcion: "Comete simulación de acto jurídico el servidor público que utilice\
+    \ personalidad \njurídica distinta a la suya para obtener, en beneficio propio\
+    \ o de algún familiar hasta el cuarto g"
+  tipo: sancion
+  estado: sancion
+  texto_completo: "Artículo 60 Bis.  Comete simulación de acto jurídico el servidor\
+    \ público que utilice personalidad \njurídica distinta a la suya para obtener,\
+    \ en beneficio propio o de algún familiar hasta el cuarto grado por \nconsanguinidad\
+    \ o afinidad, recursos públicos en forma contraria a la ley.  \n \nEsta falta\
+    \ administrativa se sancionará con inhabilitación de cinco a diez años.  \nArtículo\
+    \ adicionado  DOF 19-11-2019"
+- id: LGRA_61
+  articulo: Art. 61 LGRA
+  descripcion: "Cometerá tráfico  de influencias  el servidor público que utilice\
+    \ la posición que su empleo, \ncargo o comisión le confiere para inducir a que\
+    \ otro servidor público efectúe, retrase"
+  tipo: regla
+  estado: sancion
+  texto_completo: "Artículo 61. Cometerá tráfico  de influencias  el servidor público\
+    \ que utilice la posición que su empleo, \ncargo o comisión le confiere para inducir\
+    \ a que otro servidor público efectúe, retrase u omita realizar \nalgún acto de\
+    \ su competencia, para generar cualquier beneficio, provecho o ve ntaja para sí\
+    \ o para alguna \nde las personas a que se refiere el artículo 52 de esta Ley."
+- id: LGRA_62
+  articulo: Art. 62 LGRA
+  descripcion: "Será responsable de encubrimiento  el servidor público que  cuando\
+    \  en el ejercicio de sus \nfunciones llegare a advertir actos u omisiones que\
+    \ pudieren const ituir Faltas administr"
+  tipo: regla
+  estado: sancion
+  texto_completo: "Artículo 62. Será responsable de encubrimiento  el servidor público\
+    \ que  cuando  en el ejercicio de sus \nfunciones llegare a advertir actos u omisiones\
+    \ que pudieren const ituir Faltas administrativas, realice \ndeliberadamente alguna\
+    \ conducta para su ocultamiento."
+- id: LGRA_63_Bis
+  articulo: Art. 63 Bis LGRA
+  descripcion: "Cometerá nepotismo el servidor público que, valiéndose de las atribuciones\
+    \ o \nfacultades de su empleo, cargo o comisión, directa o indirectamente, designe,\
+    \ nombre o inte rvenga par"
+  tipo: facultad
+  estado: sancion
+  texto_completo: "Artículo 63 Bis.  Cometerá nepotismo el servidor público que, valiéndose\
+    \ de las atribuciones o \nfacultades de su empleo, cargo o comisión, directa o\
+    \ indirectamente, designe, nombre o inte rvenga para \nque se contrate como personal\
+    \ de confianza, de estructura, de base o por honorarios en el ente público \n\
+    en que ejerza sus funciones, a personas con las que tenga lazos de parentesco\
+    \ por consanguinidad \nhasta el cuarto grado, de afinidad hasta el segundo grado,\
+    \ o vínculo de matrimonio o concubinato."
+- id: LGRA_63
+  articulo: Art. 63 LGRA
+  descripcion: "Cometerá desacato  el servidor público que, tratándose de requerimientos\
+    \ o resoluciones \nde autoridades fiscalizadoras, de control interno, judiciales,\
+    \ electorales o en materia de "
+  tipo: regla
+  estado: sancion
+  texto_completo: "Artículo 63.  Cometerá desacato  el servidor público que, tratándose\
+    \ de requerimientos o resoluciones \nde autoridades fiscalizadoras, de control\
+    \ interno, judiciales, electorales o en materia de defensa de los \nderechos humanos\
+    \ o cualquier otra competente, proporcione información falsa, así como no dé respuesta\
+    \ \nalguna, retrase deliberadamente y sin justificación la entrega de la información,\
+    \ a pesar de que le hayan \nsido impuestas medidas de apremio conforme a las disposiciones\
+    \ aplicables."
+- id: LGRA_64_Ter
+  articulo: Art. 64 Ter LGRA
+  descripcion: "Es falta administrativa grave, la omisión de enterar las cuotas, aportaciones,\
+    \ cuotas \nsociales o descuentos ante el Instituto de Seguridad y Servicios Sociales\
+    \ de los Trabajadores"
+  tipo: plazo
+  estado: sancion
+  texto_completo: "Artículo 64 Ter.  Es falta administrativa grave, la omisión de\
+    \ enterar las cuotas, aportaciones, cuotas \nsociales o descuentos ante el Instituto\
+    \ de Seguridad y Servicios Sociales de los Trabajadores del Estado, \nen los términos\
+    \ que señalan los artículos 21 y 22 de la Ley del Instituto de Seguridad y Servicios\
+    \ Sociales \nde los Trabajadores del Estado.  \nArtículo adicionado DOF 22 -11-2021"
+- id: LGRA_64_Bis
+  articulo: Art. 64 Bis LGRA
+  descripcion: "Son faltas administrativas graves las violaciones a las d isposiciones\
+    \ sobre \nfideicomisos establecidas en la Ley Federal de Austeridad Republicana.\
+    \  \n adicionado  DOF 19-11-2019"
+  tipo: regla
+  estado: sancion
+  texto_completo: "Artículo 64 Bis.  Son faltas administrativas graves las violaciones\
+    \ a las d isposiciones sobre \nfideicomisos establecidas en la Ley Federal de\
+    \ Austeridad Republicana.  \nArtículo adicionado  DOF 19-11-2019"
+- id: LGRA_64
+  articulo: Art. 64 LGRA
+  descripcion: "Los Servidores Públicos responsables de la investigación, substanciación\
+    \ y resolución de \nlas Faltas administrativas incurrirán en obstrucción de la\
+    \ justi cia cuando:  \n \nI. Realic"
+  tipo: plazo
+  estado: sancion
+  texto_completo: "Artículo 64.  Los Servidores Públicos responsables de la investigación,\
+    \ substanciación y resolución de \nlas Faltas administrativas incurrirán en obstrucción\
+    \ de la justi cia cuando:  \n \nI. Realicen cualquier acto que simule conductas\
+    \ no graves durante la investigación de actos \nu omisiones calificados como graves\
+    \ en la presente Ley y demás disposiciones aplicables;  \n \n \n LEY GENERAL DE\
+    \ RESPONSABILIDADES ADMINISTRATIVAS  \n \nSecretaría de Servicios Parlamentarios\
+    \   \n \n21 de 79 II. No inicien el pr"
+- id: LGRA_64_Quáter
+  articulo: Art. 64 Quáter LGRA
+  descripcion: "Será responsable de injerencia sindical la persona servidora pública\
+    \ que, por sí o \npor terceros, incurra en las conductas previstas en la Ley Federal\
+    \ de los Trabajadores al Servic"
+  tipo: regla
+  estado: sancion
+  texto_completo: "Artículo 64 Quáter.  Será responsable de injerencia sindical la\
+    \ persona servidora pública que, por sí o \npor terceros, incurra en las conductas\
+    \ previstas en la Ley Federal de los Trabajadores al Servicio del \nEstado, Reglamentaria\
+    \ del Apartado B) del Artículo 123 Constitucional o en las leyes equivalentes\
+    \ de las \nentidades federativas.  \nArtículo adicionado DOF 15 -12-2025  \n \n\
+    Capítulo III  \nDe los actos de particulares vinculados con faltas administrativas\
+    \ graves"
+- id: LGRA_65
+  articulo: Art. 65 LGRA
+  descripcion: "Los actos de particulares previstos en el presente Capítulo se consideran\
+    \ vinculados a \nfaltas administrativas graves, por lo que su comisión será sancionada\
+    \ en términos de esta Le"
+  tipo: plazo
+  estado: sancion
+  texto_completo: "Artículo 65.  Los actos de particulares previstos en el presente\
+    \ Capítulo se consideran vinculados a \nfaltas administrativas graves, por lo\
+    \ que su comisión será sancionada en términos de esta Ley."

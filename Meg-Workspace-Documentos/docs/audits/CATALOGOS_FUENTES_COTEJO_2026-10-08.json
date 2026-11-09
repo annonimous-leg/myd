@@ -1,0 +1,443 @@
+{
+  "fuentes": [
+    {
+      "fuente_id": "varela_m2_2026_00",
+      "archivo_original": "00_preliminares_y_reglas_de_valuacion.pdf",
+      "sha256": "ea942811314f5cc0e683f5f5cde9bda57a0b390d66c0d3fcc51eb20a63e4e3c2",
+      "encontrado": true,
+      "paginas_esperadas": 16,
+      "archivo_encontrado": "varela-secciones/00_preliminares_y_reglas_de_valuacion.pdf",
+      "paginas_encontradas": 16
+    },
+    {
+      "fuente_id": "varela_m2_2026_01",
+      "archivo_original": "01_casas.pdf",
+      "sha256": "d2928aac6a78efafc4302a28dda59e2373035400e491fb1c687d36b87f93566d",
+      "encontrado": true,
+      "paginas_esperadas": 42,
+      "archivo_encontrado": "varela-secciones/01_casas.pdf",
+      "paginas_encontradas": 42
+    },
+    {
+      "fuente_id": "varela_m2_2026_02",
+      "archivo_original": "02_departamentos.pdf",
+      "sha256": "1e0b90d5e747be20171799853b47dfa687ff545f5a1ee7eb4fd168510c702437",
+      "encontrado": true,
+      "paginas_esperadas": 36,
+      "archivo_encontrado": "varela-secciones/02_departamentos.pdf",
+      "paginas_encontradas": 36
+    },
+    {
+      "fuente_id": "varela_m2_2026_03",
+      "archivo_original": "03_bodegas_y_naves.pdf",
+      "sha256": "7d9b2a26104336cc6cb82ad01ff3fa1ae19ee22386946587eb5773cc94705aa5",
+      "encontrado": true,
+      "paginas_esperadas": 72,
+      "archivo_encontrado": "varela-secciones/03_bodegas_y_naves.pdf",
+      "paginas_encontradas": 72
+    },
+    {
+      "fuente_id": "varela_m2_2026_04",
+      "archivo_original": "04_comerciales.pdf",
+      "sha256": "fc3dc88c3aebc2968498aeeecb4b3b8b748508ebaffa9106779088b10566e62f",
+      "encontrado": true,
+      "paginas_esperadas": 18,
+      "archivo_encontrado": "varela-secciones/04_comerciales.pdf",
+      "paginas_encontradas": 18
+    },
+    {
+      "fuente_id": "varela_m2_2026_05",
+      "archivo_original": "05_deportivos.pdf",
+      "sha256": "f55c93ac6110210a0c6b5e128551fd76ae0e683bedc1942b930c81f1296a66e4",
+      "encontrado": true,
+      "paginas_esperadas": 26,
+      "archivo_encontrado": "varela-secciones/05_deportivos.pdf",
+      "paginas_encontradas": 26
+    },
+    {
+      "fuente_id": "varela_m2_2026_06",
+      "archivo_original": "06_escuelas.pdf",
+      "sha256": "5b8bc78aef8b0f1b80ab1a69892df7639dbb3f5ff113e5706b70c1720522c7ea",
+      "encontrado": true,
+      "paginas_esperadas": 22,
+      "archivo_encontrado": "varela-secciones/06_escuelas.pdf",
+      "paginas_encontradas": 22
+    },
+    {
+      "fuente_id": "varela_m2_2026_07",
+      "archivo_original": "07_espacios_culturales.pdf",
+      "sha256": "6ef6cea4117782f1c4326d427daff9b4f7ada722dc36adfbdd8bf85a071be174",
+      "encontrado": true,
+      "paginas_esperadas": 28,
+      "archivo_encontrado": "varela-secciones/07_espacios_culturales.pdf",
+      "paginas_encontradas": 28
+    },
+    {
+      "fuente_id": "varela_m2_2026_08",
+      "archivo_original": "08_salud.pdf",
+      "sha256": "d1864e15fab7e2fc7a0464917b63c3592bd6f2eb446d42472c7fe68810f2a447",
+      "encontrado": true,
+      "paginas_esperadas": 22,
+      "archivo_encontrado": "varela-secciones/08_salud.pdf",
+      "paginas_encontradas": 22
+    },
+    {
+      "fuente_id": "varela_m2_2026_09",
+      "archivo_original": "09_hoteles.pdf",
+      "sha256": "d2fbf0859e4598768e1b332e344148efdeb6c0d12818d051ab24355778b480f2",
+      "encontrado": true,
+      "paginas_esperadas": 52,
+      "archivo_encontrado": "varela-secciones/09_hoteles.pdf",
+      "paginas_encontradas": 52
+    },
+    {
+      "fuente_id": "varela_m2_2026_10",
+      "archivo_original": "10_carreteras.pdf",
+      "sha256": "520a7d0891404838dd83c91a84bda30bfc3b4841ec242c31ac59ba351d5d194a",
+      "encontrado": true,
+      "paginas_esperadas": 6,
+      "archivo_encontrado": "varela-secciones/10_carreteras.pdf",
+      "paginas_encontradas": 6
+    },
+    {
+      "fuente_id": "varela_m2_2026_11",
+      "archivo_original": "11_infraestructura_urbana.pdf",
+      "sha256": "8ffcdba2b4605b23f0e734639f99b33840f73ad98172795b46f43dcc9b212aac",
+      "encontrado": true,
+      "paginas_esperadas": 12,
+      "archivo_encontrado": "varela-secciones/11_infraestructura_urbana.pdf",
+      "paginas_encontradas": 12
+    },
+    {
+      "fuente_id": "varela_m2_2026_12",
+      "archivo_original": "12_mixta.pdf",
+      "sha256": "0972dcf13abc4bf2ffa5fbbad7944b7c97da45bbe1b010ea9a45d642cca75d32",
+      "encontrado": true,
+      "paginas_esperadas": 14,
+      "archivo_encontrado": "varela-secciones/12_mixta.pdf",
+      "paginas_encontradas": 14
+    },
+    {
+      "fuente_id": "varela_m2_2026_13",
+      "archivo_original": "13_obra_verde.pdf",
+      "sha256": "7263bd35933311338350bf02cfd5c25a0590dd32529c4d245dd02db55c82dead",
+      "encontrado": true,
+      "paginas_esperadas": 6,
+      "archivo_encontrado": "varela-secciones/13_obra_verde.pdf",
+      "paginas_encontradas": 6
+    },
+    {
+      "fuente_id": "varela_m2_2026_14",
+      "archivo_original": "14_oficinas_y_call_centers.pdf",
+      "sha256": "82124552086bef53c7ff6954165f08eb67d77f2f2d07e325f19891d3fc582ed8",
+      "encontrado": true,
+      "paginas_esperadas": 58,
+      "archivo_encontrado": "varela-secciones/14_oficinas_y_call_centers.pdf",
+      "paginas_encontradas": 58
+    },
+    {
+      "fuente_id": "varela_m2_2026_15",
+      "archivo_original": "15_centros_de_convenciones.pdf",
+      "sha256": "61f462594c5059c476dc620994f536db37813f18b195685a0dbd4688c0f63f9f",
+      "encontrado": true,
+      "paginas_esperadas": 11,
+      "archivo_encontrado": "varela-secciones/15_centros_de_convenciones.pdf",
+      "paginas_encontradas": 11
+    },
+    {
+      "fuente_id": "varela_m2_2026_16",
+      "archivo_original": "16_restaurantes.pdf",
+      "sha256": "32b144a1a5ca31e94de2877c92a021d7f3b92fd40f6d8e7ef3757867d4dd0dc8",
+      "encontrado": true,
+      "paginas_esperadas": 18,
+      "archivo_encontrado": "varela-secciones/16_restaurantes.pdf",
+      "paginas_encontradas": 18
+    },
+    {
+      "fuente_id": "varela_m2_2026_17",
+      "archivo_original": "17_estacionamientos.pdf",
+      "sha256": "18e7e9a91d5c6c610428feb6589674ff6e8fd1a06aa2fcbaf3e72cd717a92b40",
+      "encontrado": true,
+      "paginas_esperadas": 14,
+      "archivo_encontrado": "varela-secciones/17_estacionamientos.pdf",
+      "paginas_encontradas": 14
+    },
+    {
+      "fuente_id": "varela_m2_2026_18",
+      "archivo_original": "18_gasolineras.pdf",
+      "sha256": "90fd4edd2178b07725ef54ffc76237c3a35058043b52ae3e1dc7bfb1e15e2df0",
+      "encontrado": true,
+      "paginas_esperadas": 7,
+      "archivo_encontrado": "varela-secciones/18_gasolineras.pdf",
+      "paginas_encontradas": 7
+    },
+    {
+      "fuente_id": "varela_m2_2026_19",
+      "archivo_original": "19_terminales_de_transporte_y_aeropuerto.pdf",
+      "sha256": "f8136cb7a886b92d1be75b1b93b33c17b47dee981e73ee50086e2515e262b937",
+      "encontrado": true,
+      "paginas_esperadas": 11,
+      "archivo_encontrado": "varela-secciones/19_terminales_de_transporte_y_aeropuerto.pdf",
+      "paginas_encontradas": 11
+    },
+    {
+      "fuente_id": "varela_m2_2026_20",
+      "archivo_original": "20_marina_y_muelle.pdf",
+      "sha256": "5207c6376a1d9f26dcf3900b0af7911978f310ec12f94c0fe27f94328224bbcf",
+      "encontrado": true,
+      "paginas_esperadas": 5,
+      "archivo_encontrado": "varela-secciones/20_marina_y_muelle.pdf",
+      "paginas_encontradas": 5
+    },
+    {
+      "fuente_id": "varela_m2_2026_21",
+      "archivo_original": "21_sucursales_bancarias.pdf",
+      "sha256": "bf99acb286002259aa1320fa12599f6da8b16b7a1706f150f3e65d443cd17132",
+      "encontrado": true,
+      "paginas_esperadas": 16,
+      "archivo_encontrado": "varela-secciones/21_sucursales_bancarias.pdf",
+      "paginas_encontradas": 16
+    },
+    {
+      "fuente_id": "varela_m2_2026_22",
+      "archivo_original": "22_urbanizacion.pdf",
+      "sha256": "348ad91e531a22699716b50b8543e88e2b77ffe70a0db0e7dd2bd97bf3152327",
+      "encontrado": true,
+      "paginas_esperadas": 74,
+      "archivo_encontrado": "varela-secciones/22_urbanizacion.pdf",
+      "paginas_encontradas": 74
+    },
+    {
+      "fuente_id": "varela_m2_2026_23",
+      "archivo_original": "23_ensambles_cimentacion_y_subestructura.pdf",
+      "sha256": "ee01bc81bda81d2113391684ab0b62fdbb368db14d1d348d102b6f285f4db2fa",
+      "encontrado": true,
+      "paginas_esperadas": 11,
+      "archivo_encontrado": "varela-secciones/23_ensambles_cimentacion_y_subestructura.pdf",
+      "paginas_encontradas": 11
+    },
+    {
+      "fuente_id": "varela_m2_2026_24",
+      "archivo_original": "24_ensambles_superestructura.pdf",
+      "sha256": "ae3a8d76309feccc477d2e7f65d696ac3f8f97e5bf9925dfc19c526dc34b7047",
+      "encontrado": true,
+      "paginas_esperadas": 12,
+      "archivo_encontrado": "varela-secciones/24_ensambles_superestructura.pdf",
+      "paginas_encontradas": 12
+    },
+    {
+      "fuente_id": "varela_m2_2026_25",
+      "archivo_original": "25_ensambles_cubierta_exterior.pdf",
+      "sha256": "db70b44815ba763be941075bd21e487f71b19f40757dac08e20e90b62feb646d",
+      "encontrado": true,
+      "paginas_esperadas": 8,
+      "archivo_encontrado": "varela-secciones/25_ensambles_cubierta_exterior.pdf",
+      "paginas_encontradas": 8
+    },
+    {
+      "fuente_id": "varela_m2_2026_26",
+      "archivo_original": "26_ensambles_techos.pdf",
+      "sha256": "55bc25ad5b0e4da773d19556d877b4fab94b3795b4af4127652ff6d0255dcfa0",
+      "encontrado": true,
+      "paginas_esperadas": 3,
+      "archivo_encontrado": "varela-secciones/26_ensambles_techos.pdf",
+      "paginas_encontradas": 3
+    },
+    {
+      "fuente_id": "varela_m2_2026_27",
+      "archivo_original": "27_ensambles_construccion_interior.pdf",
+      "sha256": "b0880f62b8b2422bc37348fd8ca2027f1f1b5f09befdf4856709050b4149a359",
+      "encontrado": true,
+      "paginas_esperadas": 9,
+      "archivo_encontrado": "varela-secciones/27_ensambles_construccion_interior.pdf",
+      "paginas_encontradas": 9
+    },
+    {
+      "fuente_id": "varela_m2_2026_28",
+      "archivo_original": "28_ensambles_elevadores_y_movimiento.pdf",
+      "sha256": "fb71c997e7e17d0809d07f5ebb8f28c6a23b5384e30c3c12ae488ba6cd145d34",
+      "encontrado": true,
+      "paginas_esperadas": 3,
+      "archivo_encontrado": "varela-secciones/28_ensambles_elevadores_y_movimiento.pdf",
+      "paginas_encontradas": 3
+    },
+    {
+      "fuente_id": "varela_m2_2026_29",
+      "archivo_original": "29_ensambles_sistemas_mecanicos.pdf",
+      "sha256": "b70c0af7aa6619ed329107491dad653d215053b0237367b7e711cf70f451e0aa",
+      "encontrado": true,
+      "paginas_esperadas": 7,
+      "archivo_encontrado": "varela-secciones/29_ensambles_sistemas_mecanicos.pdf",
+      "paginas_encontradas": 7
+    },
+    {
+      "fuente_id": "varela_m2_2026_30",
+      "archivo_original": "30_ensambles_sistemas_electricos.pdf",
+      "sha256": "4aa945bcc91f835008238a59d0cce89c91642a14a18049309e18e8d8f7c48eba",
+      "encontrado": true,
+      "paginas_esperadas": 5,
+      "archivo_encontrado": "varela-secciones/30_ensambles_sistemas_electricos.pdf",
+      "paginas_encontradas": 5
+    },
+    {
+      "fuente_id": "varela_m2_2026_31",
+      "archivo_original": "31_ensambles_generales.pdf",
+      "sha256": "23f5ccac61d0b472b3cfcd75b53febe1aa4c39ee9736ca083f253b37b2deeb7b",
+      "encontrado": true,
+      "paginas_esperadas": 3,
+      "archivo_encontrado": "varela-secciones/31_ensambles_generales.pdf",
+      "paginas_encontradas": 3
+    },
+    {
+      "fuente_id": "varela_m2_2026_32",
+      "archivo_original": "32_ensambles_especialidades.pdf",
+      "sha256": "eb84e50572551550600c42461237203136c03f718089117a66d26471a1d019c9",
+      "encontrado": true,
+      "paginas_esperadas": 7,
+      "archivo_encontrado": "varela-secciones/32_ensambles_especialidades.pdf",
+      "paginas_encontradas": 7
+    },
+    {
+      "fuente_id": "varela_m2_2026_33",
+      "archivo_original": "33_ensambles_obra_exterior.pdf",
+      "sha256": "abe25cee3c63c65e45dd50f13d414ed732d64e87939f823a91e83c266f46ca6c",
+      "encontrado": true,
+      "paginas_esperadas": 10,
+      "archivo_encontrado": "varela-secciones/33_ensambles_obra_exterior.pdf",
+      "paginas_encontradas": 10
+    },
+    {
+      "fuente_id": "cfe_pu_2026_02",
+      "archivo_original": "03-1039183160-CATALOGO-DE-PRECIOS-UNITARIOS-CFE-2026.pdf",
+      "sha256": "b766e7f1065e1ee374172f3d01cdfccbb3872cfddbc489815a08cab2ce50c837",
+      "encontrado": true,
+      "paginas_esperadas": 43,
+      "archivo_encontrado": "Mega/1039183160-CATALOGO-DE-PRECIOS-UNITARIOS-CFE-2026.pdf",
+      "paginas_encontradas": 43
+    },
+    {
+      "fuente_id": "cmic_pozos_2026",
+      "archivo_original": "04-1009881019-Catalogo-de-costos-directos-de-perforacion-de-pozos-para-agua-2026.pdf",
+      "sha256": "27cddd38dc952be77f18ef1a5a68eb6da91b8f36b226d7067466438f02928c03",
+      "encontrado": true,
+      "paginas_esperadas": 146,
+      "archivo_encontrado": "Mega/1009881019-Catalogo-de-costos-directos-de-perforacion-de-pozos-para-agua-2026.pdf",
+      "paginas_encontradas": 146
+    },
+    {
+      "fuente_id": "cmic_maquinaria_2026",
+      "archivo_original": "05-1044636575-Catalogo-de-costos-Horario-de-Maquinari.pdf",
+      "sha256": "3e27d9fe8fcc2e0706c48cb015a6644207c96da692c860c85768df527f0052c9",
+      "encontrado": true,
+      "paginas_esperadas": 238,
+      "archivo_encontrado": "Mega/1044636575-Catalogo-de-costos-Horario-de-Maquinari.pdf",
+      "paginas_encontradas": 238
+    },
+    {
+      "fuente_id": "cmic_cimentaciones_2026",
+      "archivo_original": "06-1009881016-Catalogo-de-costos-directos-de-Cimentaciones-Profundas-2026.pdf",
+      "sha256": "aaf2c62942fcc3deef7c9b6d8911313dae5647ab6126aca68b03594af8ad0a98",
+      "encontrado": true,
+      "paginas_esperadas": 250,
+      "archivo_encontrado": "Mega/1009881016-Catalogo-de-costos-directos-de-Cimentaciones-Profundas-2026.pdf",
+      "paginas_encontradas": 250
+    },
+    {
+      "fuente_id": "cmic_educativa_2026",
+      "archivo_original": "07-1009881021-Catalogo-de-costos-directos-de-Infraestructura-Educativa-2026.pdf",
+      "sha256": "c0b8ac09070dfd961803fda6b71bb73564a040afaacc351bbbfc7907dd7123e7",
+      "encontrado": true,
+      "paginas_esperadas": 482,
+      "archivo_encontrado": "Mega/1009881021-Catalogo-de-costos-directos-de-Infraestructura-Educativa-2026.pdf",
+      "paginas_encontradas": 482
+    },
+    {
+      "fuente_id": "cmic_vivienda_2026",
+      "archivo_original": "08-1044636617-Catalogo-de-costos-directos-de-Vivienda-2026.pdf",
+      "sha256": "7bddb489f9d0407809557004d5e3e5287a93d1d9cc628956a321324769994b25",
+      "encontrado": true,
+      "paginas_esperadas": 434,
+      "archivo_encontrado": "Mega/1044636617-Catalogo-de-costos-directos-de-Vivienda-2026.pdf",
+      "paginas_encontradas": 434
+    },
+    {
+      "fuente_id": "cmic_reciclados_2026",
+      "archivo_original": "09-1044636635-Catalogo-de-costos-directos-para-utilizacion-de-materiales-reciclados-2026.pdf",
+      "sha256": "c6c6a16c28852f700a4e703d83acac079e986be37c1356be5553998662a13c45",
+      "encontrado": true,
+      "paginas_esperadas": 96,
+      "archivo_encontrado": "Mega/1044636635-Catalogo-de-costos-directos-para-utilizacion-de-materiales-reciclados-2026.pdf",
+      "paginas_encontradas": 96
+    },
+    {
+      "fuente_id": "cmic_salud_2026",
+      "archivo_original": "10-1044636636-Catalogo-de-costos-directos-del-Sector-Salud-2026.pdf",
+      "sha256": "19a5bf0ecbf07c913f8a6d7e1a40294c11a37e297044a94b9003e0c7905ac371",
+      "encontrado": true,
+      "paginas_esperadas": 632,
+      "archivo_encontrado": "Mega/1044636636-Catalogo-de-costos-directos-del-Sector-Salud-2026.pdf",
+      "paginas_encontradas": 632
+    }
+  ],
+  "faltantes": [],
+  "encontradas": 42,
+  "CMIC_CFE": {
+    "package_sha256": "b5c2e29e9051297c3a59f6daa72f183970ac8245196065ae037ac5a85b13e5f3",
+    "counts": {
+      "componente_modelo": 0,
+      "componente_partida": 10071,
+      "desglose_modelo": 0,
+      "factor_geografico": 0,
+      "fuente": 8,
+      "incidencia_extraccion": 1,
+      "modelo_parametrico": 0,
+      "pagina_fuente": 2321,
+      "partida_catalogo": 4757,
+      "precio_regional": 1939,
+      "regla_aplicacion": 48,
+      "ubicacion": 6
+    },
+    "sources_verified": 8,
+    "sources_missing": 0,
+    "sources_quarantined": 0,
+    "pages_verified": 2321,
+    "unresolved_blockers": 1,
+    "blocked_entities": {
+      "partida_catalogo": 1
+    },
+    "operable_items_structural_only": 4755,
+    "visual_review_certified": false
+  },
+  "VARELA_CMIC_CFE_conteos_corregidos": {
+    "package_sha256": "abc8cb9ac78556594d8ffa1a740a307114a85482c21f84999cafdaf227dff539",
+    "counts": {
+      "componente_modelo": 3095,
+      "componente_partida": 9785,
+      "desglose_modelo": 945,
+      "factor_geografico": 167,
+      "fuente": 42,
+      "incidencia_extraccion": 179,
+      "modelo_parametrico": 105,
+      "pagina_fuente": 2985,
+      "partida_catalogo": 4692,
+      "precio_regional": 1742,
+      "regla_aplicacion": 50,
+      "ubicacion": 6
+    },
+    "sources_verified": 42,
+    "sources_missing": 0,
+    "sources_quarantined": 0,
+    "pages_verified": 2985,
+    "unresolved_blockers": 99,
+    "blocked_entities": {
+      "partida_catalogo": 95,
+      "componente_modelo": 143,
+      "componente_partida": 86,
+      "desglose_modelo": 1,
+      "modelo_parametrico": 54
+    },
+    "operable_items_structural_only": 3231,
+    "visual_review_certified": false
+  },
+  "alcance": "Identidad SHA-256 y páginas de originales; no certifica revisión visual, importación ni operación de costeo."
+}

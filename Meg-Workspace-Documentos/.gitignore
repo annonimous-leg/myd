@@ -1,0 +1,27 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+!.env.production.example
+*.log
+.DS_Store
+coverage/
+htmlcov/
+.coverage
+
+
+.pytest_megalodon_test.db*
+
+# Private datasets are mounted at runtime, never committed.
+backend/data/private/
+bim-browser-evidence/
+frontend/app/bim-browser-evidence/
+backend/storage/bim/

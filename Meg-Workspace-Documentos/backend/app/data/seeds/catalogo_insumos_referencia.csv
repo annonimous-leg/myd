@@ -1,0 +1,51 @@
+clave,descripcion,unidad,precio_unitario,fuente,tipo,incluye_iva,notas,active
+MAT-001,Cemento Portland CPC 30R,ton,4200.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-002,Arena cribada,m3,320.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-003,"Grava de 3/4""",m3,380.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-004,Agua potable,m3,42.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-001,Peón de construcción,hr,52.35,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-002,Operario albañil,hr,78.50,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-003,Oficial armador,hr,95.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-001,Revolvedora de concreto 9 ft³,hr,85.50,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-002,Vibrador de concreto,hr,62.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-010,Varilla Grade 42 No. 3-8,kg,26.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-011,Alambre de amarre recocido #18,kg,35.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-010,Herramienta menor (corta-varilla),hr,15.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-012,Varilla Grade 60 No. 4-11,kg,30.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-020,Tabique barro rojo 14x20x40 cm,pza,18.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-021,Mortero tipo II cemento-cal-arena,m3,1850.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-020,Andamio tubular,dia,35.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-022,Block de concreto 15x20x40 cm,pza,22.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-030,Cemento blanco,kg,4.20,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-031,Arena fina de YESO,m3,350.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-004,Oficial yesero,hr,85.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-030,Herramienta menor de yesero,hr,12.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-040,Loseta cerámica 30x30 cm tipo rústica,pza,32.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-041,Pegaazulejo cemento-polymer,kg,18.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-042,Boquilla blanca,kg,22.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-005,Oficial albañil especializado,hr,88.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-050,Pintura vinílica base blanca,L,145.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-051,Sellador al agua,L,85.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-006,Oficial pintor,hr,82.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-060,"Tubo PVC conduit pesado 3/4""",m,28.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-061,Cable THW-LS/THHW-LS Cal. 12 AWG,m,12.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-062,Caja de paso octagonal plástica,pza,25.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-063,Placa y interruptor sencillo,pza,85.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-007,Electricista oficial,hr,92.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-040,Herramienta eléctrica menor,hr,18.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-070,"Tubo CPVC 1/2"" para agua fría",m,32.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-071,"Tubo PVC sanitario 4"" pesado",m,85.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-072,"Codos, tees y accesorios PVC",glb,95.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-073,Lavabo con pedestal blanco,pza,1850.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-008,Plomero oficial,hr,95.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-050,Herramienta de plomería menor,hr,15.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-080,Puerta metálica de tambor 90x210 cm,pza,3200.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-081,Chapa y accesorios,jgo,285.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-082,Marco metálico U-100,pza,450.00,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-009,Herrero oficial,hr,105.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-060,Soldadora eléctrica 250A,hr,125.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-010,Capataz de trabajos,hr,125.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-070,"Herramienta menor (pico, pala, barretón)",hr,15.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAT-090,Diesel para retroexcavadora,L,24.50,FRONTEND_CATALOG_MEGALODON,MATERIAL,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+MAN-011,Operador de maquinaria pesada,hr,135.00,FRONTEND_CATALOG_MEGALODON,MANO_OBRA,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true
+EQ-080,Retroexcavadora CAT 420E,hr,850.00,FRONTEND_CATALOG_MEGALODON,EQUIPO,false,Insumo de desglose APU del catálogo frontend; rendimiento/quantity se asocia por concepto en APU,true

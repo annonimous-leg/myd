@@ -1,0 +1,48 @@
+- id: DOF_8_6
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '6'
+  descripcion: Del inicio del procedimiento Si desahogadas las investigaciones se
+    concluye que existen elementos suficientes para sustentar la imputación al licitante
+    o proveedor, se iniciará el procedimiento para imponer sanciones previsto en el
+    Título Sexto del R
+  tipo: procedimiento
+  estado: inconformidad
+  citas_articulos: &id001 []
+- id: DOF_8_2
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '2'
+  descripcion: Del plazo para promover la inconformidad en la invitación a cuando
+    menos tres personas En los procedimientos de invitación a cuando menos tres personas
+    en las que se celebre junta de aclaraciones, el plazo para promover la inconformidad
+    comenzará a p
+  tipo: plazo
+  estado: inconformidad
+  citas_articulos: *id001
+- id: DOF_8_5
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '5'
+  descripcion: Del informe circunstanciado En el informe circunstanciado que rinda
+    la convocante, deberá indicar las razones y fundamentos para hacer valer, en su
+    caso, la improcedencia o sobreseimiento de la instancia de inconformidad, así
+    como las razones y funda
+  tipo: obligacion
+  estado: inconformidad
+  citas_articulos: *id001
+- id: DOF_8_6
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '6'
+  descripcion: De la ampliación de la inconformidad Los argumentos que se hagan valer
+    en la ampliación de la inconformidad deberán sustentarse en hechos o actos conocidos
+    con motivo del informe circunstanciado rendido por la convocante; de lo contrario,
+    dichos argu
+  tipo: obligacion
+  estado: inconformidad
+  citas_articulos: *id001

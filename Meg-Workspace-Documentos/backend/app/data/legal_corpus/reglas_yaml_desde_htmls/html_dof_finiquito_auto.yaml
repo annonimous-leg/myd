@@ -1,0 +1,12 @@
+- id: DOF_9_26
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '26'
+  descripcion: Registro de conclusión
+  tipo: regla
+  estado: finiquito
+  citas_articulos:
+  - '1'
+  - '47'
+  - '22'

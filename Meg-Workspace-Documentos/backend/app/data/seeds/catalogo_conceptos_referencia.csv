@@ -1,0 +1,4 @@
+clave,descripcion,unidad,precio_unitario,fuente,tipo,incluye_iva,notas,active
+CC-HG-001,"Concreto hidráulico fc=150 kg/cm², vaciado en losa",m3,2847.50,FRONTEND_CATALOG_MEGALODON,CONCEPTO,false,Exportado de catalogo.ts frontend; precios de referencia del repo,true
+CC-HG-002,"Concreto hidráulico fc=200 kg/cm², columnas",m3,3215.80,FRONTEND_CATALOG_MEGALODON,CONCEPTO,false,Exportado de catalogo.ts frontend; precios de referencia del repo,true
+CC-HG-003,"Concreto hidráulico fc=250 kg/cm², zapatas",m3,3562.30,FRONTEND_CATALOG_MEGALODON,CONCEPTO,false,Exportado de catalogo.ts frontend; precios de referencia del repo,true

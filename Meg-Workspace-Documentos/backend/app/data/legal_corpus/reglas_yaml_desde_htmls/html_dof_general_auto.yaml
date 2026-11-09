@@ -1,0 +1,161 @@
+- id: DOF_1_II
+  fuente: DOF - Diario Oficial de la Federación (1)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: II
+  descripcion: Glosario de términos, acrónimos y siglas
+  tipo: plazo
+  estado: general
+  citas_articulos: &id001
+  - '52'
+  - '13'
+  - '42'
+  - '47'
+  - '32'
+  - '50'
+  - '41'
+  - 12 Bis
+  - '26'
+  - 55 Bis
+  - '56'
+  - '46'
+  - '8'
+  - '12'
+  - '81'
+  - '28'
+  - '40'
+  - 54 Bis
+  - '44'
+  - '48'
+  - '19'
+  - '51'
+- id: DOF_1_III
+  fuente: DOF - Diario Oficial de la Federación (1)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: III
+  descripcion: Ámbito de aplicación y materia que regula
+  tipo: regla
+  estado: general
+  citas_articulos: *id001
+- id: DOF_3_I
+  fuente: DOF - Diario Oficial de la Federación (3)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: I
+  descripcion: Contrataciones públicas;
+  tipo: regla
+  estado: general
+  citas_articulos: &id002 []
+- id: DOF_3_II
+  fuente: DOF - Diario Oficial de la Federación (3)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: II
+  descripcion: Otorgamiento y prórroga de concesiones, y
+  tipo: regla
+  estado: general
+  citas_articulos: *id002
+- id: DOF_3_III
+  fuente: DOF - Diario Oficial de la Federación (3)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: III
+  descripcion: Otorgamiento y prórroga de licencias, permisos y autorizaciones que
+    se encuentren enlistados en la liga www.gob.mx/sfp.
+  tipo: regla
+  estado: general
+  citas_articulos: *id002
+- id: DOF_-_Diario_Oficial_de_la_Fed_P10
+  fuente: DOF - Diario Oficial de la Federación (4)
+  entidad: INAI (Instituto Nacional de Transparencia)
+  tipo_documento: Acuerdo
+  numeral: PARRAFO
+  descripcion: deberá actualizarse por lo menos cada tres meses, de acuerdo con el
+    artículo 62 de la Ley General,
+  tipo: obligacion
+  estado: general
+  citas_articulos: []
+- id: DOF_8_1
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '1'
+  descripcion: El titular del Área requirente identificará los documentos clasificados
+    como reservados o confidenciales que estime necesarios para elaborar la proposición;
+  tipo: regla
+  estado: general
+  citas_articulos: &id003 []
+- id: DOF_8_8
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '8'
+  descripcion: De la intervención de oficio A partir de la información que obtenga
+    el rgano Interno de Control en ejercicio de sus facultades de verificación a que
+    se refiere el artículo 60 del Reglamento, podrá iniciar, en cualquier tiempo,
+    intervenciones de ofici
+  tipo: facultad
+  estado: general
+  citas_articulos: *id003
+- id: DOF_8_4
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '4'
+  descripcion: De la admisión a trámite de la solicitud de conciliación El rgano Interno
+    de Control emitirá acuerdo por el que se admita a trámite la solicitud de conciliación
+    y lo notificará a las partes, corriendo traslado a la que corresponda con copia
+    de la sol
+  tipo: plazo
+  estado: general
+  citas_articulos: *id003
+- id: DOF_-_Diario_Oficial_de_la_Fed_P33
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: PARRAFO
+  descripcion: establecer el marco regulatorio específico que deberá considerarse
+    para llevar a cabo las adquisiciones,
+  tipo: obligacion
+  estado: general
+  citas_articulos: *id003
+- id: DOF_9_4
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '4'
+  descripcion: Perfiles de usuario y modelo de administración
+  tipo: regla
+  estado: general
+  citas_articulos: &id004
+  - '1'
+  - '47'
+  - '22'
+- id: DOF_9_6
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '6'
+  descripcion: Generalidades del sistema informático BESA
+  tipo: procedimiento
+  estado: general
+  citas_articulos: *id004
+- id: DOF_9_34
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '34'
+  descripcion: Informe general de adquisiciones
+  tipo: regla
+  estado: general
+  citas_articulos: *id004
+- id: DOF_9_6
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '6'
+  descripcion: Generalidades de la BESA
+  tipo: regla
+  estado: general
+  citas_articulos: *id004

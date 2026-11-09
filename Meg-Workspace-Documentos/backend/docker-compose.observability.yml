@@ -1,0 +1,174 @@
+# Copyright © 2026 Cristian Rodriguez
+# Observability Stack — OpenTelemetry Collector + Grafana Tempo + Prometheus + Alertmanager
+# Uso: docker compose -f docker-compose.observability.yml up -d
+# Este stack es self-hosted, vendor-agnostic y portable.
+
+name: megalodon-observability
+
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./observability/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"    # OTLP gRPC
+      - "4318:4318"    # OTLP HTTP
+      - "8888:8888"    # Prometheus metrics del collector
+      - "8889:8889"    # Prometheus exporter (métricas propias)
+      - "55679:55679"  # zpages (debug)
+    environment:
+      - OTEL_RESOURCE_ATTRIBUTES=service.namespace=megalodon,deployment.environment=${ENVIRONMENT:-production}
+    depends_on:
+      tempo:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:13133/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    networks:
+      - observability
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./observability/tempo.yml:/etc/tempo.yml:ro
+      - tempo_data:/tmp/tempo
+    ports:
+      - "3200:3200"    # Tempo HTTP
+      - "9095:9095"    # Tempo gRPC
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3200/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    restart: unless-stopped
+    networks:
+      - observability
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+    networks:
+      - observability
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--cluster.advertise-address=0.0.0.0:9093'
+    volumes:
+      - ./observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "9093:9093"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9093/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    restart: unless-stopped
+    networks:
+      - observability
+
+  grafana:
+    image: grafana/grafana:11.0.0
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3000}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_UNIFIED_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_HA_PEERS=
+    volumes:
+      - ./observability/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - tempo
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    restart: unless-stopped
+    networks:
+      - observability
+
+volumes:
+  tempo_data:
+  prometheus_data:
+  alertmanager_data:
+  grafana_data:
+
+networks:
+  observability:
+    driver: bridge

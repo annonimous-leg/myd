@@ -1,0 +1,22 @@
+format_code,title,section,megalodon_code,compiler,canonical_paths,note
+FORMATO_12,Carta proposición,ECONOMIC,AE-01,compile_proposal_letter_xlsx,facts.authority;facts.object;facts.procedure_type;economic.budget_total;economic.budget_total_words;facts.duration_days;facts.proposal_validity_days,referencia trabajo no producto
+FORMA_E-7,Catálogo de conceptos / relación de conceptos de trabajo,ECONOMIC,AE-02,compile_economic_xlsx,economic.partidas;economic.budget_total,referencia trabajo no producto
+FORMATO_13,Programa de ejecución general de los trabajos,SCHEDULE,PROGRAMA,compile_schedule_xlsx,schedule.activities,referencia trabajo no producto
+FORMATO_14,Programa a costo directo de mano de obra,SCHEDULE,PROGRAMA-MO,compile_labor_schedule_xlsx,schedule.labor;economic.partidas,referencia trabajo no producto
+FORMATO_15,Programa a costo directo de materiales,SCHEDULE,PROGRAMA-MAT,compile_material_schedule_xlsx,schedule.materials;economic.partidas,referencia trabajo no producto
+FORMATO_17,Programa a costo directo de maquinaria y equipo,SCHEDULE,PROGRAMA-EQ,compile_equipment_schedule_xlsx,schedule.equipment;economic.partidas,referencia trabajo no producto
+FORMATO_07,Descripción de la planeación integral,TECHNICAL,AT-PLAN,compile_annex_pdf,technical.planning;technical.construction_method,referencia trabajo no producto
+AE-01,Carta / propuesta económica CONAGUA,ECONOMIC,AE-01,compile_proposal_letter_xlsx,economic.budget_total;facts.authority;facts.object,referencia trabajo no producto
+AE-02,Catálogo de conceptos CONAGUA,ECONOMIC,AE-02,compile_economic_xlsx,economic.partidas,referencia trabajo no producto
+AE-03,Análisis de precios unitarios,ECONOMIC,AE-03,compile_apu_xlsx,economic.partidas.conceptos,referencia trabajo no producto
+AE-05,Análisis de costos indirectos,ECONOMIC,INDIRECTOS,compile_indirects_xlsx,economic.indirects;economic.factor_indirecto;economic.monto_indirecto,referencia trabajo no producto
+AE-06,Análisis de financiamiento,ECONOMIC,FINANCIAMIENTO,compile_financing_xlsx,economic.financing,referencia trabajo no producto
+AE-07,Utilidad,ECONOMIC,UTILIDAD,compile_profit_xlsx,economic.factor_utilidad;economic.monto_utilidad,referencia trabajo no producto
+AT-02,Planeación integral / procedimiento constructivo,TECHNICAL,AT-PLAN,compile_annex_pdf,technical.planning;technical.construction_method,referencia trabajo no producto
+PE_09,Catálogo de conceptos BCS,ECONOMIC,AE-02,compile_economic_xlsx,economic.partidas;economic.budget_total,referencia trabajo no producto
+PE_13,Carta de proposición BCS,ECONOMIC,AE-01,compile_proposal_letter_xlsx,facts.authority;facts.object;economic.budget_total,referencia trabajo no producto
+FORMATO_8,Propuesta técnica CENACE,TECHNICAL,PT,compile_annex_pdf,technical,referencia trabajo no producto
+FORMATO_9,Propuesta económica CENACE,ECONOMIC,AE-01,compile_proposal_letter_xlsx,economic.budget_total;economic.partidas,referencia trabajo no producto
+ECO.1,Carta compromiso / propuesta económica,ECONOMIC,AE-01,compile_proposal_letter_xlsx,facts.authority;facts.object;economic.budget_total,referencia trabajo no producto
+ECO.2,Catálogo de conceptos con precios unitarios,ECONOMIC,AE-02,compile_economic_xlsx,economic.partidas,referencia trabajo no producto
+ECO.3,Análisis de precios unitarios,ECONOMIC,AE-03,compile_apu_xlsx,economic.partidas.conceptos,referencia trabajo no producto

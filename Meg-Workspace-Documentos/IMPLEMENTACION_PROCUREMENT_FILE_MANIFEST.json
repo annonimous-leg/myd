@@ -1,0 +1,23 @@
+{
+  "changed": [
+    "backend/app/models/__init__.py",
+    "backend/app/api/v1/router.py"
+  ],
+  "added": [
+    "IMPLEMENTACION_PROCUREMENT_2026-08-11.md",
+    "backend/docs/PROCUREMENT_DOMAIN_PRODUCTION_PLAN.md",
+    "backend/app/models/procurement.py",
+    "backend/app/schemas/procurement/__init__.py",
+    "backend/app/schemas/procurement/schemas.py",
+    "backend/app/api/v1/procurement.py",
+    "backend/app/engines/procurement/orchestrator.py",
+    "backend/app/engines/procurement/consistency.py",
+    "backend/app/engines/procurement/compiler.py",
+    "backend/app/engines/procurement/jurisdiction.py",
+    "backend/app/engines/procurement/rules.py",
+    "backend/app/services/procurement/service.py",
+    "backend/alembic/versions/20260811_procurement_domain.py",
+    "backend/tests/unit/test_procurement_domain_core.py"
+  ],
+  "compile_rc": 0
+}

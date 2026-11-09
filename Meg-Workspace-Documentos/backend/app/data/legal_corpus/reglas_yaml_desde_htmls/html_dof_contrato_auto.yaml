@@ -1,0 +1,369 @@
+- id: DOF_1_IV
+  fuente: DOF - Diario Oficial de la Federación (1)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: IV
+  descripcion: Políticas para la orientación de los procedimientos de contratación
+    y la ejecución de los contratos
+  tipo: procedimiento
+  estado: contrato
+  citas_articulos: &id001
+  - '52'
+  - '13'
+  - '42'
+  - '47'
+  - '32'
+  - '50'
+  - '41'
+  - 12 Bis
+  - '26'
+  - 55 Bis
+  - '56'
+  - '46'
+  - '8'
+  - '12'
+  - '81'
+  - '28'
+  - '40'
+  - 54 Bis
+  - '44'
+  - '48'
+  - '19'
+  - '51'
+- id: DOF_1_III
+  fuente: DOF - Diario Oficial de la Federación (1)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: III
+  descripcion: Ámbito de aplicación y materia que regula. Las POBALINES proporcionan
+    elementos normativos y criterios uniformes que permiten a las personas servidoras
+    públicas adscritas a la SFP, operar eficiente y oportunamente con estricto cumplimiento
+    del artícu
+  tipo: procedimiento
+  estado: contrato
+  citas_articulos: *id001
+- id: DOF_1_IV
+  fuente: DOF - Diario Oficial de la Federación (1)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: IV
+  descripcion: Políticas para la orientación de los procedimientos de contratación
+    y la ejecución de los contratos.
+  tipo: procedimiento
+  estado: contrato
+  citas_articulos: *id001
+- id: DOF_8_6
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '6'
+  descripcion: 'De la suscripción de convenios específicos derivados de la celebración
+    de Contratos Marco de la Secretaría de la Función Pública Base: El Instituto podrá
+    realizar la contratación de servicios, arrendamientos y bienes a través de los
+    convenios específ'
+  tipo: obligacion
+  estado: contrato
+  citas_articulos: &id002 []
+- id: DOF_8_1
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '1'
+  descripcion: De las infracciones y sanciones Se sancionará en términos del primer
+    párrafo del artículo 62 del Reglamento, a los licitantes que injustificadamente
+    y por causas imputables a los mismos se abstengan de firmar contratos o pedidos
+    según lo previsto por
+  tipo: plazo
+  estado: contrato
+  citas_articulos: *id002
+- id: DOF_8_3
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '3'
+  descripcion: De las notificaciones Para la práctica de notificaciones personales
+    fuera del lugar de residencia del rgano Interno de Control, ésta podrá auxiliarse
+    de cualquier autoridad federal, quien la llevará a cabo de acuerdo a la normatividad
+    aplicable y ten
+  tipo: obligacion
+  estado: contrato
+  citas_articulos: *id002
+- id: DOF_8_1
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '1'
+  descripcion: De los efectos de la solicitud de conciliación La presentación de la
+    solicitud de conciliación y su atención por el rgano Interno de Control, cuando
+    así lo acuerde la DGA, no suspende los efectos del contrato o los actos derivados
+    del mismo. No obsta
+  tipo: facultad
+  estado: contrato
+  citas_articulos: *id002
+- id: DOF_8_2
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '2'
+  descripcion: Improcedencia de la conciliación No procederá la conciliación respecto
+    de los contratos que hayan sido administrativamente rescindidos, sin perjuicio
+    de que se solicite conciliación respecto del finiquito que deban formular las
+    dependencias y entidad
+  tipo: facultad
+  estado: contrato
+  citas_articulos: *id002
+- id: DOF_8_7
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '7'
+  descripcion: De la conclusión de la conciliación Los convenios celebrados en los
+    procedimientos de conciliación podrán servir para efectos de solventar las observaciones
+    de los órganos de control y fiscalización. Si las partes no llegan a un acuerdo
+    respecto de l
+  tipo: facultad
+  estado: contrato
+  citas_articulos: *id002
+- id: DOF_9_10
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '10'
+  descripcion: Registro inicial de contratos de adquisiciones
+  tipo: regla
+  estado: contrato
+  citas_articulos: &id003
+  - '1'
+  - '47'
+  - '22'
+- id: DOF_9_11
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '11'
+  descripcion: Modificación del contrato de adquisiciones
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_12
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '12'
+  descripcion: Registro de administradores del contrato
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_13
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '13'
+  descripcion: Convenios modificatorios
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_14
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '14'
+  descripcion: Consulta de contratos
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_15
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '15'
+  descripcion: Consulta de contratos por estatus
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_16
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '16'
+  descripcion: Consulta de convenios modificatorios
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_17
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '17'
+  descripcion: Registro de entregables de contrato abierto
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_18
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '18'
+  descripcion: Avance de entregables de contrato abierto
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_19
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '19'
+  descripcion: Avance de entregables de contrato cerrado
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_23
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '23'
+  descripcion: Registro de capturistas del contrato
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_24
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '24'
+  descripcion: Registro de suficiencia presupuestal del contrato
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_27
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '27'
+  descripcion: Incidencias en contratos
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_28
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '28'
+  descripcion: Consulta de contratos
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_29
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '29'
+  descripcion: Consulta de contratos por estatus
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_30
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '30'
+  descripcion: Consulta de garantías a contrato
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_31
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '31'
+  descripcion: Consulta de sanciones a contrato
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_32
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '32'
+  descripcion: Consulta de facturas por contrato
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_33
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '33'
+  descripcion: Consulta de entregables por contrato
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_4
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '4'
+  descripcion: 'Perfiles de usuario y modelo de administración Los perfiles diseñados
+    para las personas servidoras públicas adscritas a las dependencias y entidades
+    de la APF, entes públicos estatales y municipales, son los siguientes: Perfiles
+    de Operación Activida'
+  tipo: plazo
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_8
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '8'
+  descripcion: Registro de usuarios BESA Para obtener la habilitación de acceso a
+    la BESA, es un requisito que la persona titular de la Unidad de Administración
+    y Finanzas u homologo, de la dependencia o entidad de la Administración Pública
+    Federal, estatal y munic
+  tipo: obligacion
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_10
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '10'
+  descripcion: Registro inicial de contratos de adquisiciones en el sistema BESA
+  tipo: procedimiento
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_11
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '11'
+  descripcion: 'Modificación del contrato de adquisiciones ADVERTENCIA : La apertura
+    de un contrato ya finalizado en el registro se hará efectivo por la autoridad
+    competente mediante solicitud formal y solo por un periodo de 72 horas para realizar
+    las modificaciones'
+  tipo: plazo
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_12
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '12'
+  descripcion: 'Registro de administradores del contrato Se selecciona en el menú
+    la opción " Registro de Contratos " , luego seleccionamos " Adquisiciones Públicas
+    " y por último " Registro de administradores del contrato " . En la siguiente
+    ventana, agregamos los '
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003
+- id: DOF_9_13
+  fuente: DOF - Diario Oficial de la Federación (9)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: '13'
+  descripcion: Convenios modificatorios Seleccionar en el menú la opción " Registro
+    de contratos " , seguido de " Adquisiciones Públicas " y por último " Convenios
+    modificatorios " . La captura de los convenios modificatorios inicia con la captura
+    de los nombres de
+  tipo: regla
+  estado: contrato
+  citas_articulos: *id003

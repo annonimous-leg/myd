@@ -1,0 +1,197 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app", "tezcatlipoca"]
+
+[project]
+name = "megalodon-backend"
+version = "4.0.0"
+description = "Megalodon CostOS v4 - Backend empresarial para gestión de obras públicas"
+readme = "README.md"
+license = {text = "Proprietary"}  # CORREGIDO 2026-08-30: decía "MIT" pero
+# LICENSE y los headers de cada archivo ("Copyright... All rights
+# reserved...") dicen software propietario -- contradicción real,
+# confirmada leyendo LICENSE. Se corrige para que coincida con lo que el
+# proyecto ya dice en todos los demás lugares, no al revés (cambiar
+# LICENSE/headers a MIT habría sido de facto abrir el código, una
+# decisión mucho más grande que no me corresponde tomar por el usuario).
+requires-python = ">=3.12"
+authors = [
+    {name = "Megalodon Team"},
+]
+keywords = ["bim", "costos", "obras-publicas", "mexico", "ifc", "topografia"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    # CORREGIDO (contra-auditoría V8): decía "License :: OSI Approved ::
+    # MIT License" -- el fix de 2026-08-30 (ver license = {text = ...}
+    # arriba) corrigió el campo `license` pero no este classifier, que
+    # seguía anunciando MIT vía PyPI/setuptools mientras el resto del
+    # proyecto (LICENSE, headers de archivo, y ahora `license` también)
+    # dice Proprietary. "Other/Proprietary License" es el trove classifier
+    # correcto para software no MIT/no OSI-approved.
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    # Core Framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic[email]>=2.9.0",
+    "pydantic-settings>=2.6.0",
+    "python-multipart>=0.0.17",
+    "python-dotenv>=1.0.1",
+
+    # Auth
+    "bcrypt>=4.2.0",
+
+    # Database
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "alembic>=1.14.0",
+    "geoalchemy2>=0.16.0",
+
+    # Cache / Queue
+    "redis>=5.2.0",
+    "celery>=5.4.0",
+
+    # BIM / IFC
+    "ifcopenshell>=0.8.0",
+
+    # GIS
+    "shapely>=2.0.6",
+    "geopandas>=1.0.1",
+    "pyproj>=3.7.0",
+
+    # Data / Excel
+    "pandas>=2.2.3",
+    "openpyxl>=3.1.5",
+    "xlsxwriter>=3.2.0",
+
+    # Math / Stats
+    "numpy>=2.1.0",
+    "scipy>=1.14.0",
+
+    # PDF / Documentos
+    "reportlab>=4.2.5",
+    "pdf2image>=1.17.0",
+    "pyhanko>=0.25.0",
+    "pyhanko-certvalidator>=0.26.3",
+    "pikepdf>=9.3.0",
+    "pypdf>=6.21.4",
+    "pdfplumber>=0.11.5",
+    "python-docx>=1.1.0",
+
+    # XML (CFDI 4.0)
+    "lxml>=5.3.0",
+    "requests>=2.32.0",
+
+    # Crypto
+    "cryptography>=43.0.0",
+
+    # OCR
+    "pytesseract>=0.3.13",
+    "pillow>=13.0.0",
+    "opencv-python>=4.10.0",
+
+    # HTTP / Interop
+    "httpx>=0.27.0",
+    "aiohttp>=3.14.4",
+    "certifi>=2026.10.19",
+
+    # Storage (Supabase)
+    "supabase>=2.10.0",
+    "earthengine-api>=1.6.0",
+
+    # Utilities
+    "python-dateutil>=2.9.0",
+    "tenacity>=9.0.0",
+    "structlog>=24.4.0",
+    "orjson>=3.10.0",
+    "typer>=0.13.0",
+    "prometheus-client>=0.21.0",
+
+        # OpenTelemetry — observabilidad distribuida (producción)
+    "opentelemetry-api>=1.45.1",
+    "opentelemetry-sdk>=1.45.1",
+    "opentelemetry-exporter-otlp>=1.45.1",
+    "opentelemetry-instrumentation>=0.66b1",
+    "opentelemetry-instrumentation-fastapi>=0.66b1",
+    "opentelemetry-instrumentation-sqlalchemy>=0.66b1",
+    "opentelemetry-instrumentation-redis>=0.66b1",
+    "opentelemetry-instrumentation-celery>=0.66b1",
+    "opentelemetry-instrumentation-httpx>=0.66b1",
+
+    # ═══════════════════════════════════════════════════════════════
+    # INTEGRACIÓN ZIP 4: TEZCATLIPOCA (geo/OSINT/cyber) — sin resolver
+    # contra el resto del árbol de deps todavía; probar en un entorno
+    # real antes de producción. psycopg2-binary es el driver SÍNCRONO
+    # que usan las rutas de tezcatlipoca/ (SQLAlchemy Session, no
+    # AsyncSession) -- coexiste con asyncpg porque son motores de BD
+    # separados, no reemplaza a asyncpg.
+    # ═══════════════════════════════════════════════════════════════
+    "pyasn1>=0.6.5",
+    "PyJWT>=2.8.0",
+    "psycopg2-binary>=2.9.0",
+    "apscheduler==3.10.4",
+    "beautifulsoup4==4.12.2",
+    "dnspython>=2.9.0",
+    "geojson==3.1.0",
+    "psutil==5.9.6",
+    "pycryptodome==3.20.0",
+    "pynacl>=1.6.2",
+    "python-whois==0.8.0",
+    "shodan==1.31.0",
+    "websockets>=13,<16",
+    "twilio>=9.0.0",
+    "starlette>=0.40.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "aiosqlite>=0.20.0",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.27.0",
+    "factory-boy>=3.3.0",
+    "faker>=33.0.0",
+    "filelock>=4.2.1",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+    "pre-commit>=4.0.0",
+]
+# Stripe es OPCIONAL a propósito: el arranque de producción inicial usa
+# solo Mercado Pago. `pip install .[stripe]` lo activa cuando haga falta;
+# sin este extra (o sin STRIPE_SECRET_KEY en el entorno), el backend
+# arranca normal y el proveedor Stripe simplemente reporta "no configurado"
+# (ver app/integrations/payments/stripe_provider.py).
+stripe = [
+    "stripe>=11.1.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+testpaths = ["tests"]

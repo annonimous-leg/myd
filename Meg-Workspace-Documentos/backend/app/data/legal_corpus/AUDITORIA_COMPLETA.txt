@@ -1,0 +1,94 @@
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           AUDITORÍA COMPLETA - REPO LEGAL ytpremiumcr7-collab/Legl          ║
+║                    ANÁLISIS DE CONTENIDO PDF + HTML DOF                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 ARCHIVOS ANALIZADOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PDFs NORMATIVOS (7 archivos):
+  • 17032026-MAT.pdf                                             186 págs |  799,557 chars |  53 arts
+  • LAASSP.pdf                                                    53 págs |  237,386 chars | 120 arts
+  • LGRA.pdf                                                      79 págs |  258,696 chars | 233 arts
+  • LOPSRM.pdf                                                    93 págs |  313,100 chars | 136 arts
+  • Manual-de-Integracion-y-Funcionamiento-del-Comite-de-Adquisiciones.pdf  34 págs |   56,280 chars |   8 arts
+  • Reg_LAASSP.pdf                                                79 págs |  350,001 chars | 198 arts
+  • Reg_LOPSRM.pdf                                               134 págs |  462,581 chars | 298 arts
+
+  ─────────────────────────────────────────────────────────────────────────────
+  TOTAL PDFs: 658 páginas | 2,477,601 caracteres | 1046 artículos
+
+HTMLs DOF (9 archivos):
+  • DOF - Diario Oficial de la Federación              Acuerdo/Lineamientos |  167,947 chars |  23 arts citados
+  • DOF - Diario Oficial de la Federación (1)          Acuerdo/Lineamientos |  184,858 chars |  30 arts citados
+  • DOF - Diario Oficial de la Federación (2)          Acuerdo/Lineamientos |   35,137 chars |   6 arts citados
+  • DOF - Diario Oficial de la Federación (3)          Acuerdo/Lineamientos |   24,310 chars |   1 arts citados
+  • DOF - Diario Oficial de la Federación (4)          Acuerdo/Lineamientos |  411,068 chars |  30 arts citados
+  • DOF - Diario Oficial de la Federación (5)          Acuerdo/Lineamientos |   78,794 chars |   9 arts citados
+  • DOF - Diario Oficial de la Federación (6)          Decreto              |   11,214 chars |   3 arts citados
+  • DOF - Diario Oficial de la Federación (7)          Acuerdo/Lineamientos |  167,947 chars |  23 arts citados
+  • DOF - Diario Oficial de la Federación (8)          Acuerdo/Lineamientos |  244,411 chars |  30 arts citados
+  • DOF - Diario Oficial de la Federación (9)          Acuerdo/Lineamientos |  101,903 chars |   6 arts citados
+
+  ─────────────────────────────────────────────────────────────────────────────
+  TOTAL HTMLs: 1,427,589 caracteres | 161 artículos citados
+
+📊 MÉTRICAS GLOBALES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Total caracteres procesados: 3,905,190
+  Total artículos únicos indexados: 442
+  Artículos en PDFs normativos: 308
+  Artículos citados en HTMLs DOF: 199
+  Artículos en AMBOS (cruce PDF ↔ DOF): 65
+
+🏛️ COBERTURA NORMATIVA POR LEY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  17032026-MAT               50 arts | PDF:  50 | DOF:   0
+  LAASSP                     66 arts | PDF:  50 | DOF:  52
+  LGRA                       50 arts | PDF:  50 | DOF:   0
+  LOPSRM                     66 arts | PDF:  50 | DOF:  45
+  Manual-de-Integracion-y-Funcionamiento-del-Comite-de-Adquisiciones   8 arts | PDF:   8 | DOF:   0
+  Reg_LAASSP                 57 arts | PDF:   0 | DOF:  57
+  Reg_LOPSRM                 45 arts | PDF:   0 | DOF:  45
+  Reglamento LAASSP          50 arts | PDF:  50 | DOF:   0
+  Reglamento LOPSRM          50 arts | PDF:  50 | DOF:   0
+
+🔥 ARTÍCULOS MÁS REFERENCIADOS (Top 15)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. LAASSP - Art. 4                               → 1 PDF, 5 DOF
+   2. LAASSP - Art. 13                              → 1 PDF, 5 DOF
+   3. Reg_LAASSP - Art. 13                          → 6 DOF
+   4. Reg_LAASSP - Art. 47                          → 6 DOF
+   5. LAASSP - Art. 1                               → 1 PDF, 4 DOF
+   6. LAASSP - Art. 134                             → 1 PDF, 4 DOF
+   7. LAASSP - Art. 3                               → 1 PDF, 4 DOF
+   8. LAASSP - Art. 50                              → 1 PDF, 4 DOF
+   9. LAASSP - Art. 40                              → 1 PDF, 4 DOF
+  10. LAASSP - Art. 41                              → 1 PDF, 4 DOF
+  11. LOPSRM - Art. 13                              → 1 PDF, 4 DOF
+  12. LAASSP - Art. 47                              → 5 DOF
+  13. Reg_LAASSP - Art. 1                           → 5 DOF
+  14. Reg_LAASSP - Art. 4                           → 5 DOF
+  15. Reg_LAASSP - Art. 40                          → 5 DOF
+
+📁 ARCHIVOS GENERADOS EN /mnt/agents/output/Legl/extracted/analysis/
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • pdf_metadata.json      - Metadatos y artículos de cada PDF
+  • html_metadata.json     - Metadatos y artículos citados de cada HTML DOF
+  • articulo_index.json    - Índice cruzado artículo ↔ documento
+  • [7 archivos .txt]      - Texto plano extraído de cada PDF
+  • [9 archivos .txt]      - Texto plano extraído de cada HTML DOF
+
+💎 CONCLUSIÓN: MINA DE DIAMANTES NATURALES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Este repositorio contiene:
+  ✓ 7 leyes/reglamentos/manuales oficiales mexicanos (558 páginas)
+  ✓ 9 snapshots DOF con lineamientos, acuerdos y manuales operativos
+  ✓ 442 artículos normativos indexados y cruzados
+  ✓ 65 artículos que aparecen TANTO en la ley como en lineamientos DOF
+  ✓ Texto extraído y limpio listo para: búsqueda semántica, embeddings,
+    generación de reglas YAML automáticas, validación cruzada, etc.
+
+  El backend v6 solo usa ~12 reglas YAML. Con esta mina se podrían
+  generar CIENTOS de reglas validadas contra texto oficial.

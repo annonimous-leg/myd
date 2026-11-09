@@ -1,0 +1,48 @@
+rules:
+  - id: megalodon-python-dynamic-code
+    message: "Dangerous dynamic code execution; remove or validate the execution path."
+    languages: [python]
+    severity: ERROR
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+
+  - id: megalodon-python-pickle-untrusted
+    message: "Deserializing pickle/dill can execute code; use a safe data format for untrusted input."
+    languages: [python]
+    severity: ERROR
+    pattern-either:
+      - pattern: pickle.load(...)
+      - pattern: pickle.loads(...)
+      - pattern: dill.load(...)
+      - pattern: dill.loads(...)
+
+  - id: megalodon-python-shell-true
+    message: "Shell execution increases command-injection risk; use an argument array without shell=True."
+    languages: [python]
+    severity: ERROR
+    patterns:
+      - pattern: subprocess.$FUNC(..., shell=True, ...)
+
+  - id: megalodon-python-tls-verification-disabled
+    message: "TLS certificate verification is disabled."
+    languages: [python]
+    severity: ERROR
+    pattern-either:
+      - pattern: requests.$FUNC(..., verify=False, ...)
+      - pattern: httpx.$FUNC(..., verify=False, ...)
+      - pattern: aiohttp.TCPConnector(..., ssl=False, ...)
+
+  - id: megalodon-javascript-dynamic-code
+    message: "Dynamic JavaScript execution can enable code injection."
+    languages: [javascript, typescript]
+    severity: ERROR
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+
+  - id: megalodon-javascript-document-write
+    message: "document.write can turn untrusted strings into executable markup."
+    languages: [javascript, typescript]
+    severity: ERROR
+    pattern: document.write(...)

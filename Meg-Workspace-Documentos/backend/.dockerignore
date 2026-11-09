@@ -1,0 +1,7 @@
+data/private/
+.env
+.env.*
+.venv/
+__pycache__/
+.pytest_cache/
+.pytest_megalodon_test.db*

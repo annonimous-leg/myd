@@ -1,0 +1,54 @@
+{
+  "baseline_files": 1019,
+  "result_files": 1023,
+  "changed_non_pycache": [
+    {
+      "path": "backend/alembic/versions/20260826_procurement_validation_evidence.py",
+      "status": "ADDED"
+    },
+    {
+      "path": "backend/app/api/v1/procurement.py",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "backend/app/engines/procurement/materializer.py",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "backend/app/engines/procurement/orchestrator.py",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "backend/app/models/__init__.py",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "backend/app/models/procurement.py",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "backend/app/services/procurement/preparation_runs.py",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "backend/app/services/procurement/service.py",
+      "status": "MODIFIED"
+    },
+    {
+      "path": "backend/tests/e2e/test_procurement_stage_trace_postgres.py",
+      "status": "ADDED"
+    },
+    {
+      "path": "backend/tests/procurement/test_stage_trace_static.py",
+      "status": "ADDED"
+    },
+    {
+      "path": "docs/AUDIT_STAGE_EVIDENCE_POSTGRES_TENANT_AB_2026-08-26.md",
+      "status": "ADDED"
+    }
+  ],
+  "tezcatlipoca": {
+    "files": 89,
+    "modified": 0
+  }
+}

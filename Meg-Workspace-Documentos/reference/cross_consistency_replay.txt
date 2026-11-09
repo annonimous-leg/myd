@@ -1,0 +1,8 @@
+
+CASE expediente_inbal_n3_2026_CONTROL.json
+PASS
+
+CASE expediente_inbal_n3_2026_INCONSISTENTE.json
+{'code': 'CONS-MONTO', 'severity': 'P0', 'expected': 9900000, 'actual': 12851200, 'description': 'Presupuesto total vs monto estimado del expediente'}
+{'code': 'CONS-PLAZO', 'severity': 'P0', 'expected': 120, 'actual': 175, 'description': 'Plazo de planeacion vs plazo del expediente'}
+{'code': 'CONS-MARKET', 'severity': 'P0', 'expected': 9900000, 'actual': 12850000, 'description': 'Precio de referencia de investigación de mercado vs monto del expediente'}

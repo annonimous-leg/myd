@@ -1,0 +1,2638 @@
+DOF - Diario Oficial de la Federación
+MANUAL del Usuario de la Bitácora Electrónica de Seguimiento de Adquisiciones (BESA)
+MANUAL
+del Usuario de la Bitácora Electrónica de Seguimiento de Adquisiciones (BESA).
+Al margen un sello con el Escudo Nacional, que dice: Estados Unidos Mexicanos.- FUNCIÓN PÚBLICA.-
+Secretaría de la Función Pública.
+EDUARDO GURZA CURIEL, Coordinador General de Fiscalización de la Secretaría de la Función Pública,
+con fundamento en
+los artículos 2, fracción I, 26 y 37 de la Ley Orgánica de la Administración Pública Federal;
+4, fracción II, 7, apartado C, 15, fracción II, y 64, fracción I, del Reglamento Interior de la Secretaría de la
+Función Pública, y cuarto transitorio del
+"
+Acuerdo que modifica el diverso por el que se establece la
+obligatoriedad del registro de contratos y operaciones de adquisiciones, arrendamientos y servicios del sector
+público en la Bitácora Electrónica de Seguimiento de Adquisiciones y sus Lineamientos
+"
+, publicado en el
+Diario Oficial de la Federación el 18 de junio de 2024, y
+CONSIDERANDO
+Que la Secretaría de la Función Pública es la dependencia de la Administración Pública Federal a la que
+corresponde coordinar el sistema de control interno e inspeccionar el ejercicio del gasto público federal y su
+congruencia con los presupuestos de egresos; fiscalizar que las dependencias y entidades de la
+Administración Pública Federal cumplan con las normas en materia de sistemas de registro y contabilidad y de
+contratación de adquisiciones, arrendamientos y servicios, y emitir los manuales necesarios en materia de
+control interno, prevención, vigilancia, inspección y revisión de contrataciones públicas;
+Que, para dar cumplimiento a las atribuciones en materia de control interno, prevención, vigilancia,
+inspección y revisión a las contrataciones públicas, la Secretaría de la Función Pública expidió el
+"
+Acuerdo por
+el que se establecen las disposiciones generales para la realización del proceso de fiscalización
+"
+, publicado
+en el Diario Oficial de la Federación el 05 de noviembre de 2020, y su modificación publicada en el mismo
+medio de difusión el 08 de diciembre de 2022, con objeto de establecer las bases que se deberán observar en
+los actos de fiscalización que son practicados a las dependencias y entidades de la Administración Pública
+Federal, las entidades federativas y sus municipios, y las alcaldías de la Ciudad de México, entre otros, con la
+finalidad de verificar que los recursos públicos federales se aplicaron de acuerdo con los principios de
+economía, eficacia, eficiencia, transparencia y honradez;
+Que el acuerdo mencionado en el considerando anterior prevé, en su artículo 8, fracción I, inciso z), la
+existencia de un sistema electrónico denominado Bitácora Electrónica de Seguimiento de Adquisiciones, a la
+que atribuye el carácter de fuente de información para la programación de actos de fiscalización;
+Que el Secretario de la Función Pública expidió el
+"
+Acuerdo por el que se establece la obligatoriedad del
+registro de contratos y operaciones de adquisiciones, arrendamientos y servicios del sector público en la
+Bitácora Electrónica de Seguimiento de Adquisiciones y sus Lineamientos
+"
+(en adelante Acuerdo BESA),
+publicado en el Diario Oficial de la Federación el 1 de octubre de 2021 y sus modificaciones publicadas en el
+mismo medio de difusión oficial el 26 de agosto de 2022 y el 18 de junio de 2024, a fin de regular, hacer
+eficiente y obligatorio el uso de la referida bitácora, para el registro y seguimiento de los contratos y
+operaciones en materia de adquisiciones, arrendamientos y servicios en las dependencias y entidades de la
+Administración Pública Federal, y en los entes públicos de las entidades federativas y de los municipios, así
+como las alcaldías de la Ciudad de México con cargo a los recursos públicos federales, de conformidad en
+el
+artículo 134 de la Constitución Política de los Estados Unidos Mexicanos;
+Que la Bitácora Electrónica de Seguimiento de Adquisiciones fue desarrollada modularmente para facilitar
+su adecuación, modificación y actualización, a fin de mejorar su funcionalidad y asegurar la interoperabilidad
+con otros sistemas de información que contengan datos referentes a adquisiciones, arrendamientos y
+servicios del sector público, por lo que debe contar con el adecuado soporte a usuarios mediante un manual
+que haga más accesible la bitácora, según lo dispuesto en el Acuerdo BESA y su modificación;
+Que es facultad del Coordinador General de Fiscalización expedir los ordenamientos cuyas materias se
+relacionen con la fiscalización, con la revisión previa de la Unidad de Asuntos Jurídicos, he tenido a bien
+expedir el siguiente:
+MANUAL DEL USUARIO DE LA BITÁCORA ELECTRÓNICA DE SEGUIMIENTO
+DE ADQUISICIONES
+(BESA)
+El presente manual es de observancia obligatoria para las dependencias y entidades de la Administración
+Pública Federal, para los entes públicos de las entidades federativas y sus municipios, así como para las
+alcaldías de la Ciudad de México, con cargo total o parcial a recursos federales, conforme a los convenios que
+celebren con el Ejecutivo Federal, que se ubiquen en los supuestos normativos de los artículos 1 de la
+Ley de
+Adquisiciones, Arrendamientos y Servicios del Sector Público y artículo 4 de la Ley de Asociaciones
+Público
+Privadas.
+Contenido
+1. Introducción
+2. Objetivo
+3. Antecedentes
+4. Perfiles de usuario y modelo de administración
+5. Funcionalidad
+6. Generalidades del sistema informático BESA
+6.1 Requerimientos tecnológicos mínimos recomendados para el uso del sistema
+6.2 Especificaciones de los archivos digitales
+6.3 Documentos de uso para el registro de contratos
+7. Íconos del sistema
+8. Registro de usuarios
+8.1 Alta de usuarios BESA
+8.2 Baja de usuarios BESA
+9. Acceso al sistema
+9.1 Navegador web
+9.2 Ingreso al sistema BESA
+9.3 Datos de inicio de sesión
+9.4 Error de acceso al sistema
+9.5 Restablecer contraseña
+10. Registro inicial de contratos de adquisiciones
+10.1 Credenciales BESA
+10.2 Iniciando BESA
+10.2.1 Registro del contrato de adquisiciones: Datos generales del procedimiento de contratación
+10.2.1.1 Registro del contrato de adquisiciones: Contratos no formalizados
+10.2.2 Registro del contrato de adquisiciones: Información presupuestal del contrato
+10.2.3 Registro del contrato de adquisiciones: Datos generales del contrato
+10.2.4 Registro del contrato de adquisiciones: Obligaciones del contrato
+10.2.5 Registro del contrato de adquisiciones: Administrador del contrato
+10.2.5.1 Registro del contrato de adquisiciones: Asignación de Administrador Titular
+10.2.6 Registro del programa de entregas de contratos abiertos
+10.2.7 Registro del programa de entregas de contratos cerrados
+10.2.8 Finalizar registro del contrato de adquisiciones
+10.2.8.1 Carga de archivos pendientes
+11. Modificación del contrato de adquisiciones
+12. Registro de administradores del contrato
+13. Convenios modificatorios
+14. Consulta de contratos
+15. Consulta de contratos por estatus
+16. Consulta de convenios modificatorios
+17. Registro de entregables de contrato abierto
+18. Avance de entregables de contrato abierto
+19. Avance de entregables de contrato cerrado
+20. Sanciones aplicadas
+20.1 Carga masiva de sanciones
+21. Registro de facturas
+22. Pago de facturas
+23. Registro de capturistas del contrato
+24. Registro de suficiencia presupuestal del contrato
+25. Transferencia
+de información del seguimiento mediante API REST
+26. Registro de conclusión
+27. Incidencias en contratos
+28. Consulta de contratos
+29. Consulta de contratos por estatus
+30. Consulta de garantías a contrato
+31. Consulta de sanciones a contrato
+32. Consulta de facturas por contrato
+33. Consulta de entregables por contrato
+34. Informe general de adquisiciones
+35. Cerrar sesión
+36. Capacitación
+37. Glosario
+38. Vigencia
+39. Interpretación
+40. Anexos
+Anexo uno: plantilla de oficio para solicitar accesos a la BESA
+Anexo dos: formato para solicitar accesos a la BESA
+Anexo tres: plantilla de oficio para solicitar la habilitación de los contratos y/o convenios en la BESA
+Anexo cuatro: formato para solicitar la habilitación de los contratos y/o convenios en la BESA
+Permisos de usuarios
+Directorio
+1. Introducción
+La Bitácora Electrónica de Seguimiento de Adquisiciones (BESA) es el sistema electrónico en el cual se
+llevará el control y seguimiento de los contratos de adquisiciones, arrendamientos y servicios y operaciones
+formalizados por las dependencias, entidades, entes públicos estatales y municipales, y las alcaldías de la
+Ciudad de México. Está diseñado para apoyar a estos entes, ordenar los elementos necesarios de los actos
+de fiscalización y fortalecer las atribuciones de la Secretaría de la Función Pública (SFP) en materia de
+prevención, vigilancia, inspección y revisión de dichos contratos.
+La BESA opera por medio de un sistema informático en línea que permite el seguimiento, control y
+fiscalización, en tiempo real, de las adquisiciones, arrendamientos y servicios desde la formalización de los
+contratos hasta su finiquito.
+La BESA es de aplicación obligatoria para las dependencias y entidades de la Administración Pública
+Federal (APF), y los entes públicos de la Administración Pública Estatal (APE) y del Gobierno Municipal (GM),
+así como las alcaldías de la Ciudad de México que ejerzan recursos públicos federales totales o parciales, en
+materia de adquisiciones, arrendamientos y servicios, con vigencia a partir del dieciocho de octubre de dos mil
+veintiuno, y cuyo monto sea igual o superior a $15'000,000.00 (quince millones de pesos 00/100 M.N) sin IVA,
+o su equivalente en moneda extranjera, hasta en tanto se asegure la integración de la información con el
+Sistema Electrónico de Información Pública Gubernamental denominado CompraNet;
+2.
+Objetivo
+El objetivo del
+presente manual
+es orientar a los usuarios de la BESA en su funcionamiento y operación
+para el registro y seguimiento de contratos y convenios modificatorios, en materia de adquisiciones,
+arrendamientos y servicios, formalizados por los entes públicos en los ámbitos federal, estatal y municipal con
+cargo a recursos públicos federales.
+3. Antecedentes
+En 2020, la Unidad de Auditoría a Contrataciones Públicas (UACP) inició el proyecto del diseño y puesta
+en operación de la BESA, para fortalecer las atribuciones de la SFP en materia de seguimiento, control y
+fiscalización, en tiempo real, de las adquisiciones, arrendamientos y servicios que realiza la APF, APE y del
+GM, así como las alcaldías de la Ciudad de México con recursos públicos federales.
+La bitácora electrónica, en su primera etapa, entró en operación el 01 de octubre de 2021 con la
+publicación del Acuerdo BESA; posteriormente, con sus modificaciones, se dio inicio a la segunda etapa
+de la
+bitácora.
+4. Perfiles de usuario y modelo de administración
+Los perfiles diseñados para las personas servidoras públicas adscritas a las dependencias y entidades de
+la APF, entes públicos estatales y municipales, son los siguientes:
+Perfiles de
+Operación
+Actividad
+Coordinador
+Oficiales mayores de las secretarias de Hacienda y Crédito Público, de la Defensa
+Nacional y de Marina; las personas titulares de las unidades de administración y finanzas
+(TUAF) de las dependencias y entidades de la APF, y sus homólogos en los entes
+públicos estatales y municipales; las personas titulares de las unidades de fiscalización,
+los OIC de la SFP, el personal adscritos a los OIC en las entidades de la APF; asimismo,
+los órganos estatales y municipales de control, y las alcaldías de la Ciudad de México;
+las personas servidoras públicas que de acuerdo con sus atribuciones o funciones sean
+designados.
+Operador del
+contrato
+Persona servidora pública responsable del registro del contrato de adquisiciones,
+arrendamientos y servicios en la BESA.
+Administrador del
+contrato
+Persona servidora pública registrada por el operador del contrato, responsable de
+verificar que se dé cumplimiento al contrato.
+Capturista
+Persona servidora pública que apoya al administrador del contrato en el seguimiento del
+registro del contrato.
+Los perfiles diseñados para las personas servidoras públicas adscritas a la SFP son los siguientes:
+Perfiles de
+Consulta
+Actividad
+Auditor
+Jefes de Departamento y Auditores
+Comisario
+Comisarios por sector
+Consultor
+Secretario, Subsecretaria, Coordinador General de Fiscalización, Coordinador General de
+Gobierno de Órganos de Control y Vigilancia, Titulares de Unidad y Directores Generales
+Supervisor
+Director de Área y Subdirectores
+5. Funcionalidad
+Ámbito de acción:
+&nbsp;
+Registro electrónico de contratos
+formalizados y programa de
+entregas
+Registro de avance a
+contratos
+Conclusión de
+contratos
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+APF
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+APE
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+G
+M
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ACM
+&nbsp;
+Seguimiento a adquisiciones públicas
+&nbsp;
+Sistema de Alertas
+Metadatos
+Cuadro de control
+&nbsp;
+Vinculación con sistemas externos
+Auditoría a
+adquisiciones
+Informes de salida
+5.1 Disposiciones Generales
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+En
+la
+BESA son registrados, por las unidades compradoras de las instituciones públicas, los
+contratos formalizados y ejecutados, en todas sus etapas.
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+La BESA cuenta con un módulo de alertas que permite convertirla en un mecanismo de monitoreo
+preventivo y correctivo, durante la vigencia del contrato de adquisiciones.
+c)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Con la BESA se busca identificar y eliminar las malas prácticas durante la ejecución de los contratos
+de adquisiciones, arrendamientos y servicios tales como la formalización extemporánea, el
+incumplimiento de pago, garantías insuficientes, convenios modificatorios, penas convencionales y
+sanciones, entre otras.
+d)
+&nbsp;&nbsp;&nbsp;&nbsp;
+La BESA cuenta con un módulo de auditoría, el cual permitirá incrementar, de manera significativa y
+progresiva, la fiscalización en tiempo real.
+e)
+&nbsp;&nbsp;&nbsp;&nbsp;
+La seguridad de datos está prevista en el diseño de la BESA, para garantizar el uso confiable de la
+información generada.
+5.2
+Perfiles de usuario
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Coordinador:
+Perfil que en la BESA
+desempeñarán
+los oficiales mayores de las
+s
+ecretarías de
+Hacienda y Crédito Público, de la Defensa Nacional y de Marina; las personas titulares de las
+unidades de administración y finanzas de las dependencias y entidades de la Administración Pública
+Federal, y sus homólogas en los entes públicos estatales y municipales; así como en las alcaldías de
+la Ciudad de México, las personas titulares de las unidades de fiscalización, los órganos internos de
+control de la SFP, así como las
+personas servidoras públicas que de acuerdo con sus atribuciones o
+funciones sean designadas.
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Operador:
+La persona servidora pública
+designada en la unidad compradora que, de acuerdo con
+sus atribuciones o funciones, es responsable de la supervisión y registro de la información en la
+BESA, y que, para fines de acceso a la plataforma, deberá
+contar con la s
+olicitud realizada por
+el
+coordinador
+correspondiente.
+c)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Administrador del contrato:
+Persona servidora pública del área requirente, designada en el
+contrato como encargada de verificar el cumplimiento del mismo.
+d)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Capturista:
+Persona servidora pública
+asignada
+y
+habilitada
+en la BESA por el administrador
+del
+contrato para apoyo en el seguimiento del contrato en la BESA y, en su caso, de los
+convenios
+modificatorios.
+6. Generalidades de la BESA
+6.1 Requerimientos tecnológicos mínimos recomendados para el uso de la BESA
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Computadora con microprocesador de arquitectura de última generación o equivalente con una
+capacidad mínima de 8 GB de memoria en RAM;
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Instalación de software antivirus en su última
+versión;
+c)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Conexión a Internet con un ancho de banda de al menos 5 Mbps, y
+d)
+&nbsp;&nbsp;&nbsp;&nbsp;
+S
+e sugiere el navegador Google Chrome, por su diseño, características avanzadas, y los
+complementos básicos necesarios.
+6
+.2 Especificaciones de los archivos digitales
+Los archivos digitales que se suben a la BESA deben contener las características siguientes:
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Digitalización en formato de archivo digital PDF.
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+El tamaño de los archivos que soporta el sistema varía dependiendo del documento, como se
+enuncia a continuación:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Contratos y Anexos: Menor o igual a 200 MB
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Entregables: Menor o igual a 30 MB
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Garantías: Menor o igual a 20 MB
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Los demás archivos: Menor o igual a 10 MB
+6.3 Documentos de uso para el registro de contratos
+Para realizar el proceso de registro de contratos de adquisiciones, arrendamientos y servicios, la unidad
+compradora deberá contar con los documentos administrativos siguientes:
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Contrato formalizado con anexos.
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Constancias de suficiencia presupuestal.
+c)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Constancias de opinión de cumplimiento de obligaciones patronales.
+d)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Documentos que
+acrediten
+garantías.
+e)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Programa de entregables del contrato.
+7. Íconos del sistema
+A lo largo de este documento se ilustran y hace referencia a íconos y/o botones que están contenidos en
+los distintos módulos que integran la BESA, que tienen determinada funcionalidad y es necesario conocer,
+como son los siguientes:
+Botón
+Nombre
+Descripción
+Captura de Datos
+Indicador de captura de datos.
+Editar Datos
+Botón que permite editar datos capturados.
+Borrar Registro de
+Datos
+Botón que permite borrar un registro de datos.
+Consulta de Datos
+Botones que permiten ejecutar la consulta de datos
+registrados.
+Descarga de
+Archivo
+Botón que permite descargar un archivo cargado en el
+sistema con antelación.
+Ayuda de Captura
+Botón que permite abrir la ayuda al usuario.
+8. Registro de usuarios BESA
+Para obtener la habilitación de acceso a la BESA, es un requisito que la persona titular de la Unidad de
+Administración y Finanzas u homologo, de la dependencia o entidad de la Administración Pública Federal,
+estatal y municipal, así como las alcaldías de la Ciudad de México, solicite al Administrador de la BESA
+(la
+persona titular de la UACP de la SFP) o, en su caso, la persona servidora pública que designe para tal fin, su
+alta como coordinador; asimismo, el alta de las personas servidoras públicas que requiera con los perfiles de
+coordinador y operador, considerando que el operador es el responsable del registro del contrato en la BESA,
+en tanto que el coordinador sólo podrá supervisar y consultar el registro del contrato.
+Los titulares de las unidades de fiscalización, los órganos internos de control de la SFP y de los órganos
+estatales y municipales de control, deberán solicitar su acceso a la BESA con el perfil de coordinador.
+Asimismo, el acceso para las personas servidoras públicas que requiera, con el mismo perfil.
+8.1
+Alta de usuarios BESA
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+El numeral 7 del Acuerdo BESA, relativo a las altas y bajas de usuarios en la BESA, prevé que los
+usuarios con el perfil de coordinador deberán solicitar su acceso al administrador de la misma o, en
+su caso, a la persona servidora pública que se designe para tal fin; asimismo el de las personas
+servidoras públicas que designen de acuerdo con sus atribuciones o funciones, quienes serán
+responsables de la supervisión y registro de la información en la BESA.
+Dicha solicitud deberá enviarse al correo
+electrónico sistemabesa@funcionpublica.gob.mx,
+adjuntando los anexos uno y dos citados en el numeral 8 del Acuerdo BESA.
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Los anexos correspondientes deberán ser remitidos al correo electrónico
+sistemabesa@funcionpublica.gob.mx, considerando que el
+anexo uno deberá ser dirigido a la
+persona titular de la Jefatura de la Unidad de Auditoría a Contrataciones Públicas o, en su caso, a la
+persona servidora pública que designe para tal fin, mientras que el anexo dos deberá ser enviado en
+archivo formato hoja de cálculo editable (por ejemplo: Excel).
+8.2 Baja de usuarios BESA
+Los usuarios con el perfil de coordinador y el consultor, en el caso de las personas servidoras públicas de
+la SFP deberán solicitar las bajas de los usuarios en la BESA, mediante oficio remitido al correo electrónico
+sistemabesa@funcionpublica.gob.mx. Dicha solicitud deberá dirigirse al administrador de la BESA o, en su
+caso, la persona servidora pública que designe para tal fin, indicando los datos siguientes:
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Nombre de la institución.
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Persona servidora pública que solicita la baja en el sistema.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Nombre.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Cargo de la persona servidora pública.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+CURP.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Perfil de usuario.
+c)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Persona servidora pública que causa baja en el sistema.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Nombre.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Cargo de la persona servidora pública.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+CURP.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Perfil de usuario.
+En caso de que la baja sea por motivo de separación del cargo, ésta deberá ser notificada al administrador
+de la BESA, en un plazo no mayor de cinco días hábiles contados a partir del día siguiente de la separación
+del cargo.
+9. Acceso al sistema
+informático
+La seguridad de datos está prevista en el diseño de la BESA, para garantizar el uso confiable de la
+información generada, desde el acceso al sistema se restringen los distintos módulos y la información a la que
+puede acceder un usuario dentro del sistema de acuerdo con el perfil asignado. El acceso al sistema se
+describe en los apartados siguientes:
+9.1 Navegador web
+Dé clic en el navegador web de preferencia, se recomienda Google Chrome.
+9.2 Ingreso a la
+BESA
+Capturar en la barra de direcciones del navegador, la siguiente dirección:
+https://besa.funcionpublica.gob.mx
+Imagen de ingreso a la BESA.
+9.3 Datos de Inicio de sesión
+Ingresar los datos de inicio de sesión en los campos siguientes:
+El acceso a la BESA es mediante la CURP del usuario y la contraseña es la clave utilizada para acceder al
+sistema DeclaraNet.
+Para el caso de los usuarios que no estén registrados en DeclaraNet por no estar obligados, deberán
+generar su contraseña en la página principal de la BESA. Se deberá seleccionar
+"
+¿Nuevo Usuario?
+"
+Regístrate
+, y posteriormente registrar de manera correcta los datos solicitados, entre ellos el o los correos
+electrónicos a los que se enviará la liga para la recuperación de la contraseña, en caso de ser necesario.
+9.4 Error de acceso al sistema
+&nbsp;
+En caso de haber capturado de forma errónea el usuario y/o la contraseña, el sistema muestra el mensaje
+de error siguiente:
+Corrija y continúe.
+9.5 Restablecer contraseña
+En caso de haber olvidado la contraseña personal, la BESA puede restablecer o recuperar la contraseña
+seleccionando
+"
+¿Has olvidado tu contraseña?
+"
+, mostrando un cuadro de diálogo en el que pide registrar la
+CURP del usuario.
+Al capturar la CURP, el sistema solicita la dirección de correo electrónico donde se va a enviar la
+información, para el seguimiento correspondiente al trámite de recuperación de contraseña.
+La BESA le envía al correo indicado, la liga en la cual se continuará con el trámite de restablecimiento de
+contraseña.
+10. Registro inicial de contratos de
+adquisiciones en el sistema BESA
+10.1 Credenciales BESA
+Con los datos correctamente capturados, la BESA acepta las credenciales respectivas.
+En caso de que el usuario tenga asignado más de un perfil, al ingresar al sistema se mostrará un cuadro
+de selección en el cual éste podrá escoger el perfil requerido para dicha sesión.
+Consideraciones generales:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Para ingresar, el usuario seleccionará el perfil que le fue autorizado para hacer uso de la BESA.
+En caso de sólo contar con un perfil, o en su caso, una vez seleccionado un perfil de la lista para el caso
+de contar con varios, se mostrará la página de inicio de la BESA:
+En la página de inicio, a la izquierda se encuentra el menú de opciones. Dando clic en éste, el usuario
+puede utilizar, según el perfil y los permisos asignados, la plataforma conformada de la siguiente manera:
+Registro de contratos
+1.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Registro/modificación de contratos.
+2.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Registro de administradores del contrato.
+3.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Convenios modificatorios.
+4.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Consulta contratos.
+5.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Consulta de contratos por estatus.
+6.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Consulta convenios modificatorios.
+Seguimiento y cumplimiento de
+contratos
+1.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Registro de entregables de contrato abierto.
+2.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Avance de entregables
+-
+abierto.
+3.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Avance de entregables
+-
+cerrado.
+4.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Sanciones Aplicadas.
+5.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Registro de facturas.
+6.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Pago de facturas.
+7.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Registro de capturistas del contrato.
+8.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Registro de suficiencia presupuestal del contrato.
+9.
+&nbsp;&nbsp;&nbsp;&nbsp;
+Registro de auditoría.
+10.
+&nbsp;&nbsp;&nbsp;
+Registro de conclusión.
+11.
+&nbsp;&nbsp;&nbsp;
+Incidencias en contratos
+12.
+&nbsp;&nbsp;&nbsp;
+Consulta contratos.
+13.
+&nbsp;&nbsp;&nbsp;
+Consulta de contratos por estatus.
+14.
+&nbsp;&nbsp;&nbsp;
+Consulta de garantías a contrato.
+15.
+&nbsp;&nbsp;&nbsp;
+Consulta de sanciones a contrato.
+16.
+&nbsp;&nbsp;&nbsp;
+Consulta de facturas por contrato.
+17.
+&nbsp;&nbsp;&nbsp;
+Informe general de adquisiciones.
+18.
+&nbsp;&nbsp;&nbsp;
+Consulta de entregables por contrato.
+19.
+&nbsp;&nbsp;&nbsp;
+Metadatos de adquisiciones públicas.
+20.
+&nbsp;&nbsp;&nbsp;
+Características de auditoría.
+21.
+&nbsp;&nbsp;&nbsp;
+Consulta auditoría.
+10.2 Iniciando BESA
+Seleccionar del menú la opción
+"
+Registro de contratos
+"
+, luego
+"
+Adquisiciones Públicas
+"
+y por último
+"
+Registro/modificación de contratos
+"
+.
+ADVERTENCIA
+Dé clic en el botón verde de
+"
+Guardar
+"
+al completar cada una de las secciones, al cargar archivos de
+evidencias y al realizar cambios en los diferentes apartados, ya que si alguna situación inesperada sorprende
+al usuario en el proceso de captura, como la interrupción de la energía eléctrica, y no se ha realizado el
+guardado, se perderá la información registrada, y se tendrá que realizar nuevamente el registro de la sección
+o apartado correspondiente.
+Al seleccionar Registro/modificación de contratos, se muestra la pantalla
+"
+Registro de contrato
+"
+con el
+siguiente formulario:
+10.2.1 Registro del contrato de Adquisiciones: Datos generales del procedimiento de contratación
+Para el registro del contrato en la BESA, se deberán capturar los datos relevantes del contrato, en las seis
+secciones que conforman la primera etapa de la BESA, como son: los datos generales del procedimiento de
+contratación, la información presupuestal del contrato, los datos relevantes del contrato, las obligaciones del
+contrato, los administradores del contrato y los entregables tanto para contratos abiertos como para cerrados.
+En ésta y en las secciones siguientes se describe paso a paso el registro de los elementos antes
+mencionados y considerados en las auditorías. La primera sección corresponde a los datos generales del
+procedimiento de contratación.
+Consideraciones generales:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Es de suma importancia que e
+n el campo
+"
+Código de contrato CompraNet
+"
+,
+la persona servidora
+pública
+responsable se cerciore de que el
+código del contrato ingresado al sistema sea
+necesariamente el mismo que le corresponde en el registro del contrato en la plataforma
+CompraNet; dicho código es numérico de 7 dígitos invariablemente;
+lo anterior coadyuvará a
+conservar la integridad de la información del sistema BESA con la plataforma CompraNet.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Número de contrato formalizado: Número señalado en el contrato.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+En
+"
+Tipo de Contrato
+"
+debemos seleccionar si es un contrato abierto o cerrado.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Código de contrato CompraNet y Número de procedimiento (Números asignados en CompraNet).
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+La institución pública y la unidad compradora se eligen de lista desplegable, el sector se asigna en
+automático de los catálogos del sistema
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+El resto de los datos de esta sección son datos de selección, relativos al contrato de adquisiciones.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+El registro de la Unidad/área requirente de la adquisición, arrendamiento o servicio, se hace en un
+campo de captura de libre texto, sin límite de caracteres.
+&nbsp;
+Con los datos señalados en el cuadro de consideraciones generales, se realiza el llenado de la sección 1
+"
+Datos Generales del Procedimiento de Contratación
+"
+.
+Al concluir el
+llenado
+de cada sección y siempre que se encuentre correctamente editado, en la línea
+superior en donde se ubica la etiqueta de la sección en la que nos encontramos actualmente, del lado
+derecho, indicará en color verde que la sección ha sido completada y podemos continuar con el ingreso de la
+información requerida, pulsando el botón azul con la indicación
+"
+Siguiente
+"
+.
+10.2.1.1 Registro del contrato de Adquisiciones: Contratos no formalizados
+Para registrar un contrato no formalizado, se debe registrar como mínimo la primera sección, seleccionar
+el botón
+"
+Guardar
+"
+y posteriormente se habilita en la parte inferior el botón de
+"
+No formalizado
+"
+.
+Posteriormente, se solicitará la justificación y un documento comprobatorio.
+10.2.2 Registro del contrato de Adquisiciones: Información presupuestal del contrato
+En la información presupuestal del contrato, se ubican los capítulos presupuestales, la partida
+presupuestal, la partida genérica y la partida específica, además de la asignación del Clasificador Único de las
+Contrataciones Públicas (CUCoP).
+Al seleccionar
+"
+Añadir Partida Presupuestal
+"
+, el sistema despliega una ventana en la que se registran los
+datos referentes a cada partida presupuestal del contrato.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Agregar documento de constancia de suficiencia presupuestal en formato PDF.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+CUCoP (Clasificador Único de las Contrataciones Públicas)
+: es el clasificador de
+adquisiciones
+,
+arrendamientos, servicios, obras públicas y
+los servicios relacionados con las mismas, de acuerdo con la
+normativa en la materia; éste se correlaciona con el Clasificador por Objeto del Gasto, también conocido
+como COG, con la intención de vigilar el ejercicio presupuestal.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+La clave CUCoP
+es seleccionada de acuerdo con el capítulo presupuestal, partida presupuestal, partida
+genérica y partida específica, que se registró en el sistema.
+Los capítulos presupuestales comprendidos en la BESA son: 1000
+-
+Servicios Personales, 2000
+-
+Materiales y Suministros, 3000
+-
+Servicios generales, 5000
+-
+Bienes muebles, inmuebles e intangibles.
+El botón
+"
+Ver tabla partidas
+"
+, muestra una tabla informativa de la partida presupuestal del contrato.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Seleccionar el capítulo y la partida presupuestal a los que pertenece el motivo del contrato.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Seleccionar la partida genérica y específica que corresponda.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Agregar el monto máximo de la partida sin considerar el IVA.
+La clave del Clasificador Único de las Contrataciones Públicas (CUCoP), deberá ser requisitada de igual
+forma, tomando en cuenta los datos ingresados en el capítulo y las partidas ya capturadas.
+Del lado derecho del campo de selección de la clave CUCoP, se muestra la clave o claves
+correspondientes al contrato.
+Al completar la sección se guarda el registro y/o cambios correspondientes.
+10.2.3 Registro del contrato de Adquisiciones: Datos generales del contrato
+En los datos generales del contrato se define el tipo de instrumento jurídico, título del contrato, fecha de
+formalización del contrato, forma de pago, la vigencia del contrato, los montos mínimo y máximo del contrato
+si es abierto, y el monto único si es cerrado, el tipo de moneda, la unidad de medida, si es servicio, pieza,
+litros, kilogramos, metros, la entidad federativa y si deriva de compra consolidada y a su vez si es entidad
+consolidadora.
+Cuando la información solicitada en los campos de esta sección se encuentra bien requisitada, en la parte
+superior de la pantalla se aprecia la leyenda
+"
+Sección completada
+"
+en color verde.
+Si la contratación deriva de compra consolidada y si la institución es consolidadora, el sistema abre otra
+pantalla en la cual se requisita la información correspondiente.
+10.2.4 Registro del contrato de adquisiciones: Obligaciones del contrato
+En las obligaciones del contrato se registra el proveedor o los proveedores, se añaden las sanciones
+contenidas en el contrato y se registran las garantías, y al final del apartado, se adjunta el contrato en
+formato
+PDF.
+En la siguiente pantalla se observan los campos
+"
+Registro de garantías
+"
+y
+"
+Justificación de no garantía
+"
+; el
+primero se refiere al registro de las garantías que estén establecidas en el contrato tales como: garantía de
+anticipo, de cumplimiento o por vicios ocultos (defectos de fábrica), en dicho apartado se captura el número de
+póliza, el tipo de garantía, a favor de quien se emite la garantía, el porcentaje y el monto de ésta; el segundo,
+en caso de que no existan garantías establecidas en el contrato, describir en el campo el fundamento legal por
+el cual no se registran garantías para el contrato.
+En la pantalla
+"
+Proveedores por contrato
+"
+, en el catálogo del proveedor o proveedores del contrato,
+asegúrese de ver todo el catálogo, desplazándose hasta abajo con el mouse o la tecla abajo, para identificar y
+seleccionar a los proveedores correctos.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+En esta sección contamos con el despliegue de 3 ventanas para añadir Proveedor, Sanciones y
+Garantías.
+En el apartado del proveedor se puede realizar una búsqueda accediendo al catálogo de proveedores ya
+existentes en la plataforma, para lo cual se ingresa el nombre del proveedor, su RFC o alguna palabra clave
+con lo que se puede realizar dicha búsqueda.
+En caso de que el proveedor no se encuentre en el catálogo de proveedores,
+el operador es el
+responsable y deberá
+registrar el alta, de acuerdo con lo siguiente:
+Al buscar al proveedor el sistema mostrará el siguiente aviso:
+Se selecciona el botón
+Aceptar
+y posteriormente se habilitará el botón
+"
+Agregar Proveedor
+"
+.
+Al seleccionar
+"
+Agregar Proveedor
+"
+, se abrirá una nueva ventana para ingresar los datos solicitados del
+Proveedor del contrato.
+Una vez finalizada la captura de los datos del proveedor, se selecciona
+"
+Guardar
+"
+para finalizar su
+registro en el sistema, mismo que permanecerá en el catálogo de proveedores, para su posterior consulta.
+Al seleccionar al proveedor que se ha dado de alta, se continuará con el registro de los campos
+solicitados.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Al añadir proveedor, permite ingresar los datos solicitados y los archivos correspondientes al
+cumplimiento de las obligaciones patronales
+.
+Nota:
+En los contratos cuyo fundamento legal se establece por el
+Artículo 1 de la LAASSP
+, y con referencia a
+los archivos correspondientes a las obligaciones patronales, éstos no son obligatorios en su captura.
+De acuerdo con el archivo que sea necesario adjuntar, según sea el caso, se elige el botón
+"
+Seleccionar
+"
+;
+para adjuntar el archivo correspondiente en formato PDF.
+Se añaden las sanciones.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Al añadir sanción, despliega otro cuadro para ingresar los datos solicitados.
+&nbsp;
+Las garantías del contrato se registran para asegurar el cumplimiento de las obligaciones contractuales;
+pueden darse de alta en el sistema de forma inicial o desde un convenio modificatorio al mismo, adjuntando
+en el sistema los documentos de las garantías correspondientes.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Al añadir garantía, despliega otro cuadro para ingresar los datos solicitados.
+Después de la captura de la información en las tres ventanas anteriores, se realiza la carga del contrato en
+formato PDF.
+&nbsp;
+Al completar la sección se guarda el registro y/o cambios correspondientes.
+10.2.5 Registro del Contrato de Adquisiciones: Administrador del contrato
+Sección en la cual se registra a la persona responsable de verificar el cumplimiento del contrato, y que se
+encuentra designada en el
+c
+ontrato.
+El usuario con perfil de operador registra al administrador del contrato ingresando nombre y CURP.
+Al completar la sección se guarda el registro y/o cambios correspondientes.
+10.2.5.1 Registro del Contrato de Adquisiciones: Asignación de Administrador Titular
+Para que el administrador del contrato sea el que realice los cambios a los demás administradores, el
+operador deberá asignarle la titularidad a uno de los administradores del contrato.
+Posteriormente, el administrador titular desde la misma sección podrá dar de alta nuevos administradores,
+modificar los administradores existentes e incluso cambiar la titularidad a otro administrador.
+10.2.6 Registro del programa de entregas de contratos abiertos
+Al concluir el registro del administrador del contrato se pulsa el botón
+"
+Siguiente
+"
+, para que el sistema
+remita a la sección
+"
+Programa de entregas
+"
+.
+Para contratos de tipo abierto se debe indicar si existen entregables iniciales.
+En caso de tener entregables iniciales se incorporan en la ventana siguiente:
+En el apartado
+"
+Añadir entregables de contrato abierto
+"
+, se registran las entregas de acuerdo con las
+partidas asignadas al contrato, considerando los tiempos de solicitud y entrega, cantidad programada, precios
+unitarios, tipo de cambio del contrato, etc.
+Al añadir el entregable, el sistema muestra un cuadro de diálogo que concentra las entregas registradas
+en el apartado anterior.
+Al completar la sección se guarda el registro y/o cambios correspondientes.
+10.2.7 Registro del programa de entregas de contratos cerrados
+Resulta importante mencionar que e
+n el programa de entregables para contratos cerrados es necesario el
+registro del total de las entregas programadas que serán requeridas durante el periodo de vigencia del
+contrato; a las que se les dará el debido seguimiento en los apartados especificados para este fin.
+Lo anterior
+obedece a que,
+una vez finalizado el registro del contrato, dichos datos no podrán modificarse a menos que se
+solicite una reapertura del registro del contrato mediante oficio dirigido a
+la persona titular de la Jefatura
+de la
+Unidad de Auditoría a Contrataciones Públicas o, en su caso, a la persona servidora pública que designe para
+tal efecto.
+En el apartado
+"
+Añadir entregables por contrato cerrado
+"
+, se registran las entregas de acuerdo con las
+partidas asignadas al contrato, considerando los tiempos de solicitud y entrega, cantidad programada, precios
+unitarios, tipo de cambio del contrato, etc.
+Al completar la sección se guarda el registro y/o cambios correspondientes.
+10.2.8 Finalizar registro del contrato de adquisiciones
+Al concluir la captura de las cinco secciones de los datos del contrato y de su respectivo programa de
+entregas, el sistema permitirá al operador finalizar el registro del contrato en el sistema BESA.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+El botón de
+"
+Finalizar Registro
+"
+se habilitará hasta que se llenen todos los campos obligatorios de cada
+una de las secciones del registro del contrato.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Al finalizar el registro, el sistema muestra un mensaje para que se revise que la información que se
+registró sea correcta.
+Si el sistema detecta inconsistencias en los datos registrados, se mostrará un mensaje para que sean
+corregidos o para poder finalizar la captura. Aunque los mensajes son alertas que no bloquean la finalización
+del proceso del registro, es muy importante que el usuario responsable verifique cuidadosamente que la
+información se registró correctamente.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Una vez finalizado el registro del contrato en cualquiera de sus diferentes modalidades, la BESA guarda
+permanentemente los datos generales del contrato, para iniciar su respectivo seguimiento.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+En este punto, es importante señalar que los datos del contrato quedan inamovibles para los
+operadores.
+Al seleccionar
+"
+Aceptar
+"
+se habrá finalizado el registro del contrato correctamente.
+Si después de finalizar el registro del contrato se detectan errores o inconsistencias en los datos
+capturados y es necesario hacer alguna
+modificación
+, dicho movimiento se podrá realizar mediante solicitud
+debidamente justificada para la apertura del contrato. Sin embargo, preferiblemente, se recomienda una
+minuciosa revisión antes de finalizar el registro.
+Nota:
+Para llevar a cabo la apertura de contratos con registro finalizado,
+será responsabilidad del coordinador de
+las dependencias, entidades, entes públicos estatales y municipales, así como de las alcaldías de la Ciudad
+de México según corresponda, en el ámbito de sus competencias, gestionar ante el administrador de la BESA
+o, en su caso, con la persona servidora pública que designe para tal fin, la habilitación del contrato con
+registro finalizado en la BESA con objeto de corregir la información registrada.
+Para ello es necesario que se
+envíe un oficio con los siguientes datos:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Número del contrato formalizado
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Código del contrato
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Nombre del contrato
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Monto del contrato
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Señalar el dato a modificar (dice/debe decir)
+El oficio y formato Excel (Anexos Tres y Cuatro) deberá ser firmado por la persona titular de la Unidad de
+Administración y Finanzas u homólogo, dirigido a la
+persona titular de la Jefatura de la Unidad de Auditoría
+a
+Contrataciones Públicas o, en su caso, a la persona servidora pública que designe como administrador de la
+BESA, y remitido por el correo
+electrónico sistemabesa@funcionpublica.gob.mx.
+10.2.8.1 Carga de archivos pendientes
+Si bien se recomienda utilizar una red estable para conectarse a la BESA, en caso de archivos que no se
+encuentren correctamente cargados por alguna interrupción en la conexión, se deberá acceder a la consulta
+de contratos (ver numerales 14 y 15).
+En esta sección podremos ver los contratos con el siguiente ícono:
+.
+Seleccionamos el ícono y se mostrará la siguiente pantalla en donde se indican cuántos archivos se
+encuentran en este supuesto.
+Si se selecciona el botón de
+"
+Ver archivos faltantes
+"
+se muestra una tabla con el nombre de todos los
+archivos que hacen falta.
+Para subir los archivos se tiene que desplegar la lista de la barra inferior hasta llegar a la carga
+de los
+archivos pendientes.
+Una vez se selecciona el archivo correspondiente, se mostrará el mensaje
+"
+Archivo guardado
+correctamente
+"
+11. Modificación del contrato de adquisiciones
+ADVERTENCIA
+:
+La apertura de un contrato ya finalizado en el registro se hará efectivo por la autoridad competente
+mediante solicitud formal y solo por un periodo de 72 horas para realizar las modificaciones solicitadas; al
+término de dicho plazo, el sistema se cerrará en automático, por lo que es necesario considerar el correo de
+respuesta que remite el personal de la mesa de ayuda de la BESA a la solicitud de apertura del contrato
+solicitado.
+Si el registro
+NO
+fue finalizado, se procede a modificar los datos del contrato realizando el siguiente
+procedimiento:
+Desde la pantalla de
+"
+Registro/modificación de contratos
+"
+se accede a la sección de Consulta, en donde se
+selecciona la institución pública o la unidad compradora o el número de contrato formalizado, o bien los tres
+datos juntos y se selecciona el botón
+"
+Buscar
+"
+.
+Se muestra el contrato en la parte inferior y se selecciona el ícono
+"
+Editar
+"
+para abrir el contrato y realizar
+las modificaciones que correspondan.
+Al
+"
+Editar
+"
+el contrato, se abre la ventana del
+"
+Registro del contrato
+"
+, para continuar con el registro o
+modificar los datos capturados.
+ADVERTENCIA
+:
+Una vez concluido el registro del contrato, el usuario
+NO
+podrá eliminarlo, sólo editarlo para modificar los
+datos capturados. La eliminación de contratos deberá solicitarse mediante oficio, por medio de quien tenga el
+perfil de Coordinador, al Administrador de la BESA, o en su caso, a la persona servidora pública que designe
+para tal fin, señalando el motivo, el número de contrato formalizado y código de contrato de CompraNet.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+El proceso continúa como en el registro de contrato realizado inicialmente.
+12. Registro de administradores del contrato
+Se selecciona en el menú la opción
+"
+Registro de Contratos
+"
+, luego seleccionamos
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Registro de administradores del contrato
+"
+.
+En la siguiente ventana, agregamos los datos solicitados del contrato.
+Se mostrará un resumen con los datos generales del contrato y en la parte inferior se encuentra el
+administrador del contrato que se registró en la sección número 5 del
+"
+Registro del contrato
+"
+.
+a) Alta de administradores del contrato
+Para dar de alta al administrador del contrato, seleccionamos el botón
+"
+Agregar administrador
+"
+y el sistema
+muestra la siguiente ventana en la que se captura la CURP del administrador que se requiere agregar,
+seleccionando en el apartado de ¿Reemplazar administrador existente? la
+opción
+"
+No
+"
+.
+Al seleccionar el botón
+"
+Aceptar
+"
+, el sistema muestra una advertencia para validar el alta del administrador
+del contrato en el sistema.
+Al seleccionar nuevamente el botón
+"
+Aceptar
+"
+, se guardan los datos registrados del administrador del
+contrato que se dio de alta en el sistema.
+b) Reemplazo de administradores del contrato
+Para reemplazar al administrador del contrato, seleccionamos el botón
+"
+Agregar administrador
+"
+y el
+sistema muestra la siguiente ventana en la que se captura la CURP del administrador que se requiere
+reemplazar, seleccionando en el apartado de ¿Reemplazar administrador existente? la
+opción
+"
+Si
+"
+.
+Considerando que algunos contratos contarán con más de un administrador del contrato, se debe seleccionar
+el nombre del administrador que se va a reemplazar.
+Al seleccionar el botón
+"
+Aceptar
+"
+, en la opción
+"
+Sí
+"
+, el sistema muestra una advertencia para validar el
+reemplazo
+del administrador del contrato en el sistema.
+Al seleccionar nuevamente el botón
+"
+Aceptar
+"
+, se guardan los datos registrados del administrador del
+contrato que se reemplazó en el sistema.
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Captura masiva de administradores del contrato:
+El sistema permite hacer una carga masiva de administradores del contrato para aquellos casos en los
+que se requiera registrar más de un administrador de una manera más eficiente.
+Para dicho proceso se deberá realizar lo siguiente:
+En la pantalla que abre el sistema al seleccionar la opción de
+"
+Agregar Administrador
+"
+, seleccionar el
+botón de
+"
+Captura masiva
+"
+.
+El sistema permitirá agregar las CURP de los administradores que se requiere registrar, cada
+CURP
+deberá estar separado por un salto de línea (se agrega al presionar la tecla
+"
+Enter
+"
+).
+Al tener todas las CURP en el cuadro de texto, se selecciona el botón
+"
+Validar
+"
+.
+El sistema muestra el mensaje de advertencia, al estar seguros del registro se selecciona
+"
+Aceptar
+"
+.
+Completado el proceso anterior, los administradores habrán sido registrados correctamente.
+Si alguno de los administradores del contrato que se intenta dar de alta ya se encuentra registrado en
+dicho contrato, al seleccionar
+"
+Validar
+"
+el sistema mostrará el mensaje siguiente:
+Y solo permitirá agregar el resto de los administradores que no estaban previamente registrados. De igual
+forma el sistema excluirá aquellas CURP que cumplan con el debido arreglo de números y letras.
+d)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Eliminación de administradores del contrato.
+Para eliminar al administrador del contrato previamente registrado, se requiere que dicho administrador no
+efectuó ningún movimiento en el seguimiento del contrato; si ya realizó la captura de información, el sistema
+no permitirá su eliminación, en todo caso, se deberá hacer la sustitución por el administrador del contrato que
+tomará su lugar.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+En caso de que el administrador NO registró datos en el sistema:
+Seleccionar el icono del bote de basura que pertenece al administrador que se va a eliminar.
+El sistema mostrará una ventana de confirmación en la que vamos a seleccionar
+"
+Aceptar
+"
+.
+Concluido dicho procedimiento, el administrador se habrá eliminado del contrato.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Para el caso en el que el administrador registró datos en el sistema:
+Lo primero que se puede observar es que no se muestra el icono del bote de basura debido a que no se
+puede eliminar dicho administrador.
+Como no se puede eliminar el registro de ese administrador, se deberá proceder con la sustitución por otro
+nuevo administrador como se menciona en el punto
+"
+Reemplazo de administradores de contrato.
+"
+previamente detallado.
+13. Convenios modificatorios
+Seleccionar en el menú la opción
+"
+Registro de contratos
+"
+, seguido de
+"
+Adquisiciones Públicas
+"
+y por último
+"
+Convenios modificatorios
+"
+.
+La captura de los convenios modificatorios inicia con la captura de los nombres de la institución pública, de
+la unidad compradora y por último del número de contrato formalizado.
+En el presente apartado se ingresan los convenios modificatorios y se capturan los datos en todas las
+áreas necesarias para el registro de éste en la BESA.
+Al registrar el convenio, podemos observar los datos referentes a éste, seleccionando el botón
+"
+Ver tabla
+convenios
+"
+.
+Para los contratos plurianuales, el sistema solicita la captura del monto por ejercicio.
+Se realiza la captura de la información necesaria para la puesta en vigor del convenio modificatorio
+correspondiente.
+Garantías y sanciones
+Las garantías y las sanciones se encuentran en dos pestañas (las pestañas, son accesos a pantallas las
+cuales pueden solicitar más datos sobre las características de la información a requisitar), en la misma
+sección en la que se agregaron los datos del convenio modificatorio, para poder tener acceso a estas
+pestañas, primero se deben capturar los datos obligatorios del registro del convenio modificatorio.
+De la misma forma que se le da al contrato su seguimiento, se le dará al convenio modificatorio en todas
+las áreas correspondientes como lo marca la normativa.
+14. Consulta de contratos
+Seleccionar en el menú la opción
+"
+Registro de contratos
+"
+, seguido de
+"
+Adquisiciones Públicas
+"
+y por último
+"
+Consulta contratos
+"
+.
+Se muestra la ventana de consulta, en donde se seleccionan la institución pública y la unidad compradora
+correspondientes al contrato que se va a consultar.
+Si se van a consultar todos los contratos de la institución y/o unidades compradoras correspondientes, se
+deberán dejar en blanco los dos campos y seleccionar directamente el botón
+"
+Buscar
+"
+.
+Se pueden aplicar filtros para realizar una búsqueda más específica; para ello se deberá seleccionar el
+botón
+"
+Ver filtros
+"
+y se desplegará un menú con elementos a filtrar como se muestra en la imagen siguiente:
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Se puede aplicar uno o más filtros para una búsqueda más específica.
+Una vez aplicados los criterios de la búsqueda, se muestra una lista con el o los contratos encontrados por
+el sistema.
+Se puede descargar o consultar el contrato con los archivos adjuntos a éste.
+En cuanto al color de los íconos que corresponden a la consulta, ubicados al final de la fila informativa de
+cada contrato, indican lo siguiente: color azul representa los contratos con registro finalizado y color rojo los
+que se encuentran pendientes en la conclusión de registro.
+Vista previa de la consulta del contrato:
+En esta ventana se permite navegar en ella con el botón de desplazamiento del mouse o bien con las
+flechas de dirección en la barra de desplazamiento de la misma, para consultar todas las secciones que
+conforman el registro del contrato.
+15. Consulta de contratos por estatus
+Seleccionar en el menú la opción
+"
+Registro de contratos
+"
+, seguido de
+"
+Adquisiciones Públicas
+"
+y por último
+"
+Consulta de contratos por estatus
+"
+.
+En el siguiente formulario se ingresa la Institución Pública, para posteriormente seleccionar la unidad
+compradora y buscar una fecha inicial y final del periodo en el que se quiere consultar los contratos.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Los cuatro campos se deben requisitar para habilitar el botón de
+"
+Buscar
+"
+.
+Se muestra un listado con todos los contratos que coinciden con los criterios de búsqueda que se
+ingresaron y se muestra un resumen con el total de contratos registrados y el estatus en el que se encuentran,
+asimismo, se visualiza un cuadro con el resumen de cada contrato y un indicador para saber el estatus de ese
+contrato.
+Se puede desplazar por la ventana de entrega de la consulta con las teclas de desplazamiento del teclado
+de la PC o bien con el botón de desplazamiento del mouse.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Con el botón
+"
+Descargar CSV
+"
+, se puede descargar un archivo con el reporte de los contratos
+encontrados, generando una hoja de cálculo con los datos de éstos.
+16. Consulta de convenios modificatorios
+Seleccionar en el menú la opción
+"
+Registro de contratos
+"
+, seguido de
+"
+Adquisiciones Públicas
+"
+y por último
+"
+Consulta convenios modificatorios
+"
+.
+Ingresar el nombre de la institución, de la unidad compradora y número de contrato formalizado.
+Al ingresar los datos, el sistema muestra la información general referente al contrato.
+Dentro de los campos que conciernen a la consulta del seguimiento de convenios modificatorios, se
+pueden observar los diferentes requisitos que se deben cumplir para el correcto desarrollo del contrato de
+adquisiciones, arrendamientos o servicios, como son sanciones y garantías.
+De contar con garantías en el convenio modificatorio, éstas se podrán observar en el apartado que se
+muestra a continuación:
+De contar con sanciones en el convenio modificatorio, se podrán observar en el apartado que se muestra
+a continuación:
+En la consulta de los convenios modificatorios, también se encuentran los registros del programa de
+entregas que correspondan al contrato.
+Seguimiento y cumplimiento de contratos
+17. Registro de entregables de contrato abierto
+Seleccionar en el menú, la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Registro de entregables de contrato abierto
+"
+.
+Para buscar un contrato, deberá ingresar los datos solicitados en el cuadro siguiente:
+Cuando es localizado el contrato, el sistema activa el botón de
+"
+Añadir
+"
+para agregar el entregable que
+corresponde.
+Si en el apartado programa de entrega abierto del registro del contrato se capturaron entregables iniciales,
+éstos se muestran en la parte inferior de la pantalla para su edición.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Concepto entrega: Es el concepto al que se refiere el entregable.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Detalle de concepto: Permite capturar más información detallada del concepto.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Modo concepto: Seleccionar si es inicial o modificatorio.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fecha de solicitud: Fecha en la cual se realiza la solicitud del bien o servicio.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Precio unitario: Importe con hasta 10 decimales, para que los importes durante el seguimiento del
+entregable coincidan con la factura pagada.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Documento que acredita el entregable: Documento mediante el cual se acredita la entrega del bien o
+servicio.
+Se ingresan los datos de los entregables que se programan para su posterior seguimiento.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Una vez que se selecciona el archivo del entregable, se habilita el botón para guardar.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Al seleccionar guardar, se nos confirma en un mensaje.
+Se pueden ver los entregables en la parte inferior como se muestra en la imagen siguiente:
+18.
+Avance de entregables de contrato abierto
+Se selecciona en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Avance de entregables - abierto
+"
+.
+Se muestra un cuadro de consulta para ingresar los datos del contrato cuyo avance se va a registrar.
+El campo de acceso es de selección, de donde se elige el contrato requerido.
+Al seleccionar el contrato sobre el que se va a trabajar, se muestra la siguiente ventana con los datos del
+contrato y en la parte inferior un listado de los entregables que se tienen registrados para dicho contrato.
+Se selecciona el entregable para modificar información o editar los datos que previamente fueron
+registrados tales como concepto de la entrega, fecha, cantidad o registrar el avance físico de éste.
+Al seleccionar la casilla correspondiente al entregable, se habilita la opción de modificar la información del
+entregable o registrar el avance. Se pueden seleccionar varios entregables programados para una entrega
+real (avance físico), siempre y cuando sean del mismo proveedor.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ventana de modificación de datos de entregable (despliega al seleccionar el ícono de edición en la
+ventana anterior).
+&nbsp;
+Una vez capturados los datos necesarios, se habilita el botón de
+"
+Guardar
+"
+para que se registre el avance.
+En caso de existir inconsistencia en los datos registrados, el sistema emite un mensaje de alerta sobre el
+supuesto que ocurre, sin bloquear la continuidad del proceso; sin embargo, se sugiere enfáticamente a la
+persona servidora pública responsable verificar los datos.
+Al guardar se muestra el mensaje de confirmación y se puede ver el entregable completado.
+19.
+Avance de entregables de contrato cerrado
+Se selecciona en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Avance de entregables - cerrado
+"
+.
+La BESA cuenta con combos de selección que facilitan la elección de opciones, según sea el caso. Por
+ejemplo, el número de contrato formalizado. Si un operador, administrador de contrato o capturista de contrato
+está asignado en más de una unidad compradora y tiene asignado más de un contrato, esto podrá agilizar la
+búsqueda del contrato para el proceso del registro.
+La captura de los entregables reales se realiza de acuerdo con el orden programado en los campos
+diseñados para este proceso.
+Entregas parciales en un contrato cerrado.
+En los contratos cerrados se tiene la posibilidad de registrar un entregable en varias entregas parciales
+según se requiera. Para ello, primero se debe seleccionar
+"
+Capturar entrega real
+"
+Posteriormente, seleccionar el entregable al que se le dará avance y seleccionar el ícono de editar
+disponible a un costado de la casilla de selección.
+Se muestra la siguiente ventana en la que se podrá indicar la cantidad real que se está entregando en esa
+parcialidad.
+Después de seleccionar
+"
+Aceptar
+"
+, registrar los datos que se solicitan de la entrega real y seleccionar el
+botón
+"
+Guardar
+"
+.
+En la parte inferior ahora se pueden ver las entregas parciales. Se debe repetir el proceso anterior hasta
+cubrir el total de la entrega programada.
+20. Sanciones aplicadas
+Se selecciona en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Sanciones Aplicadas
+"
+.
+En el cuadro de consulta, se busca el contrato formalizado introduciendo los datos de éste.
+El sistema cuenta con los diferentes tipos de sanciones que se pueden aplicar tales como: penas
+convencionales por atraso en la entrega de los bienes, por atraso en el inicio del servicio y deductivas.
+Realizar la selección según sea el tipo de sanción.
+Como en cualquier otro proceso, el sistema debe activar el botón de guardado en cuanto se cumple con el
+requisito de todos los campos del apartado.
+El sistema registra la aplicación de las sanciones.
+En caso de error se puede eliminar el registro de la sanción o de la nota de crédito correspondiente,
+utilizando el botón del bote de basura; asegúrese de lo necesaria que sería la eliminación antes de concretar,
+pues una vez realizada y en caso de haber errado no podrá deshacerse, y la sanción o nota de crédito deberá
+volver a registrarse.
+20.1 Carga masiva de sanciones
+Para realizar la carga masiva de las sanciones debemos entrar a la sección 4 del registro del contrato, en
+el apartado de sanciones desde el botón
+"
+Añadir Sanciones
+"
+.
+Luego seleccionamos el botón de
+"
+Carga Masiva
+"
+y seguimos el procedimiento indicado.
+21. Registro de Facturas.
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Registro de facturas
+"
+.
+En el cuadro de consulta, se realiza la búsqueda por el número de contrato formalizado.
+Una vez se muestran los datos del contrato, seleccionar el botón de
+"
+Añadir factura
+"
+situado en la parte
+inferior izquierda.
+Se muestra un listado con los entregables del contrato a los que se les registró avance de entregable.
+Para registrar una factura, se debe primero haber registrado el avance del entregable; en caso de no
+haber registrado avances, no se mostrará la lista como se observa en la imagen.
+Se selecciona de la lista, el entregable al que corresponde la factura que se va a registrar y se capturan
+los datos solicitados con la información de la factura. Cabe señalar que en este apartado es posible
+seleccionar varios entregables reales para ser pagados en una sola factura; siempre y cuando sean del mismo
+proveedor.
+Posteriormente, se selecciona
+"
+Guardar
+"
+para terminar el registro.
+En el primer campo se solicita el archivo XML de la factura, momento en el cual la BESA extrae la
+información que corresponde al folio fiscal, importe de la factura y RFC del emisor y receptor.
+El folio fiscal es un dato que no se puede repetir en el sistema por lo que, si el folio ya fue utilizado
+previamente, el registro de la factura no podrá ser guardado.
+Consideraciones generales del formulario:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Folio Fiscal: Número de identificación que se encuentra en la factura con el mismo nombre.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Documento
+XML
+de la factura: Se debe adjuntar el archivo en formato XML que se genera con la factura.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Importe factura: E
+s de suma importancia dejar claro que el
+importe de la factura es
+sin
+considerar
+el
+Impuesto al Valor Agregado
+(I.V.A.)
+Al terminar el registro, el sistema informa que se ha guardado con éxito.
+En la parte inferior se muestra la factura que fue registrada, con las opciones de descargarla o eliminar el
+registro.
+En caso de requerir eliminar la factura, se deberá seleccionar el ícono del bote de basura, momento en el
+que el sistema mostrará la advertencia siguiente:
+Para pagar un entregable con más de una factura, al momento de seleccionar la entrega, se debe
+modificar el monto al costado derecho por el importe de la factura que se va a registrar en ese momento, para
+fines de este ejemplo se va a modificar el importe de $150,000 a $100,00 para posteriormente registrar una
+segunda factura por el restante de $50,000.
+Al registrar los datos de la primera factura se puede ver el registro en la parte inferior.
+Para registrar la segunda factura, realizamos el proceso anterior y ahora se puede ver que se va a
+registrar por el monto restante de los $50,000.
+Finalmente se pueden ver las 2 facturas que corresponden al entregable real con valor de $150,000.
+22.
+Pago de facturas
+Se seleccionan en el menú las opciones
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones Públicas
+"
+y por último
+"
+Pago de facturas
+"
+.
+En el cuadro de consulta, se realiza la búsqueda por número de contrato formalizado.
+Una vez localizado el contrato, seleccionar
+"
+Añadir pago
+"
+.
+Se muestra un listado con las facturas registradas para agregar un pago; el usuario debe seleccionar la
+factura a la cual va asociado dicho pago.
+Una vez seleccionada la factura, se deberán registrar, en la parte inferior, los datos solicitados
+relacionados con el pago y seleccionar el botón
+"
+Guardar
+"
+.
+La BESA muestra un mensaje para confirmar el guardado del registro del pago de factura, si la
+información ingresada es correcta, seleccionar el botón
+"
+Aceptar
+"
+.
+Una vez finalizado el registro, la BESA mostrará un mensaje informando que se ha guardado con éxito la
+información del pago.
+El registro de pago se mostrará en la parte inferior de la pantalla, en donde se podrá descargar el
+documento o eliminar el registro del pago.
+Para eliminar el registro, seleccionar el ícono del bote de basura.
+Antes de eliminarlo, la BESA pedirá confirmación, debido a que es un cambio que no se podrá revertir.
+23. Registro de capturistas del contrato
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Registro de capturistas del contrato
+"
+.
+El capturista del contrato es un perfil que sólo el administrador del contrato puede dar de alta en la BESA,
+para realizar labores de apoyo en el seguimiento de los contratos y/o convenios modificatorios que le sean
+asignados por el administrador del contrato.
+La BESA muestra datos parciales del contrato al cual se le asignará el capturista.
+Para llevar a cabo el registro del capturista del contrato se selecciona el botón
+"
+Agregar capturista
+"
+, el cual
+abre un apartado donde se ingresa la CURP del usuario a dar de alta; dentro del apartado se selecciona el
+botón
+"
+Guardar
+"
+para posteriormente ser mostrado en la pantalla principal del registro.
+En el recuadro de captura, el sistema muestra una leyenda sobre las atribuciones y los alcances de las
+operaciones que puede llevar a cabo el capturista como apoyo al administrador del contrato en la captura del
+seguimiento del contrato formalizado.
+El número de capturistas asignados depende de las necesidades del administrador del contrato, respecto
+de las necesidades operativas que derivan del mismo contrato.
+Se guardan en el sistema los registros parciales correspondientes.
+24.
+Registro de suficiencia presupuestal del contrato
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Registro de suficiencia presupuestal del contrato
+"
+.
+La suficiencia presupuestal del contrato puede ser ajustada o incrementada según la necesidad de éste,
+de acuerdo con la normativa que le sea aplicable, por lo que para el perfil del administrador del contrato existe
+un campo de registro de suficiencia presupuestal, el cual es adicional al de la sección de
+"
+Registro del
+contrato
+"
+.
+Se busca el contrato correspondiente a la suficiencia presupuestal que se va a registrar.
+En la parte inferior de la pantalla se muestran las suficiencias presupuestales que ya existen para el
+contrato, mismas que pueden ser modificadas dentro del plazo de 24 horas posteriores a su registro.
+Entonces, la persona servidora pública responsable deberá revisar que la información capturada sea correcta,
+para que pueda corregir oportunamente.
+Al terminar el registro de la suficiencia presupuestal, se elige la opción
+"
+Guardar
+"
+para que el registro
+quede formalizado en el contrato; después de esta acción se observa la fecha y el monto de la nueva
+suficiencia presupuestal.
+25. Transferencia de información del seguimiento mediante API REST
+BESA
+Para el consumo de la API y poder transferir como carga masiva la información referente al seguimiento
+de los contratos (registro de entregables, registro de avance de entregables, registro de facturas, pago de
+facturas y registro de sanciones), es necesario solicitar credenciales de consumo de la misma, a la mesa de
+ayuda de la BESA en el correo sistemabesa@funcionpublica.gob.mx, con el asunto
+"
+Solicitud de consumo API
+REST BESA
+"
+con los siguientes datos:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Nombre de la institución
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Nombre del enlace encargado de la petición
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Enlace técnico o informático para la implementación.
+Una vez realizada la solicitud, recibirá una respuesta con las credenciales de consumo de la API y un
+SWAGGER con la implementación técnica del consumo de los servicios de la API REST.
+Importante:
+Los trabajos de desarrollo tecnológico serán responsabilidad del área de tecnologías de
+información y comunicaciones de la institución.
+26. Registro de conclusión
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Registro de conclusión
+"
+.
+Se realiza la búsqueda por el número del contrato para iniciar con el registro de conclusión de todo el
+proceso en el sistema.
+En el apartado del registro de conclusión por contrato, se muestran leyendas informativas
+correspondientes al estatus de conclusión del contrato, derivadas de su ejecución y situación presentada en el
+desarrollo de este, como es el caso de contrato rescindido, término anticipado o finiquitado.
+Nota:
+Como condición para registrar la conclusión del contrato se deben liberar las garantías de éste.
+Antes de dar por concluido el contrato se recomienda revisarlo cuidadosamente, porque una vez guardada
+la información no podrá cambiarse y quedará registrada así en la BESA para efectos de auditoría.
+27. Incidencias en contratos
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Incidencias en contratos
+"
+.
+En el cuadro de consulta se ingresa el número del instrumento jurídico formalizado para poder acceder a
+la pantalla en donde se detalla la información concerniente al contrato: institución pública, tipo de contratación,
+orden de gobierno, etc.
+En la pantalla anterior, la BESA muestra los datos generales del contrato, como se observa en la imagen
+siguiente:
+Al desplazarse por la pantalla de consulta, se aprecian los diferentes colores correspondientes a las
+incidencias del contrato. Cada color se aplica en cada apartado del contrato de acuerdo con el cumplimiento o
+incidencia que se presente en la ejecución del contrato. Su connotación est
+á
+descrita en cada uno de los
+cuadros ubicados a la derecha de cada rubro.
+Las diferencias por colores corresponden a las incidencias del contrato en cada uno de sus apartados, con
+información precisa sobre el desarrollo y el cumplimiento de la normativa aplicable en la materia.
+28. Consulta de contratos
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Consulta Contratos
+"
+.
+En el apartado de seguimiento y cumplimiento de contratos se localiza el módulo para consultar el contrato
+registrado, en donde mediante la institución y la unidad compradora a las que pertenece el contrato
+formalizado, se podrá realizar la búsqueda correspondiente.
+En la parte inferior de la pantalla se observa el listado general del o los contratos que se encuentran
+finalizados de la institución y unidad compradora señalados en la consulta, en la cual se selecciona el ícono
+correspondiente al contrato que se requiere consultar.
+Al seleccionar el contrato requerido, se despliega la vista previa con los datos generales de los contratos
+que fueron registrados por el operador en la primera etapa de la BESA, en la que se puede desplazar en dicha
+pantalla para visualizar la información referente a las diversas secciones del registro del contrato.
+Los datos generales del proceso de contratación, la información presupuestal del contrato, los datos
+generales del contrato, las obligaciones del contrato, el administrador del contrato y el programa de
+entregables, son las secciones que corresponden al registro del contrato.
+29. Consulta de contratos por estatus
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Consulta de contratos por estatus
+"
+.
+La BESA permite realizar consultas por estatus de los contratos seleccionados, por periodo determinado y
+por unidad compradora.
+Para ello, se ingresa el nombre de la institución pública y la unidad compradora, seguido de la
+determinación del periodo del cual se desea obtener información de los contratos.
+La BESA muestra el estatus del o de los contratos requeridos, entre los que se encuentran:
+a)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Ejecución
+v
+igentes:
+Contratos vigentes en seguimiento y en cumplimiento de obligaciones
+pactadas.
+b)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Ejecución
+ve
+ncidos:
+Contratos vencidos en seguimiento y en cumplimiento de obligaciones
+pactadas.
+c)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Rescindidos:
+Contratos concluidos anticipadamente por incumplimiento a las obligaciones
+contractuales por parte del proveedor.
+d)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Término Anticipado:
+Contratos concluidos en forma anticipada por las dependencias o entidades de
+la APF, entes públicos estatales o municipales.
+e)
+&nbsp;&nbsp;&nbsp;&nbsp;
+Finiquitado:
+Contratos finiquitados en tiempo y forma, incluida la liberación de garantías.
+La pantalla entregada muestra botones en diferentes colores a manera de semáforos, mismos que al
+pasar el puntero del mouse sobre cada uno de ellos, se muestra un mensaje de ayuda para diferenciar a que
+se refiere cada estatus de los contratos.
+30. Consulta de garantías a contrato
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Consulta de garantías a contrato
+"
+.
+Al ingresar la información en los campos requeridos se despliega una pantalla con los datos generales del
+contrato formalizado.
+En caso de que se hubiesen registrado garantías, en la parte inferior de la pantalla, el sistema muestra el
+número de las garantías registradas, el importe de la suma de las garantías y un recuadro con la información
+referente a cada una de ellas.
+31. Consulta de sanciones a contrato
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Consulta de sanciones a contrato
+"
+.
+En el cuadro de diálogo de la parte inferior de la pantalla, se muestra el concentrado de las sanciones que
+han sido registradas en el contrato.
+32. Consulta de facturas por contrato
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Consulta de facturas por contrato
+"
+.
+Para realizar la consulta de facturas se ingresa nombre de institución, unidad compradora y el número de
+contrato formalizado del cual se va a consultar la factura.
+La BESA muestra los datos generales del contrato.
+En la parte inferior de la pantalla, se muestran las facturas que el contrato tiene registradas, asimismo, el
+número total de facturas y monto total de éstas.
+El semáforo indica cuando la factura está fuera del término establecido en la normativa correspondiente,
+para el pago de dicha factura, emitiendo el mensaje siguiente:
+33. Consulta de entregables por contrato
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Consulta de entregables por contrato
+"
+.
+Al seleccionar el apartado señalado, se despliega la pantalla sobre la cual se ingresará el nombre de la
+institución, la unidad compradora y el número del contrato formalizado, el cual también puede ser elegido por
+un combo de selección.
+Al realizar la búsqueda, la pantalla muestra un listado de los entregables registrados, los cuales se pueden
+descargar de manera conjunta como un archivo CSV (este formato de archivos contiene valores separados
+por comas, puede ejecutarse en programas de hojas de cálculo, como Excel).
+Se pueden descargar los documentos que acreditan los entregables y los comprobantes de los pagos
+registrados.
+En la parte superior de la cinta de entregables, se muestra un semáforo en donde al situar el puntero del
+mouse en uno de los dos botones, se muestra un mensaje de ayuda, para distinguir cual es el estado del
+entregable según lo que se muestra en el listado.
+34. Informe general de adquisiciones
+Seleccionar en el menú la opción
+"
+Seguimiento y cumplimiento de contratos
+"
+, seguido de
+"
+Adquisiciones
+Públicas
+"
+y por último
+"
+Informe general de adquisiciones
+"
+.
+Para emitir el informe general de adquisiciones, se ingresan los parámetros de interés, tales como
+dependencia y periodo
+En esta sección, la BESA emite un informe que corresponde a las adquisiciones y servicios, en un periodo
+determinado; este informe muestra los datos de los sectores, instituciones, unidades compradoras, entre
+otros, lo que permite obtener información relevante para la toma de decisiones.
+Al seleccionar el ícono imprimir, se descarga el informe en formato PDF con la información que
+proporciona el sistema, para su impresión o guardado.
+Si se selecciona un periodo en el que no se cuenta con contratos registrados, el sistema muestra un
+mensaje para corregir los datos ingresados.
+35.
+Cerrar sesión
+Al finalizar las actividades en la BESA podrá concluir la sesión seleccionando la opción
+"
+Cerrar sesión
+"
+del
+menú de usuario:
+36. Capacitación
+El objetivo de la capacitación es que las personas servidoras públicas adquieran nuevas habilidades y
+conocimientos idóneos para la correcta utilización de la BESA, al realizar el registro y seguimiento de los
+contratos de las adquisiciones. La Unidad de Auditoría a Contrataciones Públicas, con la intervención de las
+personas servidoras públicas encargadas, o por otros medios que se indiquen en el sitio web, impartirá la
+capacitación para la utilización de la BESA.
+La capacitación presencial se impartirá en la sede de la Secretaría ubicada en la av. Insurgentes Sur
+#1735, col. Guadalupe Inn, mediante solicitud realizada con antelación vía telefónica o correo electrónico, o en
+los estados de la República mexicana solicitándolo por oficio a la persona titular de la Jefatura de la Unidad de
+Auditoría a Contrataciones Públicas.
+37. Glosario
+Administrador de la BESA: Perfil que en la BESA será desempeñado por la
+persona titular de la Jefatura
+de la Unidad de Auditoría
+a Contrataciones Públicas de la Secretaría de la Función Pública o, en su caso, la
+persona servidora pública designada por él para administrar la operación de dicho sistema.
+Administrador del contrato:
+Persona servidora pública del área requirente designada en el contrato
+como encargado de verificar el cumplimiento del mismo.
+Adquisición consolidada:
+La integración en un procedimiento de los requerimientos de varias
+dependencias y/o entidades.
+Adquisiciones:
+Tipos de compra que considera la Ley de Adquisiciones, Arrendamientos y Servicios del
+Sector Público en cualquiera de sus modalidades.
+Auditor:
+Perfil asignado al jefe de departamento y auditor u homólogo, adscritos a la Secretaría de la
+Función Pública, para su ingreso en la BESA; con atribuciones de consulta en las instituciones y unidades
+compradoras designadas por su superior jerárquico.
+Avance financiero:
+El porcentaje que representa el importe de los entregables reales respecto del
+importe contractual programado.
+Avance físico:
+El porcentaje que representa la cantidad de los entregables reales respecto de la cantidad
+contractual programada.
+Bienes:
+Los que con la naturaleza de muebles considera el Código Civil Federal.
+Bitácora:
+Es el sistema electrónico en el cual se llevará el registro, control y seguimiento de los contratos
+y operaciones que realicen las dependencias, entidades y los entes públicos estatales y municipales.
+Capturista:
+Persona servidora pública asignada y habilitada en la bitácora por el administrador del
+contrato para apoyo en el seguimiento del registro del contrato en la BESA y, en su caso, del o los convenios
+modificatorios.
+Carácter del procedimiento:
+Carácter del procedimiento de la adquisición en sus modalidades: nacional,
+internacional abierto, internacional bajo la cobertura de tratados internacionales.
+Clave de usuario y contraseña:
+El conjunto de caracteres alfanuméricos que permiten el acceso
+a la
+BESA.
+Código del contrato:
+Número de identificación del contrato que asigna el sistema CompraNet durante el
+proceso de adquisición.
+Comisario:
+Perfil asignado para acceso a la BESA a los comisarios propietarios y suplentes de la
+Secretaría de la Función Pública, por sector, con atribuciones de consulta en las instituciones del sector que
+les correspondan.
+Comité de adquisiciones:
+El comité de adquisiciones, arrendamientos y servicios a que se refiere el
+artículo 22 de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público.
+Conclusión de contrato:
+El estatus que especifica el cierre de la bitácora electrónica del contrato en sus
+diferentes modalidades.
+Consultor:
+Perfil asignado para acceso a la BESA, a las personas servidoras públicas de la Secretaría de
+la Función Pública como son el Secretario, la Subsecretaría, los titulares de unidad, el Coordinador General
+de Gobierno de Órganos de Control y Vigilancia, y los directores generales u homólogos, con atribuciones de
+consulta en todas las instituciones y todas las unidades compradoras.
+Contrato:
+Acto jurídico bilateral que se constituye por el acuerdo de voluntades para la formalización de
+las adquisiciones, arrendamientos de bienes muebles y prestación de servicios que se deriven de la Ley de
+Adquisiciones, Arrendamientos y Servicios del Sector Público y de la Ley de Asociaciones Público Privadas.
+Contrato abierto:
+Acto jurídico que se fundamenta
+en el artículo 47 de la Ley de Adquisiciones,
+Arrendamientos y Servicios del Sector Público, que tiene como finalidad que las
+dependencias y entidades
+puedan adquirir bienes, arrendamientos o servicios que requieran de manera reiterada, en los cuales se
+establece la cantidad mínima y máxima de los bienes, arrendamientos o servicios a contratar; o bien, el
+presupuesto mínimo y máximo que podrá ejercerse, sin que la cantidad o presupuesto mínimo pueda ser
+inferior al cuarenta por ciento de la cantidad o presupuesto máximo; salvo que se trate de bienes que se
+fabriquen en forma exclusiva para las dependencias y entidades, en cuyo caso, la cantidad o presupuesto
+mínimo que se requiera no podrá ser inferior al ochenta por ciento de la cantidad o presupuesto máximo que
+se establezca.
+Contrato cerrado:
+Acto jurídico en el que las partes conocen desde un principio el monto y las
+características especiales del objeto de la contratación en el que se establece un calendario fijo de conceptos
+de entrega durante la vigencia del contrato.
+Contrato marco:
+La estrategia de contratación basada en un acuerdo de voluntades que celebra una
+dependencia o entidad con uno o más posibles proveedores, mediante los cuales se establecen las
+especificaciones técnicas y de calidad, alcances, precios y condiciones que regularán la adquisición o
+arrendamiento de bienes muebles, o la prestación de servicios.
+Contrato plurianual:
+La contratación que consolida o agrega demanda de diversos periodos.
+Convenio modificatorio:
+Acuerdo de voluntades para crear, transferir, modificar o extinguir obligaciones
+del contenido de un contrato, el cual forma parte integral del mismo.
+Coordinador:
+El perfil que en la BESA desempeñarán los oficiales mayores de las
+s
+ecretarías de
+Hacienda y Crédito Público, de la Defensa Nacional y de Marina; los titulares de las unidades de
+administración y finanzas de las dependencias y entidades de la Administración Pública Federal, y sus
+homólogos en los entes públicos estatales y municipales
+, así como las alcaldías de la Ciudad de México,
+los
+titulares de las unidades de fiscalización, los órganos internos de control de la secretaría,
+así como
+las
+personas servidoras públicas que de acuerdo con sus atribuciones o funciones sean designados.
+Correo electrónico:
+Sistema de comunicación electrónico que permite el intercambio de mensajes entre
+distintas computadoras interconectadas mediante una red.
+Crédito externo:
+Recursos que se obtienen del exterior, con los que el sector público sostiene
+transacciones de índole comercial o financiera.
+Dependencias:
+L
+as secretarías de Estado, incluyendo a sus órganos administrativos desconcentrados,
+órganos reguladores coordinados en materia energética y la Consejería Jurídica del Ejecutivo Federal,
+así
+como,
+de las unidades administrativas de la Presidencia de la República.
+DGTI:
+La Dirección General de Tecnologías de Información de la Secretaría de la Función Pública.
+Documento de archivo:
+Documento que registra un hecho, acto administrativo, jurídico, fiscal o contable
+producido, recibido y utilizado en el ejercicio de las facultades, competencias o funciones de los sujetos
+obligados, con independencia de su soporte documental.
+Entes públicos estatales, municipales
+y alcaldías de la Ciudad de México
+:
+Las entidades federativas,
+los municipios
+y las alcaldías
+que realicen adquisiciones, arrendamientos y servicios del sector público,
+con
+cargo total o parcial a recursos federales, de acuerdo con los convenios que celebren con el
+Ejecutivo
+Federal.
+Entidades federativas:
+Entidades integrantes de la Federación Mexicana.
+Entidades:
+Los organismos públicos descentralizados, empresas de participación estatal mayoritaria y los
+fideicomisos en los que el fideicomitente sea el gobierno federal o una entidad paraestatal.
+Estatus del contrato:
+Es la situación que adquiere el contrato durante el proceso de ejecución o dentro
+del término de su vigencia; mismo que se describe en los puntos siguientes:
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Activos: Los contratos cuya fecha actual está comprendida en la vigencia del contrato.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Expirados: Los
+contratos en los que
+la fecha actual es posterior a la fecha final de la vigencia del
+contrato.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Registrados: Los contratos que, con independencia de su vigencia, han finalizado su registro.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ejecución vigente: Los contratos que están en el proceso de administración y seguimiento de las
+necesidades y obligaciones establecidas, que aún no concluye su finiquito o terminación anticipada y
+cuya fecha actual está comprendida en la vigencia del contrato.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Ejecución vencidos: Los contratos que están en el proceso de administración y seguimiento de las
+necesidades y obligaciones establecidas, que aún no concluye su finiquito o terminación anticipada y
+cuya fecha actual es posterior a la fecha final de la vigencia del contrato.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Rescindidos: Los contratos cuya rescisión fue generada por incumplimiento de las obligaciones
+contractuales por causas imputables al proveedor.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Término anticipado: Cuando la dependencia o entidad da por terminado anticipadamente el contrato
+por razones de interés general, o bien, que por causas justificadas se extinga la necesidad de
+requerir los bienes o servicios originalmente contratados.
+-
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Finiquitado
+:
+El contrato que fue concluido en tiempo y forma, incluyendo la liberación de las
+garantías.
+Fecha de conclusión:
+Fecha establecida para la conclusión de vigencia de la contratación de bienes,
+arrendamientos o servicios.
+Fecha de convocatoria:
+Fecha de publicación de convocatorias para concurso de adquisiciones públicas.
+Fecha de fallo:
+Fecha del acto de fallo del procedimiento de contratación en CompraNet.
+Fecha de fin del contrato:
+Fecha de expiración del contrato reportado por la unidad compradora.
+Fecha de formalización del contrato:
+Es la fecha en la que se firma el contrato entre las partes
+contratantes.
+Fecha de inicio del contrato:
+La reportada por la unidad compradora.
+Formato de archivo digital XML:
+Archivo en lenguaje que permite la organización y el etiquetado de
+documentos.
+Fundamento legal:
+Las disposiciones normativas contenidas en la Ley de Adquisiciones, Arrendamientos
+y Servicios del Sector Público, y su Reglamento, así como en la Ley de Asociaciones Públicas Privadas para
+fundar los procedimientos de contratación.
+Importe del contrato:
+Es el monto del contrato formalizado sin incluir el Impuesto al Valor Agregado.
+Ley de Adquisiciones:
+Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público.
+Manual administrativo:
+Manual Administrativo de Aplicación General en Materia de Adquisiciones,
+Arrendamientos y Servicios del Sector Público.
+Medios remotos de comunicación electrónica:
+Los dispositivos tecnológicos para la transmisión y
+recepción de datos, documentos electrónicos e información, mediante computadoras, líneas telefónicas,
+enlaces dedicados, microondas, vías satélites y similares.
+Metadatos:
+Conjunto de datos que describen el contexto, contenido y estructura de los documentos de
+archivos y su administración, a través del tiempo, y que sirven para identificarlos, facilitar su búsqueda,
+administración y control.
+Moneda del contrato:
+Tipo de moneda reportado por la unidad compradora asociado al importe de cada
+contrato: MXN Peso mexicano; EUR Euro; USD Dólar estadounidense; GBP Libra esterlina; JPY Yen; CAD
+Dólar canadiense".
+Monto:
+La suma, adición, resultado, cuenta u operación de varias partidas, cuantías o cantidades.
+Número del procedimiento:
+Número identificador del procedimiento de contratación que asigna el
+sistema electrónico CompraNet.
+OIC:
+Órgano Interno de Control en las dependencias y entidades del sector público.
+OCE:
+Órgano de Control Estatal en las dependencias y entidades de las entidades federativas.
+OCM:
+Órgano de Control Municipal en las dependencias y entidades del sector público.
+Operador de unidad compradora:
+La persona servidora pública de la unidad compradora que, de
+acuerdo con sus atribuciones o funciones, será responsable de la supervisión y registro de la información en
+el sistema BESA, mediante designación del coordinador correspondiente, realizada con antelación.
+Orden de gobierno: Indica el tipo de gobierno:
+Administración Pública Federal; Gobierno Estatal y
+Gobierno Municipal.
+Partida presupuestal:
+La división o desglose de los bienes a adquirir o arrendar o de los servicios a
+contratar, contenidos en un procedimiento de contratación o en un contrato, para diferenciarlos unos de otros,
+clasificarlos o agruparlos, en base con el Clasificador por Objeto del Gasto de la Administración Pública
+Federal.
+Perfil:
+Las características específicas que distinguen a los usuarios de la BESA, de acuerdo con el rol que
+desempeñan.
+Presupuesto autorizado:
+Presupuesto que se comunica a la dependencia o entidad en el calendario de
+gasto correspondiente, en términos de la Ley Federal de Presupuesto y Responsabilidad Hacendaria.
+Proveedor:
+La persona física o moral que celebra contratos de adquisiciones, arrendamientos o servicios
+con una dependencia o entidad de la Administración Pública Federal, entidades federativas, municipios y
+alcaldías de la Ciudad de México.
+Reglamento:
+Reglamento de la Ley de Adquisiciones, Arrendamientos y Servicios del Sector Público.
+RFC:
+Registro Federal de Contribuyente de la persona moral o física.
+RUPC:
+Registro Único de Proveedores y Contratistas.
+Sector:
+Conjunto de instituciones públicas que pertenecen al Estado encargados de ejecutar políticas
+públicas de acuerdo con la normativa aplicable.
+SFP:
+Secretaría de la Función Pública.
+SICOP:
+Sistema de Contabilidad y Presupuesto.
+Supervisor:
+Perfil asignado a los directores de área y subdirectores u homólogos de la Secretaría de la
+Función Pública, para su ingreso en la BESA, con atribuciones de consulta en las instituciones y unidades
+compradoras designadas por su superior jerárquico.
+Tipo de contratación:
+Establece el tipo de contratación, adquisición, arrendamiento o servicio.
+Tipo de procedimiento:
+Tipo de procedimiento de contratación.
+UACP:
+Unidad de Auditoría a Contrataciones Públicas.
+Unidad compradora:
+Área administrativa en las dependencias y entidades de la Administración Pública
+Federal, y en los entes públicos estatales, municipales y de las alcaldías de la Ciudad de México, facultada
+para realizar procedimientos de contratación a efecto de adquirir, arrendar bienes o contratar la prestación de
+servicios.
+Unidad o área requirente:
+Unidad o área administrativa de la dependencia o entidad que solicita o
+requiere formalmente la adquisición o arrendamiento de bienes o la prestación de servicios, o bien aquella que
+los utilizará.
+Usuario del sistema:
+Las personas servidoras públicas autorizadas para acceder a la BESA, mediante
+los perfiles de administrador, coordinador, operador, administrador de contrato y capturista; y en el caso del
+personal adscrito a la SFP mediante los perfiles de consultor, supervisor, auditor y comisario.
+Vigencia documental:
+Periodo durante el cual un documento de archivo mantiene sus valores
+administrativos, legales, fiscales o contables, de acuerdo con las disposiciones jurídicas vigentes y aplicables.
+38.
+Interpretación
+La persona titular de la Jefatura de la Unidad de Auditoría a Contrataciones Públicas de la Secretaría de la
+Función Pública, en el ámbito de sus facultades, interpretará el presente manual y resolverá los casos no
+previstos en el mismo.
+39. Vigencia
+El presente manual entrará en vigor al día siguiente de su publicación en el Diario Oficial de la Federación.
+A partir de la entrada en vigor del presente manual, las modificaciones, mejoras y adecuaciones al sistema
+BESA estarán disponibles para su consulta en el apartado del sitio web de la BESA que se destine para ello.
+40.
+Anexos
+Para el alta y baja de usuarios, las aperturas de contratos y/o convenios modificatorios y, en su caso, la
+solicitud de eliminación de contratos en la BESA, se requiere del envío, al correo electrónico
+sistemabesa@funcionpublica.gob.mx, de los anexos uno y dos (alta y baja de usuarios), y de igual forma, el
+envío de los anexos tres y cuatro (aper
+tura y/o convenios) siguientes:
+Anexo
+u
+no: pla
+ntilla de oficio para solicitar accesos a la BESA
+(PAPEL MEMBRETADO)
+Número de Oficio
+Fecha de Oficio
+(Nombre)
+Persona titular de la Jefatura de la Unidad de Auditoría
+a Contrataciones Públicas
+Secretaría de la Función Pública
+Presente
+En cumplimiento del
+"
+Acuerdo por el que se establece la obligatoriedad del registro de contratos y
+operaciones de adquisiciones, arrendamientos y servicios del sector público en la Bitácora Electrónica
+de Seguimiento de Adquisiciones y sus Lineamientos
+"
+, publicado en el Diario Oficial de la Federación el
+1 de octubre de 2021, y sus modificaciones publicadas en el referido medio de difusión, solicito acceso
+al sistema denominado Bitácora Electrónica de Seguimiento de Adquisiciones (BESA).
+Asimismo, de conformidad con el numeral 7 de los
+"
+Lineamientos por los que se establecen las
+disposiciones administrativas de carácter general para el uso de la Bitácora Electrónica de Seguimiento
+de Adquisiciones
+"
+, solicito se dé acceso a las personas servidoras públicas siguientes:
+Nombre:
+____________________
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Perfil:
+_________________
+Anexo Dos: archivo en formato Excel denominado Alta de servidores públicos al sistema Bitácora
+Electrónica de Seguimiento de Adquisiciones (BESA).
+Finalmente, hago de su conocimiento que, en caso de que el Sistema de Bitácora Electrónica contenga
+información considerada como confidencial, en términos de los artículos 116 de la Ley General de
+Transparencia y Acceso a la Información Pública y 113 de la Ley Federal de Transparencia y Acceso a la Información Pública y el trigésimo octavo lineamiento, de los "Lineamientos Generales en Materia de Clasificación y Desclasificación de la Información, así como para la Elaboración de Versiones Públicas", dicha información no podrá difundirse, distribuirse o comercializarse.
+Sin otro particular, aprovecho la ocasión para enviarle un cordial saludo.
+Atentamente
+__________________________
+Oficial Mayor, Titular de la Unidad de Administración y Finanzas u homólogos correo electrónico
+C.c.p.: LIC., ING., DR., ARQ.
+Archivo
+&nbsp;
+Anexo
+d
+os
+: formato para solicitar acceso a la BESA
+Alta y Baja de Personas Servidoras Públicas al Sistema Bitácora Electrónica de Seguimiento de
+Adquisiciones (BESA)
+Datos del coordinador:
+&nbsp;
+Institución
+Nombre de la persona
+servidora pública
+Cargo
+Perfil solicitado
+CURP
+Correo electrónico
+institucional
+Teléfono
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+Datos del coordinador designado:
+Núm
+.
+Institución
+Nombre de
+la persona
+servidora
+pública
+Cargo
+Perfil
+solicitado
+CURP
+Correo
+electrónico
+institucional
+Teléfono
+Unidad
+compradora
+Clave de la unidad
+compradora
+1
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+2
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+...
+n
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+Datos del operador designado:
+Núm
+.
+Institución
+Nombre de
+la persona
+servidora
+pública
+Cargo
+Perfil
+solicitado
+CURP
+Correo
+electrónico
+institucional
+Teléfono
+Unidad
+compradora
+Clave de la unidad
+compradora
+1
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+2
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+...
+n
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+_________
+______________________
+&nbsp;
+Anexo tres: plantilla de oficio para solicitar la habilitación
+del contrato y/o convenios en la BESA
+(PAPEL MEMBRETADO)
+Número de Oficio
+Fecha de Oficio
+(Nombre)
+Titular de la Unidad de Auditoría
+a Contrataciones Públicas
+Secretaría de la Función Pública
+Presente
+En cumplimiento del
+"
+Acuerdo por el que se establece la obligatoriedad del registro de contratos y
+operaciones de adquisiciones, arrendamientos y servicios del sector público en la Bitácora Electrónica de
+Seguimiento de Adquisiciones y sus Lineamientos
+"
+, publicado en el Diario Oficial de la Federación el 1 de
+octubre de 2021, y sus modificaciones publicadas en el citado medio de difusión, y de conformidad con el
+numeral 13, fracción VII, de los
+"
+Lineamientos por los que se establecen las disposiciones administrativas de
+carácter general para el uso de la Bitácora Electrónica de Seguimiento de Adquisiciones
+"
+, se solicita la
+habilitación en el sistema BESA de los contratos y/o convenios modificatorios, con objeto de corregir la
+información registrada que se indica en el Anexo Cuatro, archivo en formato Excel denominado Habilitación de
+los contratos y/o convenios modificatorios en el sistema Bitácora Electrónica de Seguimiento de Adquisiciones
+(BESA).
+Asimismo, hago de su conocimiento que, en caso de que el Sistema de Bitácora Electrónica contenga
+información considerada como confidencial, en términos de los artículos 116 de la Ley General de
+Transparencia y Acceso a la Información Pública y 113 de la Ley Federal de Transparencia y Acceso a la
+Información Pública y el trigésimo octavo lineamiento, de los
+"
+Lineamientos Generales en Materia de
+Clasificación y Desclasificación de la Información, así como para la Elaboración de Versiones Públicas
+"
+, dicha
+información no podrá difundirse, distribuirse o comercializarse.
+Sin otro particular, aprovecho la ocasión para enviarle un cordial saludo.
+Atentamente
+__________________________
+Oficial Mayor, Titular de la Unidad de Administración y Finanzas u homólogos, Titular del Órgano Interno
+de Control u homólogos, correo electrónico
+C.c.p.: LIC., ING., DR., ARQ.
+Archivo
+Anexo cuatro: formato para solicitar la habilitación del contrato y/o convenio en la BESA
+Datos del coordinador (general o local):
+&nbsp;
+Institución
+Nombre de la persona
+servidora pública
+Cargo
+Perfil solicitado
+CURP
+Correo electrónico
+institucional
+Teléfono
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+Datos del Contrato y/o Convenio Modificatorio:
+Núm
+.
+Institución
+Motivo
+Numero de
+contrato
+formalizado
+Código de
+contrato
+CompraNet
+Unidad
+compradora
+Datos por modificar
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+Dice
+Debe Decir
+1
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+2
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+...
+n
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+_
+_________________________
+&nbsp;
+Permisos de usuarios
+Directorio
+Persona titular de la Secretaría de la Función Pública
+Persona titular de la Coordinación General de Fiscalización
+Persona titular de la Jefatura de la Unidad de Auditoría a Contrataciones Públicas
+Persona titular de la Dirección General de Auditoría a Adquisiciones
+Persona titular de la Dirección de Auditoría a Adquisiciones B
+México, Ciudad de México a 18 de junio de 2024.
+-
+El Coordinador General de Fiscalización
+,
+Eduardo
+Gurza Curiel
+.- Rúbrica.
+--

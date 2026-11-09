@@ -1,0 +1,24 @@
+{
+  "workspace_xlsx": {
+    "version": "replica-piloto-1",
+    "source_sha256": "5d52c54f37213318f467703b5650f391e652f670d84360e2915522700db087cb",
+    "fields": {
+      "bidder.legal_name": {
+        "sheet": "IMSS_AnexoXVIII_Eco",
+        "cell": "B3",
+        "label": "Nombre del participante"
+      },
+      "bidder.nationality": {
+        "sheet": "IMSS_AnexoXVIII_Eco",
+        "cell": "D3",
+        "label": "Nacionalidad"
+      },
+      "economic.unit_price": {
+        "sheet": "IMSS_AnexoXVIII_Eco",
+        "cell": "C12",
+        "label": "Precio unitario sin IVA",
+        "type": "number"
+      }
+    }
+  }
+}

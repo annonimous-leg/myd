@@ -1,0 +1,95 @@
+MEGALODON V7 — CIERRE DE PENDIENTES PRR
+Fecha: 2026-08-31
+Base: MEGALODON_V7_2026-08-31_domain_contracts_hardened_PRR.zip
+
+DICTAMEN
+NO-GO para producción. Los pendientes de código que podían cerrarse dentro del artefacto quedaron corregidos y auditados. Quedan dos bloqueadores de reproducibilidad que no pueden cerrarse honestamente en este runtime sin acceso fiable a los registries: frontend/app/package-lock.json y backend/uv.lock. La validación E2E real con PostgreSQL/Redis/Storage tampoco pudo ejecutarse porque Docker y los servicios reales no están disponibles en este entorno.
+
+CAMBIOS APLICADOS
+1) DomainSnapshot
+- backend/app/engines/procurement/domain_contracts.py:62-89
+  Payload recursivamente inmutable; hash calculado sobre el payload congelado; representación canónica separada de captured_at.
+- backend/app/engines/procurement/domain_contracts.py:126-148
+  source_revision_token() usa updated_at de la fuente y versión declarada cuando existe; no inventa content_hash.
+- backend/app/engines/procurement/domain_contracts.py:149-151
+  snapshot_source_is_current() exige coincidencia exacta de revisión.
+
+2) BIM/Topografía
+- backend/app/engines/procurement/materializer.py:90-98
+  BIM snapshot guarda revision=source_revision_token(ModeloBIM.updated_at, ModeloBIM.version_ifc).
+- backend/app/engines/procurement/materializer.py:125-134
+  Topografía guarda revision=source_revision_token(CalculoVolumen.updated_at).
+- backend/app/engines/procurement/materializer.py:132-134
+  quantification_sources se conserva y technical.snapshots convive con él.
+
+3) Gate de frescura
+- backend/app/services/procurement/service.py:180-225
+  readiness() reconsulta la fuente actual, valida tenant/expediente y bloquea por fuente faltante, tipo no verificable o snapshot stale.
+
+4) Concurrencia
+- backend/app/services/procurement/service.py:898-900
+  create_requirement_rule_version() bloquea TenderPackage con FOR UPDATE.
+- backend/app/services/procurement/service.py:1048-1050
+  create_revision() bloquea TenderPackage con FOR UPDATE.
+- backend/app/services/procurement/service.py:995-997
+  add_artifact() bloquea TenderPackage con FOR UPDATE para serializar incremento de version.
+
+5) Tests de contrato
+- backend/tests/unit/test_domain_contracts.py:8-50
+  invariabilidad, hash, determinismo canónico y revisión de fuente.
+- backend/tests/procurement/test_materializer_tenant_binding.py:5-18
+  verifica el call-site real mediante AST.
+- backend/tests/procurement/test_stage_trace_static.py:43-57
+  verifica tenant_id mediante AST, no por simple búsqueda textual.
+
+6) Infraestructura previamente corregida y revalidada
+- backend/docker-compose.prod.yml:59-115
+  migrate/release-gate/api contienen las variables de configuración exigidas por producción.
+- backend/app/core/redis_client.py:245-336
+  operaciones lazy usan factory/lambda, evitando dereferenciar _client=None antes de conectar.
+- backend/app/services/procurement/service.py:995-1022
+  add_artifact() restringe storage_path a tenders/{tenant}/{tender}/ antes de descargar.
+- backend/alembic/versions/20260831_procurement_tenant_graph_hardening.py:80-115
+  FKs compuestas tenant+id para el grafo Procurement.
+- backend/app/utils/upload_limits.py:38-71
+  lectores de archivo usan lectura por bloques y límite explícito.
+
+VALIDACIONES EJECUTADAS
+- pytest targeted: 13 passed.
+- pytest DomainSnapshot: 5 passed.
+- compileall/AST Python: PASS.
+- YAML docker-compose: PASS.
+- Alembic static graph: 1 head -> 20260831_procurement_tenant_graph_hardening.
+- Scan AST de await file.read()/archivo.read(): sólo detecta lectores por bloques limitados en:
+  backend/app/utils/upload_limits.py:57
+  backend/app/api/v1/procurement.py:30
+- Redis lazy-connect aislado: PASS.
+- DomainSnapshot immutability/determinism aislado: PASS.
+
+REVISIÓN DE REGRESIONES
+La copia de trabajo difiere de la base endurecida únicamente en los archivos intencionalmente modificados para este cierre:
+- backend/app/engines/procurement/domain_contracts.py
+- backend/app/engines/procurement/materializer.py
+- backend/app/services/procurement/service.py
+- backend/tests/procurement/test_materializer_tenant_binding.py
+- backend/tests/procurement/test_stage_trace_static.py
+- backend/tests/unit/test_domain_contracts.py
+No se detectaron otros cambios de código; las únicas diferencias adicionales fueron caches generadas, eliminadas antes del empaquetado.
+
+PENDIENTES NO CERRADOS HONESTAMENTE
+A) frontend/app/package-lock.json
+- .github/workflows/security-hardening.yml:49-53 exige cache de package-lock y npm ci.
+- frontend/app/package-lock.json NO existe.
+- npm install --package-lock-only se intentó y no pudo resolverse en el runtime disponible; npm cache está vacío y no hay acceso fiable al registry.
+
+B) backend/uv.lock
+- backend/pyproject.toml:32-142 define dependencias con rangos.
+- uv lock --offline no pudo resolverlas porque no están en caché (ejemplo confirmado: apscheduler==3.10.4).
+- No se inventó un lockfile.
+
+C) E2E real
+- Docker no está disponible en este runtime.
+- No se ejecutó un PostgreSQL/Redis/Storage real ni la cadena crash/restart/backup-restore.
+
+CONCLUSIÓN
+No se requiere rehacer desde el ZIP original: la reauditoría de cada corrección pasó y el diff contra la base endurecida muestra sólo seis archivos intencionalmente tocados. El artefacto queda más cerrado y coherente, pero no se marca GO mientras falten los locks reproducibles y la prueba E2E con infraestructura real.

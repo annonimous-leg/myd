@@ -1,0 +1,88 @@
+name: Supabase read-only preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_label:
+        description: Internal label for the target project (does not select credentials)
+        required: true
+        type: string
+        default: supabase-staging
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-read-only-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Inventory existing Supabase database (read only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ENVIRONMENT: staging
+      DATABASE_URL: ${{ secrets.SUPABASE_DML_DATABASE_URL }}
+      DATABASE_SSL_MODE: verify-full
+      DB_ECHO: "false"
+      SUPABASE_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      PROJECT_LABEL: ${{ inputs.project_label }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+
+      - name: Install uv
+        run: python -m pip install --disable-pip-version-check uv
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: uv sync --frozen --extra dev
+
+      - name: Validate read-only database secret
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${DATABASE_URL}" ]]; then
+            echo "::error::Configure the SUPABASE_DML_DATABASE_URL secret before running this workflow."
+            exit 1
+          fi
+          echo "Target label: ${PROJECT_LABEL}"
+          echo "TLS mode: ${DATABASE_SSL_MODE}"
+          echo "No database URL or password is printed."
+
+      - name: Run read-only inventory
+        working-directory: backend
+        run: uv run python -m scripts.supabase_preflight > "${RUNNER_TEMP}/supabase-preflight.json"
+
+      - name: Add report summary
+        if: always()
+        run: |
+          if [[ -f "${RUNNER_TEMP}/supabase-preflight.json" ]]; then
+            {
+              echo "## Supabase read-only preflight"
+              echo
+              echo 'The attached report contains metadata and per-table counts only; no price rows or credentials.'
+              echo
+              cat "${RUNNER_TEMP}/supabase-preflight.json"
+            } >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Upload inventory report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-read-only-preflight-${{ github.run_id }}
+          path: ${{ runner.temp }}/supabase-preflight.json
+          if-no-files-found: warn
+          retention-days: 7

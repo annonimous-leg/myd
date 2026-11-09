@@ -1,0 +1,36 @@
+Dependency installation report
+
+Installed successfully:
+- redis
+- bcrypt>=4.0.0
+
+Failed in this environment:
+- python-jose[cryptography]
+- passlib[bcrypt]
+- asyncpg
+- geoalchemy2
+- celery
+- ifcopenshell
+- pyhanko
+- pyhanko-certvalidator
+- pikepdf
+- supabase
+- tenacity
+- structlog
+- opentelemetry-instrumentation
+- opentelemetry-instrumentation-fastapi
+- opentelemetry-instrumentation-sqlalchemy
+- opentelemetry-instrumentation-redis
+- opentelemetry-instrumentation-celery
+- opentelemetry-instrumentation-httpx
+- psycopg2-binary
+- aioredis==2.0.1
+- aiosqlite==0.19.0
+- apscheduler==3.10.4
+- geojson==3.1.0
+- pyarrow==14.0.1
+- pycryptodome==3.20.0
+- pynacl==1.5.0
+- python-whois==0.8.0
+- shodan==1.31.0
+- stripe>=11.1.0

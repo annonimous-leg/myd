@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-08-27",
+  "purpose": "Documentos faltantes para LegalRule SAT/IMSS/INFONAVIT y contraste federal. Sinaloa PRIMARY_LAW oficial post-2020 NO incluido (PO Dec.456/512 no localizado).",
+  "documents": [
+    {
+      "title": "Código Fiscal de la Federación",
+      "issuer": "Cámara de Diputados",
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/CFF.pdf",
+      "ultima_reforma": "DOF 09-04-2026",
+      "uso_megalodon": "Fundamento opiniones SAT / obligaciones fiscales (REQ-001). Citar artículo concreto tras localizarlo en el texto.",
+      "authority_level": "PRIMARY_LAW",
+      "status": "VERIFICADO_OFICIAL_DIPUTADOS",
+      "filename": "CFF_DOF_09-04-2026.pdf",
+      "sha256": "be7427b20d3552775ab42018f8f87578078770095bf8cf46322c25e36ee3aa7d",
+      "bytes": 3134465
+    },
+    {
+      "title": "Ley del Seguro Social",
+      "issuer": "Cámara de Diputados",
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LSS.pdf",
+      "ultima_reforma": "DOF 15-01-2026",
+      "uso_megalodon": "Fundamento opinión IMSS (REQ-002). Verificar Art. citado (p.ej. 15-A u otro vigente).",
+      "authority_level": "PRIMARY_LAW",
+      "status": "VERIFICADO_OFICIAL_DIPUTADOS",
+      "filename": "LSS_DOF_15-01-2026.pdf",
+      "sha256": "8a28a16e1dce1f8e666f4cce5ed19745bc912b2ab1ca49787d5d4bef229398ed",
+      "bytes": 2161638
+    },
+    {
+      "title": "Ley del Instituto del Fondo Nacional de la Vivienda para los Trabajadores",
+      "issuer": "Cámara de Diputados",
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LIFNVT.pdf",
+      "ultima_reforma": "DOF 21-02-2025",
+      "uso_megalodon": "Fundamento opinión INFONAVIT (REQ-003).",
+      "authority_level": "PRIMARY_LAW",
+      "status": "VERIFICADO_OFICIAL_DIPUTADOS",
+      "filename": "LINFONAVIT_DOF_21-02-2025.pdf",
+      "sha256": "9ee6e5ef336dee5700726bd3c570d24f91fc458136e298ae2e3806bd12217912",
+      "bytes": 1024529
+    },
+    {
+      "title": "Ley de Obras Públicas y Servicios Relacionados con las Mismas (federal)",
+      "issuer": "Cámara de Diputados",
+      "url": "https://www.diputados.gob.mx/LeyesBiblio/pdf/LOPSRM.pdf",
+      "ultima_reforma": "DOF 14-11-2025",
+      "uso_megalodon": "Refresco oficial federal (ya en corpus; hash de contraste).",
+      "authority_level": "PRIMARY_LAW",
+      "status": "VERIFICADO_OFICIAL_DIPUTADOS",
+      "filename": "LOPSRM_DOF_14-11-2025.pdf",
+      "sha256": "b760b87cb82b23955e149500a1a832a608029ca814f0653b1430f6948d33e9f5",
+      "bytes": 989068
+    }
+  ],
+  "still_missing": [
+    {
+      "id": "SIN-LEY-OBRAS-VIGENTE",
+      "note": "Ley de Obras Públicas del Estado de Sinaloa vigente (post Dec.456 07-sep-2020 y Dec.512 23-oct-2020). Solo hay consolidado Congreso hasta 2017 y textos secundarios. No se entrega Justia como PRIMARY_LAW."
+    },
+    {
+      "id": "CFE-DISP-GEN-PDF-BINARIO",
+      "note": "PDF binario oficial DOF de CFE Disposiciones Generales 19-08-2026. El corpus HARDENED trae snapshot de texto; no se inventa PDF."
+    },
+    {
+      "id": "ARTICULOS-AVISO-COMPRANET-Y-BASES",
+      "note": "Citas correctas LOPSRM/LAASSP para aviso CompraNet y contenido de bases (REQ-004/005). Las citas del motor actual están rotas."
+    }
+  ]
+}

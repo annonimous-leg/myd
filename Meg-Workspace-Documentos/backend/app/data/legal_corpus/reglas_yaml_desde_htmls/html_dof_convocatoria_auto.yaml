@@ -1,0 +1,127 @@
+- id: DOF_1_II
+  fuente: DOF - Diario Oficial de la Federación (1)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: II
+  descripcion: Glosario de acrónimos, siglas y términos. Para efectos de las presentes
+    Políticas, Bases y Lineamientos en materia de adquisiciones, arrendamientos y
+    servicios de la Secretaría de la Función Pública, deberán tenerse por reproducidas,
+    como si a la let
+  tipo: obligacion
+  estado: convocatoria
+  citas_articulos: &id001
+  - '52'
+  - '13'
+  - '42'
+  - '47'
+  - '32'
+  - '50'
+  - '41'
+  - 12 Bis
+  - '26'
+  - 55 Bis
+  - '56'
+  - '46'
+  - '8'
+  - '12'
+  - '81'
+  - '28'
+  - '40'
+  - 54 Bis
+  - '44'
+  - '48'
+  - '19'
+  - '51'
+- id: DOF_1_V
+  fuente: DOF - Diario Oficial de la Federación (1)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Acuerdo
+  numeral: V
+  descripcion: Bases y Lineamientos.
+  tipo: regla
+  estado: convocatoria
+  citas_articulos: *id001
+- id: DOF_8_1
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '1'
+  descripcion: 'Contrataciones entre Dependencias, Entidades y otras personas morales
+    a las que hace referencia el artículo 1o. del Reglamento Bases: A fin de garantizar
+    el adecuado cumplimiento de las obligaciones que se derivan de los contratos a
+    que se refiere el'
+  tipo: obligacion
+  estado: convocatoria
+  citas_articulos: &id002 []
+- id: DOF_8_2
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '2'
+  descripcion: 'Arrendamiento de bienes Bases: En caso de arrendamiento de bienes
+    muebles, las áreas requirentes determinarán la conveniencia de su contratación.
+    Lineamientos: Para asegurar al Instituto las mejores condiciones a que hace referencia
+    el artículo 134 c'
+  tipo: regla
+  estado: convocatoria
+  citas_articulos: *id002
+- id: DOF_8_4
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '4'
+  descripcion: 'De las contrataciones consolidadas de bienes, arrendamientos o contratación
+    de servicios &nbsp; Bases: El Instituto promoverá iniciativas de contratos consolidados
+    que contribuyan a reducir costos y optimizar el proceso de suministros a través
+    de nue'
+  tipo: obligacion
+  estado: convocatoria
+  citas_articulos: *id002
+- id: DOF_8_5
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '5'
+  descripcion: 'De la contratación de sistemas informáticos o tecnologías de la información
+    a través del mecanismo denominado " retos públicos " Bases: A fin de disponer
+    de mejores tecnologías de información que apoyen en esta materia al Instituto,
+    así como incentiv'
+  tipo: sancion
+  estado: convocatoria
+  citas_articulos: *id002
+- id: DOF_8_5
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '5'
+  descripcion: De las notificaciones Las notificaciones relativas al procedimiento
+    de sanción, así como aquéllas vinculadas con las investigaciones a que se refiere
+    el párrafo anterior, podrán realizarse de acuerdo con lo previsto en las presentes
+    Bases y Lineamien
+  tipo: facultad
+  estado: convocatoria
+  citas_articulos: *id002
+- id: DOF_8_1
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '1'
+  descripcion: De los requisitos para las inconformidades promovidas en contra de
+    la convocatoria a la licitación, y a las juntas de aclaraciones Al escrito inicial
+    de las inconformidades a que se refiere la fracción I del artículo 68 del Reglamento
+    deberá acompaña
+  tipo: obligacion
+  estado: convocatoria
+  citas_articulos: *id002
+- id: DOF_8_3
+  fuente: DOF - Diario Oficial de la Federación (8)
+  entidad: SFP (Secretaría de la Función Pública)
+  tipo_documento: Lineamientos
+  numeral: '3'
+  descripcion: De los requisitos de la solicitud de conciliación El escrito de solicitud
+    de conciliación que presente el proveedor o la DGA, además de contener los elementos
+    previstos en el artículo 15 de la Ley Federal de Procedimiento Administrativo,
+    deberá hacer
+  tipo: obligacion
+  estado: convocatoria
+  citas_articulos: *id002

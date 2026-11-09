@@ -1,0 +1,311 @@
+/*
+ * Copyright © 2026 Cristian Rodriguez
+ * All rights reserved.
+ * Unauthorized copying, modification, distribution, or use is prohibited
+ * without prior written permission.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Merriweather:wght@300;400;700&display=swap')
+layer(base);
+
+@import 'tailwindcss' source(none);
+@source './';
+@source '../index.html';
+
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Cinzel', Georgia, serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-serif: 'Merriweather', Georgia, serif;
+}
+
+@theme inline {
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-xs: calc(var(--radius) - 6px);
+
+  --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
+}
+
+@utility glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--backdrop-blur);
+}
+
+@utility glass-heavy {
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--backdrop-blur);
+}
+
+@layer base {
+  :root {
+    /* Megalodon Design Tokens */
+    --void: #030305;
+    --abyss: #0A0A0F;
+    --surface: #12121A;
+    --surface-elevated: #1A1A26;
+    --surface-hover: #222235;
+    --border-subtle: #2A2A3E;
+    --border-active: #3D3D5C;
+    --text-primary: #E8E4DC;
+    --text-secondary: #8A8578;
+    --text-muted: #4D4A42;
+    --accent-gold: #C9A84C;
+    --accent-gold-bright: #D4B85A;
+    --accent-gold-dim: #8B7340;
+    --amber: #D4953A;
+    --success: #5A9E6F;
+    --danger: #B84A4A;
+    --info: #5A8AB8;
+    --accent-purple: #7B6FB8;
+    --accent-cyan: #4A9E9E;
+
+    /* Transparency */
+    --glass-bg: rgba(18, 18, 26, 0.72);
+    --glass-bg-heavy: rgba(18, 18, 26, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-highlight: rgba(255, 255, 255, 0.03);
+    --backdrop-blur: blur(20px) saturate(1.2);
+
+    /* Shadows */
+    --shadow-window: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+    --shadow-window-active: 0 12px 48px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3), 0 0 0 1px rgba(201,168,76,0.15);
+    --shadow-elevated: 0 4px 16px rgba(0,0,0,0.3);
+    --shadow-card: 0 2px 8px rgba(0,0,0,0.2);
+    --shadow-inset: inset 0 1px 2px rgba(255,255,255,0.05);
+    --shadow-glow-gold: 0 0 20px rgba(201,168,76,0.2);
+    --shadow-glow-amber: 0 0 16px rgba(212,149,58,0.15);
+
+    /* Animation */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+    --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-in-out-smooth: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+
+    /* Duration */
+    --duration-instant: 50ms;
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 400ms;
+    --duration-dramatic: 800ms;
+    --duration-epic: 1500ms;
+
+    /* Spacing */
+    --space-1: 2px;
+    --space-2: 4px;
+    --space-3: 6px;
+    --space-4: 8px;
+    --space-5: 12px;
+    --space-6: 16px;
+    --space-7: 20px;
+    --space-8: 24px;
+    --space-9: 32px;
+    --space-10: 48px;
+    --space-11: 64px;
+    --space-12: 96px;
+
+    --radius-full: 9999px;
+
+    /* Z-Index layers */
+    --z-wallpaper: 0;
+    --z-desktop-icons: 10;
+    --z-windows: 100;
+    --z-dragging: 10000;
+    --z-menus: 20000;
+    --z-notifications: 30000;
+    --z-modal-overlay: 40000;
+    --z-modal-dialog: 40001;
+    --z-system-overlay: 50000;
+
+    /* Semantic component colors */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 43 52% 54%;
+    --primary-foreground: 240 10% 3.9%;
+    --secondary: 240 4.8% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4.8% 15%;
+    --muted-foreground: 35 6% 50%;
+    --accent: 240 4.8% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 10% 20%;
+    --input: 240 10% 20%;
+    --ring: 43 52% 54%;
+    --radius: 0.5rem;
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+  }
+
+  /* All component borders use the reviewed semantic palette. */
+  *, ::before, ::after, ::backdrop, ::file-selector-button {
+    border-color: var(--color-border);
+  }
+
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html {
+    font-family: var(--font-ui);
+    color: var(--text-primary);
+    background: var(--void);
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--void);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Grano sutil sobre todo el shell: rompe el "plano de Figma" del fondo
+     --void sin costar un asset. Puramente decorativo, no bloquea clicks. */
+  #root::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: var(--z-wallpaper);
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer base {
+  /* Custom scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-gold-dim) var(--border-subtle);
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--border-subtle);
+    border-radius: var(--radius-full);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--accent-gold-dim);
+    border-radius: var(--radius-full);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-gold);
+  }
+
+  ::selection {
+    background: rgba(201, 168, 76, 0.3);
+    color: var(--text-primary);
+  }
+}

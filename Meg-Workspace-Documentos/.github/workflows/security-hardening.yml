@@ -1,0 +1,537 @@
+name: Security Hardening
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: security-hardening-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production-compose-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify production Compose propagation with synthetic values
+        run: python backend/scripts/verify_compose_runtime_config_ci.py
+
+  python-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --extra dev
+      - run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+      - run: uv pip check --python .venv/bin/python
+      - name: Reject undefined runtime names before integration
+        run: ruff check app tezcatlipoca --select F821,F822,F823
+      - run: uv export --frozen --extra dev --no-emit-project --format requirements-txt > /tmp/megalodon-audit.txt
+      - run: uvx pip-audit --strict --disable-pip --no-deps -r /tmp/megalodon-audit.txt
+
+  local-sast:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Run Bandit high-severity Python checks
+        id: bandit
+        continue-on-error: true
+        run: uvx --from bandit==1.8.6 bandit -r backend/app backend/tezcatlipoca -lll -iii -f json -o "$RUNNER_TEMP/bandit-results.json"
+
+      - name: Download pinned OpenGrep binary and verify SHA-256
+        run: |
+          curl --fail --location --silent --show-error --retry 3 \
+            https://github.com/opengrep/opengrep/releases/download/v1.30.0/opengrep_manylinux_x86 \
+            --output "$RUNNER_TEMP/opengrep"
+          echo "35779bdd72e92129c8df2a77f0c55e8c08356801ea92591ef32108d6b28d564c  $RUNNER_TEMP/opengrep" | sha256sum --check -
+          chmod 0755 "$RUNNER_TEMP/opengrep"
+          "$RUNNER_TEMP/opengrep" --version
+
+      - name: Run pinned local OpenGrep rules against production sources
+        id: opengrep
+        continue-on-error: true
+        run: |
+          "$RUNNER_TEMP/opengrep" scan \
+            --config .github/security/sast-rules.yml \
+            --json --output "$RUNNER_TEMP/opengrep-results.json" --error \
+            backend/app backend/tezcatlipoca frontend/app/src
+
+      - name: Preserve SAST reports for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-results-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/bandit-results.json
+            ${{ runner.temp }}/opengrep-results.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail if either SAST gate failed
+        if: always()
+        env:
+          BANDIT_OUTCOME: ${{ steps.bandit.outcome }}
+          OPENGREP_OUTCOME: ${{ steps.opengrep.outcome }}
+        run: |
+          if [ "$BANDIT_OUTCOME" != "success" ] || [ "$OPENGREP_OUTCOME" != "success" ]; then
+            echo "A local SAST gate failed. Review the preserved JSON reports."
+            exit 1
+          fi
+
+  sast:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/autobuild@v3
+      - uses: github/codeql-action/analyze@v3
+        with:
+          output: ${{ runner.temp }}/codeql-results-${{ matrix.language }}
+          # GitHub Code Scanning is unavailable for this private personal repository.
+          # Keep CodeQL analysis enabled and archive its SARIF for review instead of
+          # failing a source scan because the repository-level upload feature is disabled.
+          upload: never
+      - name: Preserve CodeQL SARIF for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif-${{ github.sha }}-${{ matrix.language }}
+          path: ${{ runner.temp }}/codeql-results-${{ matrix.language }}
+          if-no-files-found: error
+          retention-days: 14
+
+  frontend-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/app/package-lock.json
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: node --experimental-strip-types --test tests/session-client.test.mjs
+      - run: npm run lint
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: node --test tests/expediente-store.test.mjs
+      - run: npm run test:browser
+
+  # The core suite includes repeatable PAdES-LT/LTA signing and fail-closed verification.
+  backend-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [core, api, procurement]
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: megalodon
+          POSTGRES_PASSWORD: megalodon_ci_password
+          POSTGRES_DB: megalodon
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U megalodon -d megalodon"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: postgresql+asyncpg://megalodon:megalodon_ci_password@localhost:5432/megalodon
+      REDIS_URL: redis://localhost:6379/0
+      CELERY_BROKER_URL: redis://localhost:6379/1
+      CELERY_RESULT_BACKEND: redis://localhost:6379/2
+      SECRET_KEY: ci-only-secret-that-is-long-enough-and-not-production
+      ENVIRONMENT: staging
+      SUPABASE_URL: ""
+      SUPABASE_SERVICE_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --extra dev
+      - run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+      - run: alembic upgrade head
+      - name: Verify the canonical Python application import
+        run: python -c "from app.main import app; from tezcatlipoca.main import app as legacy_app; assert app is legacy_app"
+      - run: python -m scripts.verify_migrated_schema
+      - run: timeout 120s python -m scripts.smoke_runtime_ci
+      - name: Run bounded backend tests and preserve the diagnostic log
+        timeout-minutes: 7
+        run: timeout --kill-after=5s 6m python -m scripts.run_backend_tests_ci --suite ${{ matrix.suite }}
+      - name: Preserve runtime smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-smoke-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.suite }}
+          path: |
+            backend/runtime-smoke-report.json
+            backend/runtime-smoke-server.log
+            backend/backend-integration.log
+            backend/backend-integration.xml
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Keep SQLite-specific fault-injection cases isolated from PostgreSQL.
+  backend-sqlite-regressions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: sqlite+aiosqlite:////tmp/megalodon-sqlite-acceptance.db
+      REDIS_URL: redis://127.0.0.1:6379/15
+      CELERY_BROKER_URL: redis://127.0.0.1:6379/14
+      CELERY_RESULT_BACKEND: redis://127.0.0.1:6379/13
+      SECRET_KEY: ci-only-secret-that-is-long-enough-and-not-production
+      ENVIRONMENT: staging
+      GITHUB_ACTIONS: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --extra dev
+      - name: Run SQLite-only persistence failure regressions
+        run: |
+          .venv/bin/python -m pytest -vv --junitxml=sqlite-regressions.xml \
+            tests/integration/test_bim_regressions.py::test_flush_failure_keeps_aggregate_and_records_error \
+            tests/integration/test_durable_bim_jobs.py::test_failed_completion_rolls_back_program_and_all_service_commits
+      - name: Preserve SQLite regression report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlite-regressions-${{ github.run_id }}
+          path: backend/sqlite-regressions.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  migration-recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: megalodon
+          POSTGRES_PASSWORD: megalodon_ci_password
+          POSTGRES_DB: migration_history_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U megalodon -d migration_history_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: postgresql+asyncpg://megalodon:megalodon_ci_password@localhost:5432/migration_history_ci
+      REDIS_URL: redis://localhost:6379/0
+      CELERY_BROKER_URL: redis://localhost:6379/1
+      CELERY_RESULT_BACKEND: redis://localhost:6379/2
+      SECRET_KEY: ci-only-secret-that-is-long-enough-and-not-production
+      ENVIRONMENT: staging
+      SUPABASE_URL: ""
+      SUPABASE_SERVICE_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --extra dev
+      - run: echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+      - name: Use PostgreSQL 16 client tools
+        run: |
+          sudo apt-get install --yes postgresql-client-16
+          echo "/usr/lib/postgresql/16/bin" >> "$GITHUB_PATH"
+      - run: timeout 10m python -m scripts.verify_migration_recovery_ci
+        env:
+          MIGRATION_CI_CONTAINER: ${{ job.services.postgres.id }}
+      - name: Preserve migration and recovery evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-recovery-${{ github.run_id }}
+          path: backend/migration-recovery-report.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  bim-browser-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: megalodon
+          POSTGRES_PASSWORD: megalodon_ci_password
+          POSTGRES_DB: bim_acceptance
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U megalodon -d bim_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: [6379:6379]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+asyncpg://megalodon:megalodon_ci_password@localhost:5432/bim_acceptance
+      REDIS_URL: redis://localhost:6379/0
+      CELERY_BROKER_URL: redis://localhost:6379/1
+      CELERY_RESULT_BACKEND: redis://localhost:6379/2
+      SECRET_KEY: ci-only-secret-that-is-long-enough-and-not-production
+      ENVIRONMENT: staging
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+      SUPABASE_URL: ""
+      SUPABASE_SERVICE_KEY: ""
+      BIM_ACCEPTANCE_CREDENTIALS: /tmp/megalodon-bim-acceptance.json
+      CATALOGO_ORIGINALES_DIR: /tmp/megalodon-catalog-originals
+      BIM_EVIDENCE_DIR: ${{ github.workspace }}/bim-browser-evidence
+      VITE_API_URL: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --extra dev
+        working-directory: backend
+      - run: .venv/bin/alembic upgrade head
+        working-directory: backend
+      - run: .venv/bin/python -m scripts.seed_bim_acceptance_ci
+        working-directory: backend
+      - name: Start real Supabase Storage for documentary acceptance
+        run: .venv/bin/python -m scripts.start_storage_acceptance_ci
+        working-directory: backend
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/app/package-lock.json
+      - run: npm ci
+        working-directory: frontend/app
+      - run: npm run build
+        working-directory: frontend/app
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend/app
+      - name: Build the production frontend image for isolated browser acceptance
+        run: docker build -t meg-web-ci frontend/app
+      - run: node --test tests/bim-flow-browser.test.mjs
+        working-directory: frontend/app
+        env:
+          MEG_WEB_IMAGE: meg-web-ci
+      - name: Collect document storage diagnostics
+        if: always()
+        run: |
+          mkdir -p bim-browser-evidence
+          docker logs meg-storage-ci > bim-browser-evidence/supabase-storage.log 2>&1 || true
+          docker logs meg-storage-proxy-ci > bim-browser-evidence/storage-proxy.log 2>&1 || true
+          tail -n 60 bim-browser-evidence/supabase-storage.log
+          tail -n 20 bim-browser-evidence/storage-proxy.log
+      - name: Preserve real BIM browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bim-browser-${{ github.run_id }}
+          path: bim-browser-evidence/
+          retention-days: 14
+
+  live-provider-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      ENVIRONMENT: staging
+      DATABASE_URL: postgresql+asyncpg://megalodon:unused@localhost:5432/unused
+      SECRET_KEY: ci-only-secret-that-is-long-enough-and-not-production
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen --extra dev
+      - run: .venv/bin/python -m scripts.verify_live_geo_providers
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-provider-${{ github.run_id }}
+          path: backend/live-provider-report.json
+          retention-days: 14
+
+  production-api-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: megalodon
+          POSTGRES_PASSWORD: megalodon_ci_password
+          POSTGRES_DB: image_acceptance
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U megalodon -d image_acceptance"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: [6379:6379]
+    env:
+      ENVIRONMENT: staging
+      DATABASE_URL: postgresql+asyncpg://megalodon:megalodon_ci_password@localhost:5432/image_acceptance
+      REDIS_URL: redis://localhost:6379/0
+      CELERY_BROKER_URL: redis://localhost:6379/1
+      CELERY_RESULT_BACKEND: redis://localhost:6379/2
+      SECRET_KEY: ci-only-secret-that-is-long-enough-and-not-production
+      OTEL_EXPORTER_OTLP_ENDPOINT: ""
+      SUPABASE_URL: ""
+      SUPABASE_SERVICE_KEY: ""
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build actual API Dockerfile
+        run: docker build -t meg-api-ci backend
+      - name: Migrate the disposable database using the built image
+        run: >-
+          docker run --rm --network host
+          -e ENVIRONMENT -e DATABASE_URL -e REDIS_URL -e CELERY_BROKER_URL
+          -e CELERY_RESULT_BACKEND -e SECRET_KEY -e OTEL_EXPORTER_OTLP_ENDPOINT
+          meg-api-ci alembic upgrade head
+      - name: Start the built API with disposable dependencies
+        run: >-
+          docker run -d --name meg-api-image-smoke --network host
+          -e ENVIRONMENT -e DATABASE_URL -e REDIS_URL -e CELERY_BROKER_URL
+          -e CELERY_RESULT_BACKEND -e SECRET_KEY -e OTEL_EXPORTER_OTLP_ENDPOINT
+          meg-api-ci
+      - name: Verify real readiness
+        run: |
+          python - <<'PY'
+          import json, time, urllib.request
+          for attempt in range(120):
+              try:
+                  with urllib.request.urlopen("http://127.0.0.1:8000/ready", timeout=3) as response:
+                      result = json.load(response)
+                  assert result["ready"] and result["database"] and result["redis"], result
+                  with open("api-image-readiness.json", "w") as output:
+                      json.dump(result, output, indent=2)
+                  break
+              except Exception:
+                  if attempt == 119:
+                      raise
+                  time.sleep(1)
+          PY
+      - name: Preserve and stop disposable API
+        if: always()
+        run: |
+          docker logs meg-api-image-smoke > api-image.log 2>&1 || true
+          docker stop meg-api-image-smoke || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-image-${{ github.run_id }}
+          path: |
+            api-image-readiness.json
+            api-image.log
+          retention-days: 14
+
+  review-package:
+    needs: [production-compose-config, python-audit, sast, frontend-audit, backend-integration, backend-sqlite-regressions, migration-recovery, bim-browser-acceptance, production-api-image, live-provider-acceptance]
+    if: >-
+      ${{ always() && !cancelled() &&
+          needs.production-compose-config.result == 'success' &&
+          needs.python-audit.result == 'success' &&
+          needs.sast.result == 'success' &&
+          needs.frontend-audit.result == 'success' &&
+          needs.backend-integration.result == 'success' &&
+          needs.backend-sqlite-regressions.result == 'success' &&
+          needs.live-provider-acceptance.result == 'success' &&
+          needs.migration-recovery.result == 'success' &&
+          needs.bim-browser-acceptance.result == 'success' &&
+          needs.production-api-image.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          path: collected-evidence
+      - name: Package source and evidence only after deterministic acceptance passes
+        env:
+          MEG_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MEG_PROVIDER_RESULT: ${{ needs.live-provider-acceptance.result }}
+        run: python backend/scripts/package_review_evidence.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Meg-proyecto-completo-y-capturas-${{ github.run_id }}
+          path: review-package/
+          compression-level: 0
+          retention-days: 14
