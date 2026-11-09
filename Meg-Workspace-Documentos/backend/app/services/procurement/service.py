@@ -932,7 +932,10 @@ class ProcurementService:
                 "idempotent": True,
             }
         safe_name = filename.replace("/", "_").replace("\\", "_")
-        extracted = self.extractor.extract(filename, content_type or "application/octet-stream", content)
+        try:
+            extracted = self.extractor.extract(filename, content_type or "application/octet-stream", content)
+        except ValueError as exc:
+            raise MegalodonException(ErrorCode.ARCHIVO_ERROR, str(exc), 422) from exc
         format_catalog = await load_tender_format_catalog(self.db, tender)
         detected_formats = self._format_detection_candidates(
             format_catalog, filename=filename, text=extracted.text or ""
