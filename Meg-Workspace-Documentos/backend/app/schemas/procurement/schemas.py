@@ -132,7 +132,14 @@ class ArtifactCreate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class TenderFormatAmendment(TenderFormatConfigurationCreate):
+    expected_revision: int = Field(ge=1)
+    amendment_evidence_id: UUID
+    base_evidence_id: UUID
+
+
 class RevisionCreate(BaseModel):
+    format_amendment: TenderFormatAmendment | None = None
     reason: str = Field(min_length=1, max_length=500)
     source_hash: str | None = None
     model_snapshot: dict[str, Any] | None = None

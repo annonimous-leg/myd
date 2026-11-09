@@ -734,6 +734,27 @@ class ProcurementService:
             for row in rows
         ]
 
+    @staticmethod
+    def _apply_format_definitions(formats: dict, definitions: list[dict]) -> dict:
+        formats = dict(formats)
+        seen_codes = set()
+        for definition in definitions:
+            raw_code = definition.get("format_code")
+            code = normalize_format_code(raw_code) if isinstance(raw_code, str) else ""
+            if not code or code not in formats or code in seen_codes:
+                raise ValueError("Cada formato personalizado debe identificar un formato único de la dependencia.")
+            if set(definition) - {"format_code", "workspace_docx", "workspace_xlsx"}:
+                raise ValueError("La personalización admite mapas Workspace de DOCX o XLSX.")
+            replacement = {**formats[code]}
+            for key in ("workspace_docx", "workspace_xlsx"):
+                replacement.pop(key, None)
+            maps = {key: value for key, value in definition.items() if key != "format_code"}
+            if len(maps) != 1 or not isinstance(next(iter(maps.values())), dict):
+                raise ValueError("Cada formato personalizado debe incluir exactamente un mapa DOCX o XLSX.")
+            formats[code] = {**replacement, **maps}
+            seen_codes.add(code)
+        return formats
+
     async def create(self, data: TenderCreate) -> TenderPackage:
         profile = await self._validate_tender_configuration(data)
         expediente = await self.db.scalar(
@@ -816,22 +837,8 @@ class ProcurementService:
                 self.db, tenant_id=self.user.tenant_id, jurisdiction_code=data.jurisdiction_code,
             )
             configuration = data.format_configuration
-            seen_codes = set()
-            for definition in configuration.format_definitions if configuration else []:
-                raw_code = definition.get("format_code")
-                code = normalize_format_code(raw_code) if isinstance(raw_code, str) else ""
-                if not code or code not in formats or code in seen_codes:
-                    raise ValueError("Cada formato personalizado debe identificar un formato único de la dependencia.")
-                if set(definition) - {"format_code", "workspace_docx", "workspace_xlsx"}:
-                    raise ValueError("La personalización admite mapas Workspace de DOCX o XLSX.")
-                replacement = {**formats[code]}
-                for key in ("workspace_docx", "workspace_xlsx"):
-                    replacement.pop(key, None)
-                maps = {key: value for key, value in definition.items() if key != "format_code"}
-                if len(maps) != 1 or not isinstance(next(iter(maps.values())), dict):
-                    raise ValueError("Cada formato personalizado debe incluir exactamente un mapa DOCX o XLSX.")
-                formats[code] = {**replacement, **maps}
-                seen_codes.add(code)
+            if configuration:
+                formats = self._apply_format_definitions(formats, configuration.format_definitions)
         except ValueError as exc:
             raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, str(exc), 422) from exc
         manifest[TENDER_FORMAT_CONFIGURATION] = {
@@ -1710,9 +1717,63 @@ class ProcurementService:
             "invalidates_signed": bool(changed),
             "previous_revision": tender.current_revision,
         }
+        amendment = data.format_amendment
+        if amendment is not None:
+            if amendment.expected_revision != tender.current_revision:
+                raise MegalodonException(ErrorCode.CONFLICT, "La revisión de la convocatoria cambió.", 409)
+            if amendment.amendment_evidence_id == amendment.base_evidence_id:
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, "Identifica dos fuentes distintas.", 422)
+            sources = {
+                source.id: source for source in (await self.db.scalars(
+                    select(TenderEvidence).where(
+                        TenderEvidence.tender_id == tender.id,
+                        TenderEvidence.tenant_id == self.user.tenant_id,
+                        TenderEvidence.kind == "SOURCE_DOCUMENT",
+                        TenderEvidence.status == "ACTIVE",
+                        TenderEvidence.id.in_([amendment.amendment_evidence_id, amendment.base_evidence_id]),
+                    )
+                )).all()
+            }
+            base = sources.get(amendment.base_evidence_id)
+            correction = sources.get(amendment.amendment_evidence_id)
+            if not base or not correction or not base.source_hash or not correction.source_hash:
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, "Ambas fuentes deben estar activas y verificadas en este expediente.", 422)
+            if (base.value or {}).get("source_role") != "CONVOCATORIA":
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, "La fuente base debe ser la convocatoria afectada.", 422)
+            old_configuration = (tender.source_manifest or {}).get(TENDER_FORMAT_CONFIGURATION)
+            if old_configuration and (
+                old_configuration["version"] == amendment.version
+                or old_configuration.get("base_sha256", base.source_hash) != base.source_hash
+            ):
+                raise MegalodonException(ErrorCode.CONFLICT, "Indica una versión nueva de la misma convocatoria base.", 409)
+            try:
+                current_formats = await load_tender_format_catalog(self.db, tender)
+                formats = self._apply_format_definitions(current_formats, amendment.format_definitions)
+            except ValueError as exc:
+                raise MegalodonException(ErrorCode.PARAMETRO_INVALIDO, str(exc), 422) from exc
+            configuration = {
+                "version": amendment.version,
+                "jurisdiction_code": tender.jurisdiction_code.upper(),
+                "formats": formats,
+                "requirement_extraction": await self._tender_requirement_extraction(tender),
+                "base_sha256": base.source_hash,
+                "amendment_sha256": correction.source_hash,
+                "base_evidence_id": str(base.id),
+                "amendment_evidence_id": str(correction.id),
+                "revision": revision_number,
+            }
+            impact_summary.update({
+                "previous_format_configuration": old_configuration,
+                "format_configuration": configuration,
+                "invalidates_signed": True,
+            })
+            tender.source_manifest = {
+                **(tender.source_manifest or {}),
+                TENDER_FORMAT_CONFIGURATION: configuration,
+            }
         row = TenderRevision(
             tender_id=tender.id, revision=revision_number, reason=data.reason,
-            source_hash=data.source_hash or self._hash(snapshot), model_snapshot=snapshot,
+            source_hash=(correction.source_hash if amendment else data.source_hash or self._hash(snapshot)), model_snapshot=snapshot,
             impact_summary=impact_summary, tenant_id=self.user.tenant_id,
         )
         tender.current_revision = revision_number
