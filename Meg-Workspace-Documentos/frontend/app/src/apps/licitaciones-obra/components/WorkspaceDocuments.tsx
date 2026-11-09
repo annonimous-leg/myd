@@ -197,10 +197,11 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
             <ArrowLeft size={15} aria-hidden /> Expediente
           </button>
           <h1>Documentos</h1>
-          <p>Edita los campos del anexo y comprueba el archivo de esa revisión.</p>
+          <p>Edición verificable, versiones trazables y anexos vinculados a su expediente.</p>
         </div>
         <div className="workspace-docs__actions">
-          {editor && <span className="workspace-docs__badge">{editor.sha256 ? 'Borrador · ' : ''}Revisión {editor.version}</span>}
+          {currentVersion != null && <span className="workspace-docs__badge">{editor?.sha256 ? 'Borrador · ' : ''}Revisión {currentVersion}</span>}
+          {locked && <span className="workspace-docs__badge" role="status">Solo lectura</span>}
           {currentPreview && <a href={currentPreview.url}
             download={`anexo-${editor!.id}-v${currentPreview.version}.${extension}`}>
             <Download size={15} aria-hidden /> Descargar revisión
@@ -214,6 +215,7 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
       <div className="workspace-docs__grid">
         <nav aria-label="Anexos de la propuesta" className="workspace-docs__annexes">
           <h2>Anexos de la propuesta</h2>
+          <p className="workspace-docs__eyebrow">EXPEDIENTE DOCUMENTAL</p>
           {documents.length === 0 && templates.length === 0 && <p>Los anexos aparecerán aquí después de compilar el expediente.</p>}
           {documents.map(doc => (
             <button key={doc.id} type="button" aria-current={doc.id === selectedId ? 'true' : undefined}
@@ -234,7 +236,22 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
             ))}
         </nav>
         <div className="workspace-docs__preview" aria-label="Vista previa del archivo">
-          {currentPreview && editor?.media_type === 'application/pdf' ?
+          {plainDocument ? (
+            <article className="workspace-docs__page" aria-label="Vista del documento guardado">
+              <div className="workspace-docs__page-head">
+                <span>{selected?.artifact_code}</span>
+                <span>v{historyPreview?.version ?? plainDocument.version}</span>
+              </div>
+              <div className="workspace-docs__page-main">
+                <span className="workspace-docs__eyebrow">NOTA DE TRABAJO · SIN FIRMA</span>
+                <h2>{plainDocument.name}</h2>
+                {plainDirty && !historyPreview && <p role="status">Hay cambios sin guardar. Esta vista muestra la última revisión registrada.</p>}
+                {historyPreview && <p role="status">Consulta histórica de solo lectura. La revisión actual no cambia.</p>}
+                <div className="workspace-docs__text-preview">{(historyPreview?.content_text ?? plainDocument.content_text) || 'Esta revisión todavía no tiene contenido.'}</div>
+              </div>
+              <div className="workspace-docs__page-foot">Megalodon · Workspace documental · {historyPreview ? 'Historial' : 'Revisión vigente'}</div>
+            </article>
+          ) : currentPreview && editor?.media_type === 'application/pdf' ?
             <iframe src={currentPreview.url} title={`Vista previa de ${selected?.name || 'anexo'}, revisión ${editor.version}`} /> :
             <div className="workspace-docs__empty">
               <FileText size={26} aria-hidden />
