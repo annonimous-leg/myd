@@ -94,7 +94,9 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     assert.ok(tender.id);
     assert.equal(tender.expediente_id, expediente.id);
     assert.equal(tender.jurisdiction_code, profileCode);
-    await page.getByRole("heading", { name: "Workspace documental", exact: true }).waitFor();
+    // A newly created tender stays in the proposal panel. The separate document
+    // editor is entered explicitly with "Abrir Documentos" after creating an annex.
+    await page.getByRole("heading", { name: "Automatización de proposición", exact: true }).waitFor();
     await page.getByRole("heading", { name: "1. Fuentes", exact: true }).waitFor();
 
     const sourceBuffer = Buffer.from(SOURCE_TEXT, "utf8");
@@ -187,8 +189,9 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     assert.equal(confirmedReadiness.source_readiness.confirmed_candidate_count, 2);
     assert.ok(!confirmedReadiness.findings.some((finding) => finding.code === "REQUIREMENT_REVIEW_REQUIRED"));
 
-    // Exercise the actual workspace-document API and browser editor, including
-    // optimistic concurrency and the immutable human-edit history.
+    // Exercise the versioned workspace-document API and verify its presence
+    // in the current browser annex UI. Arbitrary text/plain documents do not
+    // have an editable field map in the template-driven visual editor.
     const workspaceCreateResponse = await page.request.post(
       apiOrigin + "/api/v1/procurement/tenders/" + tender.id + "/workspace/documents",
       {
@@ -204,22 +207,35 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     const workspaceDocument = await workspaceCreateResponse.json();
     assert.equal(workspaceDocument.version, 1);
     assert.equal(workspaceDocument.human_modified, false);
-    await page.getByRole("button", { name: "Actualizar workspace de licitación", exact: true }).click();
-    await page.getByRole("button", { name: /CI-TECHNICAL-MEMO/ }).click();
-    const workspaceEditor = page.locator('textarea[placeholder="Contenido editable del documento..."]');
-    await workspaceEditor.waitFor();
     const humanText = "NOTA DE TRABAJO CI: revisar el programa, el presupuesto y los anexos antes de presentar.";
-    await workspaceEditor.fill(humanText);
-    const [workspaceUpdateResponse] = await Promise.all([
-      page.waitForResponse((response) =>
-        response.request().method() === "PUT" &&
-        new URL(response.url()).pathname ===
-          "/api/v1/procurement/tenders/" + tender.id + "/workspace/documents/" + workspaceDocument.id,
-      ),
-      page.getByRole("button", { name: "Guardar versión", exact: true }).click(),
-    ]);
+    const workspaceUrl = apiOrigin + "/api/v1/procurement/tenders/" + tender.id +
+      "/workspace/documents/" + workspaceDocument.id;
+    const workspaceUpdateResponse = await page.request.put(workspaceUrl, {
+      headers: { Origin: origin },
+      data: { content_text: humanText, content_model: {}, expected_row_version: workspaceDocument.row_version },
+    });
     assert.equal(workspaceUpdateResponse.status(), 200, await workspaceUpdateResponse.text());
     const updatedWorkspaceDocument = await workspaceUpdateResponse.json();
+    // A stale edit cannot silently overwrite the accepted human revision.
+    const staleUpdateResponse = await page.request.put(workspaceUrl, {
+      headers: { Origin: origin },
+      data: { content_text: "sobrescritura obsoleta", content_model: {}, expected_row_version: workspaceDocument.row_version },
+    });
+    assert.equal(staleUpdateResponse.status(), 409, await staleUpdateResponse.text());
+    // Check actual navigation and revision visibility in the current browser UI.
+    const refreshedDocuments = page.waitForResponse((response) =>
+      response.request().method() === "GET" &&
+      new URL(response.url()).pathname ===
+        "/api/v1/procurement/tenders/" + tender.id + "/workspace/documents",
+    );
+    await page.getByRole("button", { name: "Actualizar workspace de licitación", exact: true }).click();
+    assert.equal((await refreshedDocuments).status(), 200);
+    await page.getByRole("button", { name: "Abrir Documentos", exact: true }).click();
+    await page.getByRole("heading", { name: "Documentos", exact: true }).waitFor();
+    await page.getByRole("navigation", { name: "Anexos de la propuesta" })
+      .getByRole("button", { name: /CI-TECHNICAL-MEMO/ }).click();
+    await page.getByText("Revisión 2", { exact: true }).waitFor();
+    await page.getByText("El perfil de este formato no tiene campos habilitados para editar.", { exact: true }).waitFor();
     assert.equal(updatedWorkspaceDocument.version, 2);
     assert.equal(updatedWorkspaceDocument.human_modified, true);
     assert.equal(updatedWorkspaceDocument.status, "DRAFT");
