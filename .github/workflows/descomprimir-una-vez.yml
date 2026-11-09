@@ -1,0 +1,31 @@
+name: Descomprimir proyecto una vez
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/descomprimir-una-vez.yml
+
+permissions:
+  contents: write
+
+jobs:
+  descomprimir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener repositorio
+        uses: actions/checkout@v4
+
+      - name: Verificar, extraer y publicar
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP='Meg-Workspace-Cronograma-Propio(2).zip'
+          echo '150136e24017789e6d3f25628da3a9da7ccfc151aaf21e25cdf2b9c46a2d5dee  Meg-Workspace-Cronograma-Propio(2).zip' | sha256sum -c -
+          unzip -q "$ZIP"
+          rm "$ZIP" .github/workflows/descomprimir-una-vez.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Descomprimir fuentes de Megalodon'
+          git push origin HEAD:main
