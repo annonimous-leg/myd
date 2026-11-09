@@ -33,7 +33,7 @@ export function CatalogoImportadoPicker({ onSelect }: {onSelect: (item: Catalogo
         {items.map(item => <option key={item.id} value={item.id}>{item.clave} · {item.descripcion} · {item.precio_unitario} / {item.unidad} · {item.vigencia_inicio}</option>)}
       </select>
     </label>
-    {item && <p>{item.origen?.fuente.titulo} · página(s) {item.origen?.paginas.join(', ')}. Habilitado por revisión estructural; verifica las condiciones del proyecto.</p>}
+    {item && <p>{item.fuente_visible || 'Investigación de mercado Megalodon'} · página(s) {item.origen?.paginas.join(', ')}. Habilitado por revisión estructural; verifica las condiciones del proyecto.</p>}
     {!loading && !items.length && <p>No hay resultados habilitados. Afina la búsqueda o revisa las ediciones importadas y sus pendientes.</p>}
     <label>Cantidad medida {item?.unidad}
       <input className="block p-2 rounded bg-[#12121A]" type="number" min="0.0001" step="0.0001" value={quantity} onChange={e => setQuantity(e.target.value)} />

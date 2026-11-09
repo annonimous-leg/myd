@@ -631,6 +631,7 @@ export interface CatalogoAPUOut {
   unidad: string;
   precio_unitario: number;
   fuente: string;
+  fuente_visible?: string;
   zona_economica?: string;
   estado?: string;
   incluye_iva: boolean;
@@ -640,7 +641,8 @@ export interface CatalogoAPUOut {
 
 export interface CatalogoImportacionOut {
   id: string; paquete_sha256: string; fuentes: string[];
-  resumen: { registros: number; estados: Record<string, number>; cuarentena_motivos: Record<string, number>; proyecciones_costeo: number };
+  fuentes_visibles?: string[];
+  resumen: { registros: number; estados: Record<string, number>; cuarentena_motivos: Record<string, number>; proyecciones_costeo: number; fuentes_visibles?: Record<string, string> };
 }
 export interface CatalogoRegistroOut {
   id: string; tabla: string; fuente_id: string; entidad_id: string; estado: string; motivos: string[]; original: Record<string, string>; sha256: string;
@@ -973,7 +975,7 @@ export interface InventarioCatalogos {
   vinculos_activos_tenant: number;
   revision_documental_certificada: false;
   fuentes: Array<{
-    id: string; nombre: string; activo: boolean; moneda: string | null;
+    id: string; nombre: string; nombre_visible?: string; activo: boolean; moneda: string | null;
     vigencia_inicio: string; vigencia_fin: string;
     conceptos: number; conceptos_activos: number;
     insumos: number; insumos_activos: number; materiales_sin_iva_mxn: number;
@@ -2538,7 +2540,7 @@ export class MegalodonClient {
     listar: () => this.request<{total: number; items: CatalogoImportacionOut[]}>('GET', '/catalogo-apu/importaciones'),
     verificar: (archivo: File) => {
       const form = new FormData(); form.append('archivo', archivo);
-      return this.request<{ fuentes: Array<{fuente_id: string; titulo: string; fecha_vigencia: string; original_cotejado: boolean}> }>(
+      return this.request<{ fuentes: Array<{fuente_id: string; titulo: string; nombre_visible?: string; sha256: string; fecha_vigencia: string; original_cotejado: boolean}> }>(
         'POST', '/catalogo-apu/importaciones/verificar', form);
     },
     importar: (archivo: File, fuentes: string[]) => {

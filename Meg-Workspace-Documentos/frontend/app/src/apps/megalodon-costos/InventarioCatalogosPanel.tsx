@@ -31,7 +31,7 @@ export function InventarioCatalogosPanel() {
           <th className="pr-3">Fuente / vigencia</th><th className="pr-3">Conceptos activos / total</th>
           <th className="pr-3">Insumos activos / total</th><th>Materiales MXN sin IVA</th>
         </tr></thead><tbody>{inventario.fuentes.map(f => <tr key={f.id}>
-          <td className="pr-3 py-2">{f.nombre} {f.activo ? '' : '(inactiva)'}<br />{f.vigencia_inicio} → {f.vigencia_fin} · {f.moneda || 'Moneda sin acreditar'}</td>
+          <td className="pr-3 py-2">{f.nombre_visible || 'Investigación de mercado Megalodon'} {f.activo ? '' : '(inactiva)'}<br />{f.vigencia_inicio} → {f.vigencia_fin} · {f.moneda || 'Moneda sin acreditar'}</td>
           <td className="pr-3">{f.conceptos_activos} / {f.conceptos}</td>
           <td className="pr-3">{f.insumos_activos} / {f.insumos}</td><td>{f.materiales_sin_iva_mxn}</td>
         </tr>)}</tbody></table>
