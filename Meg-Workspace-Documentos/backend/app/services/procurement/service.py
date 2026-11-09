@@ -67,6 +67,7 @@ from app.services.procurement.preparation_runs import PreparationRunTracker, PIP
 from app.engines.procurement.domain_contracts import snapshot_source_is_current, source_revision_token
 from app.engines.procurement.proposition_bridge import build_economic_block, hydrate_canonical_from_presupuesto
 from app.engines.procurement.format_field_map import load_format_catalog, normalize_format_code
+from app.engines.procurement.workspace_overrides import model_with_workspace_overrides
 from app.models.bim import ModeloBIM
 from app.models.topografia import CalculoVolumen
 
@@ -2123,29 +2124,6 @@ class ProcurementService:
             value = _get_path(path, values)
             return value not in (None, "", [], {})
 
-        def _write_path(root: dict, path: str, value: Any) -> None:
-            parts = path.split(".")
-            cur = root
-            for part in parts[:-1]:
-                nxt = cur.get(part)
-                if not isinstance(nxt, dict):
-                    nxt = {}
-                    cur[part] = nxt
-                cur = nxt
-            cur[parts[-1]] = value
-
-        # FIX P0 auditoría 2026-09-14: hasta ahora, editar el TenderDocument
-        # en el Workspace (workspace_update_document) guardaba la edición y
-        # la protegía de perderse, pero jamás influía en el binario final --
-        # compile_from_binding() siempre leía únicamente canonical_model. El
-        # Workspace era, en la práctica, una vitrina de solo-lectura del
-        # resultado, no una fuente real. Ahora: si existe un TenderDocument
-        # human_modified=True para un código de formato con
-        # content_model.field_overrides, esos valores se inyectan en una
-        # copia del model ANTES de compilar ese artefacto -- solo para las
-        # rutas (canonical_paths) que ese formato ya declara como propias en
-        # el catálogo DB-driven, para no permitir que una edición de un
-        # documento cuele datos fuera de su propio ámbito declarado.
         workspace_docs_by_code: dict[str, TenderDocument] = {
             d.artifact_code: d
             for d in (await self.db.execute(select(TenderDocument).where(
@@ -2154,22 +2132,25 @@ class ProcurementService:
             ).order_by(TenderDocument.version, TenderDocument.id))).scalars().all()
         }
 
+        # Los formatos con plantilla guardan ediciones en claves específicas.
+        # Se validan contra el mapa del formato y la revisión de la licitación.
         def _model_con_overrides_humanos(code: str, binding: dict) -> tuple[dict, list[str]]:
             doc = workspace_docs_by_code.get(code)
-            if doc is None or not doc.human_modified:
+            if doc is None:
                 return model, []
-            overrides = (doc.content_model or {}).get("field_overrides")
-            if not isinstance(overrides, dict) or not overrides:
-                return model, []
-            allowed_paths = {str(p) for p in (binding.get("canonical_paths") or [])}
-            aplicados: list[str] = []
-            modelo_efectivo = copy.deepcopy(model)
-            for path, value in overrides.items():
-                if path not in allowed_paths:
-                    continue
-                _write_path(modelo_efectivo, path, value)
-                aplicados.append(path)
-            return modelo_efectivo, aplicados
+            try:
+                return model_with_workspace_overrides(
+                    model, binding, doc.content_model,
+                    human_modified=doc.human_modified,
+                    document_tender_revision=doc.tender_revision,
+                    current_tender_revision=tender.current_revision,
+                )
+            except ValueError as exc:
+                raise MegalodonException(
+                    ErrorCode.VALIDACION_FALLIDA,
+                    f"El anexo {code} requiere revisión de sus campos: {exc}",
+                    409,
+                ) from exc
 
         seen_codes: set[str] = set()
         for external_code in selected_codes:
