@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowLeft, Download, FileText, Moon, Sun } from 'lucide-react';
 import { megalodonClient } from '@/lib/api-client';
-import type { WorkspaceDocumentSummary, WorkspaceEditor } from '@/lib/megalodon-client';
+import type { WorkspaceDocumentSummary, WorkspaceDocumentDetail, WorkspaceDocumentRevision, WorkspaceEditor } from '@/lib/megalodon-client';
 import { useAuthStore } from '@/stores/useAuthStore';
 import './workspace-documents.css';
 
@@ -17,14 +17,20 @@ interface Props {
   onBack: () => void;
   onOpen: (document: WorkspaceDocumentSummary) => void;
   onVersion: (id: string, version: number) => void;
+  frozen?: boolean;
 }
 
-export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen, onVersion }: Props) {
+export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen, onVersion, frozen = false }: Props) {
   const role = useAuthStore(state => state.user?.role?.toLowerCase());
   const canEdit = role === 'tecnico' || role === 'admin' || role === 'superadmin';
   const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
   const [selection, setSelectedId] = useState('');
   const [editor, setEditor] = useState<WorkspaceEditor | null>(null);
+  const [plainDocument, setPlainDocument] = useState<WorkspaceDocumentDetail | null>(null);
+  const [plainText, setPlainText] = useState('');
+  const [history, setHistory] = useState<WorkspaceDocumentRevision[]>([]);
+  const [historyPreview, setHistoryPreview] = useState<WorkspaceDocumentRevision | null>(null);
+  const [notice, setNotice] = useState('');
   const [values, setValues] = useState<Record<string, string>>({});
   const [preview, setPreview] = useState<{ url: string; version: number; documentId: string } | null>(null);
   const [error, setError] = useState('');
@@ -38,7 +44,11 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
   const changed = Object.fromEntries((editor?.fields ?? [])
     .filter(field => !field.read_only && values[field.path] !== field.value)
     .map(field => [field.path, values[field.path]]));
-  const dirty = Object.keys(changed).length > 0;
+  const fieldDirty = Object.keys(changed).length > 0;
+  const plainDirty = Boolean(plainDocument && plainText !== plainDocument.content_text);
+  const dirty = fieldDirty || plainDirty;
+  const locked = frozen || Boolean(editor?.locked || plainDocument?.locked);
+  const currentVersion = plainDocument?.version ?? editor?.version;
   const initialValues = Object.fromEntries((editor?.fields ?? [])
     .filter(field => !field.read_only && field.value.trim())
     .map(field => [field.path, field.value]));
@@ -46,7 +56,7 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
   const extension = extensions[editor?.media_type ?? ''];
   const needsFile = !editor?.file_available || (isTemplate && extension !== editor?.render_format);
   const hasBudgetFields = editor?.fields.some(field => field.read_only);
-  const canRender = dirty || hasBudgetFields || (needsFile && Object.keys(initialValues).length > 0);
+  const canRender = fieldDirty || hasBudgetFields || (needsFile && Object.keys(initialValues).length > 0);
   const currentPreview = preview?.documentId === selectedId && preview.version === editor?.version ? preview : null;
 
   function loadFields(data: WorkspaceEditor) {
@@ -68,11 +78,31 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
     let active = true;
     setLoading(true);
     setEditor(null);
+    setPlainDocument(null);
+    setPlainText('');
+    setHistory([]);
+    setHistoryPreview(null);
     setValues({});
+    setNotice('');
     setError('');
-    megalodonClient.procurement.workspaceEditor(tenderId, selectedId)
-      .then(data => { if (active) loadFields(data); })
-      .catch(err => { if (active) setError(String(err.message || err)); })
+    const load = async () => {
+      // The server owns the format and revision. Never infer editability from
+      // an annex name: text notes use the versioned PUT; mapped Office/PDF
+      // annexes retain their template-aware render endpoint.
+      const document = await megalodonClient.procurement.workspaceGetDocument(tenderId, selectedId);
+      if (!active) return;
+      if (document.media_type === 'text/plain') {
+        const revisions = await megalodonClient.procurement.workspaceHistory(tenderId, selectedId);
+        if (!active) return;
+        setPlainDocument(document);
+        setPlainText(document.content_text);
+        setHistory(revisions);
+      } else {
+        const mappedEditor = await megalodonClient.procurement.workspaceEditor(tenderId, selectedId);
+        if (active) loadFields(mappedEditor);
+      }
+    };
+    void load().catch(err => { if (active) setError(String(err.message || err)); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [tenderId, selectedId, reload]);
@@ -116,13 +146,42 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!editor || saving || editor.locked || !canEdit || !canRender) return;
+    if (saving || locked || !canEdit) return;
+    if (plainDocument) {
+      if (!plainDirty) return;
+      setSaving(true);
+      setError('');
+      setNotice('');
+      try {
+        const saved = await megalodonClient.procurement.workspaceUpdateDocument(tenderId, plainDocument.id, {
+          content_text: plainText,
+          content_model: plainDocument.content_model,
+          expected_row_version: plainDocument.row_version,
+        });
+        setPlainDocument(saved);
+        setPlainText(saved.content_text);
+        setHistoryPreview(null);
+        onVersion(saved.id, saved.version);
+        setNotice('Revisión ' + saved.version + ' guardada en el expediente con trazabilidad de autor.');
+        // The server remains the source of truth for immutable history.
+        const versions = await megalodonClient.procurement.workspaceHistory(tenderId, saved.id);
+        setHistory(versions);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+    if (!editor || !canRender) return;
     setSaving(true);
     setError('');
+    setNotice('');
     try {
-      const saved = await megalodonClient.procurement.workspaceRender(tenderId, editor.id, editor.row_version, dirty ? changed : initialValues, editor.template_token);
+      const saved = await megalodonClient.procurement.workspaceRender(tenderId, editor.id, editor.row_version, fieldDirty ? changed : initialValues, editor.template_token);
       loadFields(saved);
       onVersion(saved.id, saved.version);
+      setNotice('Revisión ' + saved.version + ' guardada y disponible para revisión.');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
