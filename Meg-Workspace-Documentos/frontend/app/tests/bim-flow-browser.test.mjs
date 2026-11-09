@@ -344,7 +344,7 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.screenshot({path:join(evidence,'08-catalogos-indices.png'),fullPage:true});
     // Synthetic source ZIP crosses the real import API and migrated schema.
     // The private authentic CMIC/Varela packages are exercised separately.
-    await page.getByRole('button',{name:'Catálogos CMIC / fuentes',exact:true}).click();
+    await page.getByRole('button',{name:'Investigación de mercado Megalodon',exact:true}).click();
     await page.getByText('Ediciones importadas y revisiones pendientes',{exact:true}).click();
     const [previewed] = await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/catalogo-apu/importaciones/verificar'),
