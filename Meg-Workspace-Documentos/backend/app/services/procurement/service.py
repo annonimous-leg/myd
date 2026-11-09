@@ -990,9 +990,10 @@ class ProcurementService:
             tenant_id=self.user.tenant_id, creado_por_id=self.user.id, actualizado_por_id=self.user.id,
         )
         self.db.add(evidence)
+        await self.db.flush()
         tender.source_manifest = {**(tender.source_manifest or {}), "sources": [
             *((tender.source_manifest or {}).get("sources", [])),
-            {"filename": filename, "storage_path": stored, "sha256": digest, "media_type": content_type, "size_bytes": len(content), "revision": tender.current_revision, "source_role": source_role, "detected_formats": detected_formats},
+            {"evidence_id": str(evidence.id), "filename": filename, "storage_path": stored, "sha256": digest, "media_type": content_type, "size_bytes": len(content), "revision": tender.current_revision, "source_role": source_role, "detected_formats": detected_formats},
         ]}
         canonical = dict(tender.canonical_model or {})
         detection = dict(canonical.get("format_detection") or {})

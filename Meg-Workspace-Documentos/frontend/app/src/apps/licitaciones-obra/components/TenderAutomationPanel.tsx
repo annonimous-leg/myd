@@ -35,8 +35,24 @@ function normalizeRequirementCandidates(rows: any): any[] {
     }));
 }
 
+async function readFormatConfiguration(file: File) {
+  const data: unknown = JSON.parse(await file.text());
+  if (data === null || typeof data !== 'object' || !('version' in data) ||
+      typeof data.version !== 'string' || !data.version.trim() ||
+      !('format_definitions' in data) || !Array.isArray(data.format_definitions) ||
+      data.format_definitions.some(item => !item || typeof item !== 'object' || Array.isArray(item))) {
+    throw new Error('El JSON debe incluir version y una lista format_definitions.');
+  }
+  return { version: data.version.trim(), format_definitions: data.format_definitions as Record<string, unknown>[] };
+}
+
 export default function TenderAutomationPanel({ expedienteId }: Props) {
   const [tender, setTender] = useState<any>(null);
+  const [formatConfigFile, setFormatConfigFile] = useState<File | null>(null);
+  const [amendmentFile, setAmendmentFile] = useState<File | null>(null);
+  const [baseEvidenceId, setBaseEvidenceId] = useState('');
+  const [amendmentEvidenceId, setAmendmentEvidenceId] = useState('');
+  const [sourceRole, setSourceRole] = useState('CONVOCATORIA');
   const [files, setFiles] = useState<File[]>([]);
   const [identifier, setIdentifier] = useState('');
   const [title, setTitle] = useState('');
@@ -298,6 +314,7 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
         procedure_type: procedureType,
         contract_type: contractType,
         source_manifest: { authority: jurisdiction },
+        ...(formatConfigFile && { format_configuration: await readFormatConfiguration(formatConfigFile) }),
         evaluation_criterion: evaluationCriterion || null,
         project_type: projectType || null,
         scope_scale: scopeScale || null,
@@ -336,7 +353,7 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
     if (!tender || !files.length) return;
     setBusy(true); setError('');
     try {
-      const ingested = await megalodonClient.procurement.ingest(tender.id, files);
+      const ingested = await megalodonClient.procurement.ingest(tender.id, files, sourceRole.trim());
       const detected = ingested.flatMap((item: any) => item?.detected_formats || []);
       if (detected.length) {
         setFormatChecklist((prev) => {
@@ -573,13 +590,28 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
     finally { setBusy(false); }
   };
 
-  const startNewRevision = async () => {
+  const startNewRevision = async (applyAmendment = false) => {
     if (!tender || tender.frozen) return;
     const confirmed = window.confirm('Crear una nueva revisión invalidará las aprobaciones, artefactos y paquetes de la revisión actual. ¿Continuar?');
     if (!confirmed) return;
     setBusy(true); setError('');
     try {
-      await megalodonClient.procurement.createRevision(tender.id, 'HUMAN_REVISION');
+      const formatAmendment = applyAmendment && amendmentFile ? {
+        ...await readFormatConfiguration(amendmentFile),
+        expected_revision: tender.current_revision ?? tender.revision ?? 1,
+        base_evidence_id: baseEvidenceId.trim(),
+        amendment_evidence_id: amendmentEvidenceId.trim(),
+      } : undefined;
+      if (formatAmendment && (!formatAmendment.base_evidence_id || !formatAmendment.amendment_evidence_id ||
+          formatAmendment.base_evidence_id === formatAmendment.amendment_evidence_id)) {
+        throw new Error('Identifica dos fuentes distintas del expediente para aplicar el cambio.');
+      }
+      await megalodonClient.procurement.createRevision(
+        tender.id, formatAmendment ? 'CAMBIO_DOCUMENTADO_DE_FORMATOS' : 'HUMAN_REVISION', formatAmendment,
+      );
+      setAmendmentFile(null);
+      setBaseEvidenceId('');
+      setAmendmentEvidenceId('');
       setFindings([]);
       setArtifacts([]);
       setSignaturePassword('');
@@ -679,6 +711,11 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
             <select value={casePackCode} onChange={e => setCasePackCode(e.target.value)} className="rounded-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm" disabled={!selectedProfile}><option value="">Paquete documental: derivar de convocatoria</option>{(selectedProfile?.case_packs || []).map((p: any) => <option key={p.code} value={p.code}>{p.name}</option>)}</select>
             <select value={approvalRole} onChange={e => setApprovalRole(e.target.value)} aria-label="Rol de aprobación final" className="rounded-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"><option value="">Rol de aprobación</option>{((tender?.canonical_model?.approvals?.required_roles || selectedProfile?.required_approval_roles || ['revisor']) as string[]).map((role: string) => <option key={role} value={role}>{role}</option>)}</select>
           </div>
+          <label className="block text-sm text-zinc-300">
+            Mapas de plantillas de esta convocatoria (JSON opcional)
+            <input type="file" accept=".json,application/json" onChange={e => setFormatConfigFile(e.target.files?.[0] ?? null)} className="block mt-1" />
+            <span className="block text-xs text-zinc-400">Incluye version y format_definitions. Carga los originales DOCX/XLSX en Fuentes del expediente.</span>
+          </label>
           <button disabled={busy || !identifier || !title || !jurisdiction || !procedureType || !contractType || !evaluationCriterion || !selectedProfile?.ready_for_execution} onClick={createTender} className="px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 disabled:opacity-40">Crear expediente de automatización</button>
         </div>
       ) : (
@@ -709,6 +746,9 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
           <div className="grid lg:grid-cols-2 gap-4">
             <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-5 space-y-4">
               <h3 className="font-semibold text-zinc-200">1. Fuentes</h3>
+              <label className="block text-sm text-zinc-300">Rol de los archivos
+                <input value={sourceRole} onChange={e => setSourceRole(e.target.value)} className="block rounded bg-zinc-950 border border-zinc-800 px-2 py-1" />
+              </label>
               <input type="file" multiple onChange={e => setFiles(Array.from(e.target.files || []))} className="w-full text-sm" />
               <div className="flex gap-2">
                 <button disabled={busy || !files.length} onClick={ingest} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40"><Upload className="w-4 h-4" /> Ingresar fuentes</button>
@@ -903,11 +943,37 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
 
           <section className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-5 space-y-4">
             <h3 className="font-semibold text-zinc-200">3. Cierre documental</h3>
+            {!tender.frozen && (
+              <details className="space-y-2 text-sm text-zinc-300">
+                <summary>Registrar cambios de mapas por aclaración o fe de erratas</summary>
+                <p className="text-xs text-zinc-400">Carga ambas fuentes en el expediente. Usa los identificadores de evidencia de la convocatoria base y del documento que la modifica.</p>
+                <label className="block">Mapas actualizados (JSON)
+                  <input key={amendmentFile ? 'selected' : 'empty'} type="file" accept=".json,application/json"
+                    onChange={e => { const file = e.target.files?.[0]; if (file) setAmendmentFile(file); }} className="block" />
+                </label>
+                {amendmentFile && <>
+                  <datalist id="tender-amendment-sources">
+                    {(tender.source_manifest?.sources || []).filter((source: any) => source.evidence_id).map((source: any) => (
+                      <option key={source.evidence_id} value={source.evidence_id}>{source.filename} · {source.source_role}</option>
+                    ))}
+                  </datalist>
+                  <p>{amendmentFile.name}</p>
+                  <label className="block">Evidencia de convocatoria base
+                    <input list="tender-amendment-sources" value={baseEvidenceId} onChange={e => setBaseEvidenceId(e.target.value)} className="block rounded bg-zinc-950 border border-zinc-800 px-2 py-1" />
+                  </label>
+                  <label className="block">Evidencia del documento de cambio
+                    <input list="tender-amendment-sources" value={amendmentEvidenceId} onChange={e => setAmendmentEvidenceId(e.target.value)} className="block rounded bg-zinc-950 border border-zinc-800 px-2 py-1" />
+                  </label>
+                  <button type="button" disabled={busy || !baseEvidenceId.trim() || !amendmentEvidenceId.trim()} onClick={() => void startNewRevision(true)}>Aplicar en una nueva revisión</button>
+                  <button type="button" disabled={busy} onClick={() => setAmendmentFile(null)} className="ml-3">Quitar mapas</button>
+                </>}
+              </details>
+            )}
             <div className="flex flex-wrap gap-2">
               <button disabled={busy || !!findings.length} onClick={compile} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40"><FileCheck2 className="w-4 h-4" /> Compilar documentos</button>
               <button disabled={busy || readiness?.ready !== true || !['QA_READY', 'READY_FOR_HUMAN_REVIEW'].includes(tender.state)} onClick={approve} className="px-3 py-2 rounded-lg bg-emerald-500/15 border border-emerald-500/25 text-emerald-300 disabled:opacity-40">Aprobar</button>
               <button disabled={busy || tender.state !== 'HUMAN_APPROVAL'} onClick={buildSubmission} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/15 border border-amber-500/25 text-amber-300 disabled:opacity-40"><FileArchive className="w-4 h-4" /> Construir submission</button>
-              {!tender.frozen && ['DOCUMENTS_READY', 'CROSS_VALIDATED', 'QA_READY', 'READY_FOR_HUMAN_REVIEW', 'HUMAN_APPROVAL', 'SIGNED', 'SUBMISSION_READY', 'BLOCKED'].includes(tender.state) && <button disabled={busy} onClick={startNewRevision} className="px-3 py-2 rounded-lg border border-amber-700 text-amber-200 disabled:opacity-40">Nueva revisión (invalida aprobaciones y artefactos)</button>}
+              {!tender.frozen && ['DOCUMENTS_READY', 'CROSS_VALIDATED', 'QA_READY', 'READY_FOR_HUMAN_REVIEW', 'HUMAN_APPROVAL', 'SIGNED', 'SUBMISSION_READY', 'BLOCKED'].includes(tender.state) && <button disabled={busy} onClick={() => void startNewRevision()} className="px-3 py-2 rounded-lg border border-amber-700 text-amber-200 disabled:opacity-40">Nueva revisión (invalida aprobaciones y artefactos)</button>}
               <button disabled={busy || tender.state !== 'SUBMISSION_READY'} onClick={downloadSubmission} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40"><Download className="w-4 h-4" /> Descargar paquete</button>
             </div>
             {artifacts.map(a => <div key={a.id} className="text-xs text-zinc-400 font-mono flex flex-wrap items-center gap-2">

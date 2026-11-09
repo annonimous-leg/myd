@@ -2861,7 +2861,16 @@ export class MegalodonClient {
     approvalManifest: async (id: string) => this.request<{ artifact_manifest_sha256: string; originals: { revision: number; artifacts: Array<{ id: string; code: string; version: number; sha256: string; storage_path: string }> } }>("GET", `/procurement/tenders/${id}/approvals/manifest`),
     originalArtifact: async (id: string, artifactId: string) => this.request<{ url: string; sha256: string }>("GET", `/procurement/tenders/${id}/artifacts/${artifactId}/original`),
     approve: async (id: string, data: { role: string; decision: "APPROVED" | "REJECTED"; reason?: string; expected_artifact_manifest_sha256?: string }) => this.request<any>("POST", `/procurement/tenders/${id}/approvals`, data),
-    createRevision: async (id: string, reason: string) => this.request<any>("POST", `/procurement/tenders/${id}/revisions`, { reason }),
+    createRevision: async (id: string, reason: string, formatAmendment?: {
+      version: string;
+      format_definitions: Record<string, unknown>[];
+      expected_revision: number;
+      base_evidence_id: string;
+      amendment_evidence_id: string;
+    }) => this.request<any>("POST", `/procurement/tenders/${id}/revisions`, {
+      reason,
+      ...(formatAmendment && { format_amendment: formatAmendment }),
+    }),
     signArtifact: async (id: string, artifactId: string, data: {
       certificadoCer: File;
       certificadoKey: File;
