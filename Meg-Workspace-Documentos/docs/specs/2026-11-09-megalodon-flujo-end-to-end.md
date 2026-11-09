@@ -4,7 +4,7 @@ Fecha: 2026-11-09. Prioridad actual: backend. Este documento registra el flujo s
 
 ## Base de trabajo y decisiones confirmadas
 
-Base inspeccionada: `annonimous-leg/myd`, rama `work/cierre-megalodon-desde-recalculo-2026-11-09`, commit `b290f2b4cc7a4485b2e878b69cd78c9221606e12`, fechado 2026-11-09 15:21:18 UTC. Es la punta con fecha de commit más reciente entre las cuatro ramas consultadas. El usuario escribió «repo mis»; la identidad del destino debe confirmarse antes de publicar esta continuación.
+Base inspeccionada: `annonimous-leg/myd`, rama `work/cierre-megalodon-desde-recalculo-2026-11-09`, commit `b290f2b4cc7a4485b2e878b69cd78c9221606e12`, fechado 2026-11-09 15:21:18 UTC. Es la punta con fecha de commit más reciente entre las cuatro ramas consultadas. El usuario confirmó la publicación en `myd` y pidió verificar la rama más reciente antes de subir la continuación. La consulta del remoto confirmó esa misma base; el cambio se publica en una rama derivada para revisión.
 
 Se conserva el backend FastAPI existente y la autoridad financiera del servidor. El PDF RFP aportado es referencia funcional sobre documentos, revisiones y aprobaciones; su propuesta NestJS/Next.js no obliga a reescribir este proyecto.
 

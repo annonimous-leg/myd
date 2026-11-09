@@ -1,6 +1,6 @@
 # Ingesta Office: primer incremento sobre el backend vigente
 
-Base: `b290f2b4cc7a4485b2e878b69cd78c9221606e12`, rama `work/cierre-megalodon-desde-recalculo-2026-11-09`. Continuación local: `work/ingesta-office-segura-2026-11-09`. Publicación pendiente de confirmar el repositorio mencionado como «mis».
+Base: `b290f2b4cc7a4485b2e878b69cd78c9221606e12`, rama `work/cierre-megalodon-desde-recalculo-2026-11-09`. Continuación local: `work/ingesta-office-segura-2026-11-09`. Destino confirmado por el usuario: `annonimous-leg/myd`. Se verificó la base contra las ramas remotas antes de publicar una continuación separada.
 
 ## Problema demostrado y cambio
 
