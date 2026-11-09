@@ -40,9 +40,10 @@ parte de PR #5 y conserva explícitamente su base, no de `main`.
 - BIM: importar IFC, aprobar/exportar presupuesto, generar cronograma 4D,
   recargar y abrir `app=licitaciones-obra&seccion=cronograma&programa=ID`.
   El selector de Programación debe apuntar a ese mismo ID de backend.
-- Catálogos: mostrar la denominación mensual vigente
-  `Investigación de mercado Megalodon · enero 2020` en el fixture; los datos
-  y procedencias originales siguen en el backend y en los artefactos.
+- Catálogos: el fixture creado exclusivamente por CI debe identificarse como
+  `CI sintético: catálogo de aceptación`, nunca como una publicación comercial.
+  Las fuentes reales y sus fechas, precios, metadatos y títulos de
+  Investigación de mercado permanecen sin alterar.
 - Licitante: crear `TenderPackage` real, ingresar convocatoria sintética,
   verificar manifiesto con hash, revisar/confirmar requisitos humanos y bloqueo
   de submission prematuro. Abrir `Documentos`, editar un `text/plain`
