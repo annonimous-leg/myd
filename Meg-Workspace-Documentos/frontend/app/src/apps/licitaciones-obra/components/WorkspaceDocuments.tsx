@@ -301,7 +301,7 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
               </details>
             </>
           )}
-          {editor && !editor.fields.length && <p>El perfil de este formato no tiene campos habilitados para editar. Adjunta el mapa oficial de la plantilla para habilitar campos verificables.</p>
+          {editor && !editor.fields.length && <p>El perfil de este formato no tiene campos habilitados para editar. Adjunta el mapa oficial de la plantilla para habilitar campos verificables.</p>}
           {editor && editor.fields.length > 0 && (
             <form onSubmit={save}>
               {editor.fields.map(field => (
