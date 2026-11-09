@@ -261,25 +261,62 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
             </div>}
         </div>
         <aside className="workspace-docs__fields">
-          <h2>Campos del anexo</h2>
-          {error && <p role="alert">{error} <button type="button" onClick={() => leave(() => setReload(n => n + 1))}>Recargar</button></p>}
-          {editor?.locked && <p>Esta revisión está bloqueada.</p>}
-          {editor && !editor.fields.length && <p>El perfil de este formato no tiene campos habilitados para editar.</p>}
+          <h2>{plainDocument ? 'Edición del documento' : 'Campos del anexo'}</h2>
+          <p className="workspace-docs__eyebrow">{plainDocument ? 'BORRADOR HUMANO · VERSIONADO' : 'FORMATO VINCULADO AL BACKEND'}</p>
+          {error && <p role="alert" className="workspace-docs__alert">{error} <button type="button" onClick={() => leave(() => setReload(n => n + 1))}>Recargar desde servidor</button></p>}
+          {notice && <p role="status" className="workspace-docs__success">{notice}</p>}
+          {locked && <p>Este documento o expediente está bloqueado para edición.</p>}
+          {plainDocument && (
+            <>
+              <form onSubmit={save}>
+                <label>Contenido del documento
+                  <textarea
+                    placeholder="Contenido editable del documento..."
+                    aria-label="Contenido del documento"
+                    rows={16}
+                    value={plainText}
+                    disabled={saving || locked || !canEdit}
+                    onChange={event => { setPlainText(event.target.value); setNotice(''); }}
+                  />
+                </label>
+                {plainDirty && <p role="status">Cambios pendientes: guarda una nueva revisión antes de salir.</p>}
+                <p className="workspace-docs__hint">Las notas internas de texto se guardan en el backend. No son anexos oficiales firmados ni generan automáticamente un PDF.</p>
+                {canEdit && <button type="submit" disabled={saving || locked || !plainDirty}>
+                  {saving ? 'Guardando revisión…' : 'Guardar versión'}
+                </button>}
+              </form>
+              <details className="workspace-docs__history">
+                <summary>Historial de revisiones ({history.length})</summary>
+                <div className="workspace-docs__history-entries">
+                  {history.map(revision => (
+                    <button type="button" key={revision.version}
+                      aria-pressed={historyPreview?.version === revision.version}
+                      onClick={() => setHistoryPreview(revision)}>
+                      <strong>Ver revisión {revision.version}</strong>
+                      <small>{revision.operation} · {new Date(revision.created_at).toLocaleString('es-MX')}</small>
+                    </button>
+                  ))}
+                  {historyPreview && <button type="button" onClick={() => setHistoryPreview(null)}>Volver a la revisión vigente</button>}
+                </div>
+              </details>
+            </>
+          )}
+          {editor && !editor.fields.length && <p>El perfil de este formato no tiene campos habilitados para editar. Adjunta el mapa oficial de la plantilla para habilitar campos verificables.</p>
           {editor && editor.fields.length > 0 && (
             <form onSubmit={save}>
               {editor.fields.map(field => (
                 <label key={field.path}>{field.label}{field.read_only && <small> · Presupuesto</small>}
                   {!isTemplate && field.path.startsWith('technical.') ?
                     <textarea maxLength={field.max_length} value={values[field.path] ?? ''} rows={4}
-                      disabled={saving || editor.locked || !canEdit}
+                      disabled={saving || locked || !canEdit}
                       onChange={e => setValues(old => ({ ...old, [field.path]: e.target.value }))} /> :
                     <input readOnly={field.read_only} maxLength={field.max_length} value={values[field.path] ?? ''}
-                      disabled={saving || editor.locked || !canEdit}
+                      disabled={saving || locked || !canEdit}
                       onChange={e => setValues(old => ({ ...old, [field.path]: e.target.value }))} />}
                 </label>
               ))}
               {dirty && <p role="status">El archivo disponible corresponde a la última revisión guardada.</p>}
-              {canEdit && <button type="submit" disabled={saving || editor.locked || !canRender}>
+              {canEdit && <button type="submit" disabled={saving || locked || !canRender}>
                 {saving ? 'Generando archivo…' : isTemplate ? 'Guardar borrador' : 'Guardar y previsualizar'}
               </button>}
             </form>
