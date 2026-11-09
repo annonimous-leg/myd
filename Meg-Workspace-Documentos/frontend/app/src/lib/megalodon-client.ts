@@ -106,6 +106,24 @@ export interface WorkspaceDocumentSummary {
   name: string;
   status: string;
   version: number;
+  media_type?: string;
+}
+
+export interface WorkspaceDocumentDetail extends WorkspaceDocumentSummary {
+  media_type: string;
+  content_text: string;
+  content_model: Record<string, unknown>;
+  row_version: number;
+  locked: boolean;
+  human_modified: boolean;
+}
+
+export interface WorkspaceDocumentRevision {
+  version: number;
+  operation: string;
+  human_modified: boolean;
+  content_text: string;
+  created_at: string;
 }
 
 export interface WorkspaceEditor {
@@ -2934,9 +2952,15 @@ export class MegalodonClient {
       }
       return response.blob();
     },
-    workspaceGetDocument: async (id: string, documentId: string) => this.request<any>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}`),
-    workspaceUpdateDocument: async (id: string, documentId: string, data: any) => this.request<any>("PUT", `/procurement/tenders/${id}/workspace/documents/${documentId}`, data),
-    workspaceHistory: async (id: string, documentId: string) => this.request<any[]>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}/history`),
+    workspaceGetDocument: async (id: string, documentId: string) =>
+      this.request<WorkspaceDocumentDetail>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}`),
+    workspaceUpdateDocument: async (id: string, documentId: string, data: {
+      content_text: string;
+      content_model: Record<string, unknown>;
+      expected_row_version: number;
+    }) => this.request<WorkspaceDocumentDetail>("PUT", `/procurement/tenders/${id}/workspace/documents/${documentId}`, data),
+    workspaceHistory: async (id: string, documentId: string) =>
+      this.request<WorkspaceDocumentRevision[]>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}/history`),
     workspaceRegenerate: async (id: string, documentId: string, data: any) => this.request<any>("POST", `/procurement/tenders/${id}/workspace/documents/${documentId}/regenerate`, data),
     workspaceLock: async (id: string, documentId: string, locked: boolean) => this.request<any>("PATCH", `/procurement/tenders/${id}/workspace/documents/${documentId}/lock`, { locked }),
     bridgeLicitacion: async (id: string, licitacion_id: string, relationship_type = "PRIMARY") => this.request<any>("POST", `/procurement/tenders/${id}/bridge/licitacion`, { licitacion_id, relationship_type }),

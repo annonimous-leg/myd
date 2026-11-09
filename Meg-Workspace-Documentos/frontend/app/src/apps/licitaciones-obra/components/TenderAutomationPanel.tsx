@@ -643,7 +643,7 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
   const statusText = useMemo(() => tender?.state || 'SIN_EXPEDIENTE', [tender]);
 
   if (tender && showDocuments) {
-    return <WorkspaceDocuments key={tender.id} tenderId={tender.id} documents={workspaceDocs}
+    return <WorkspaceDocuments key={tender.id} tenderId={tender.id} documents={workspaceDocs} frozen={Boolean(tender.frozen)}
       onBack={() => setShowDocuments(false)}
       onOpen={document => setWorkspaceDocs(docs => docs.some(doc => doc.id === document.id) ? docs : [...docs, document])}
       onVersion={(id, version) => setWorkspaceDocs(docs => docs.map(doc =>
