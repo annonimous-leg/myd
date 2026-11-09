@@ -2858,7 +2858,9 @@ export class MegalodonClient {
     enqueueRun: async (id: string, idempotencyKey: string) => this.request<any>("POST", `/procurement/tenders/${id}/jobs/run`, undefined, { headers: { "Idempotency-Key": idempotencyKey } }),
     enqueueCompile: async (id: string, idempotencyKey: string) => this.request<any>("POST", `/procurement/tenders/${id}/jobs/compile`, undefined, { headers: { "Idempotency-Key": idempotencyKey } }),
     job: async (jobId: string) => this.request<any>("GET", `/procurement/jobs/${jobId}`),
-    approve: async (id: string, data: { role: string; decision: "APPROVED" | "REJECTED"; reason?: string }) => this.request<any>("POST", `/procurement/tenders/${id}/approvals`, data),
+    approvalManifest: async (id: string) => this.request<{ artifact_manifest_sha256: string; originals: { revision: number; artifacts: Array<{ id: string; code: string; version: number; sha256: string; storage_path: string }> } }>("GET", `/procurement/tenders/${id}/approvals/manifest`),
+    originalArtifact: async (id: string, artifactId: string) => this.request<{ url: string; sha256: string }>("GET", `/procurement/tenders/${id}/artifacts/${artifactId}/original`),
+    approve: async (id: string, data: { role: string; decision: "APPROVED" | "REJECTED"; reason?: string; expected_artifact_manifest_sha256?: string }) => this.request<any>("POST", `/procurement/tenders/${id}/approvals`, data),
     createRevision: async (id: string, reason: string) => this.request<any>("POST", `/procurement/tenders/${id}/revisions`, { reason }),
     signArtifact: async (id: string, artifactId: string, data: {
       certificadoCer: File;

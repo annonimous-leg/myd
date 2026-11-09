@@ -513,9 +513,40 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
       return;
     }
     setBusy(true); setError('');
-    try { await megalodonClient.procurement.approve(tender.id, { role: approvalRole, decision: 'APPROVED' }); await refresh(tender.id); }
+    try {
+      const preview = await megalodonClient.procurement.approvalManifest(tender.id);
+      const listed = preview.originals.artifacts.map(a => `${a.code} v${a.version}  SHA-256: ${a.sha256}`);
+      const confirmed = window.confirm(
+        `Esta aprobación quedará asociada a los archivos ORIGINALES almacenados de la revisión ${preview.originals.revision}.` +
+        `\n\n${listed.slice(0, 15).join('\n')}` +
+        (listed.length > 15 ? `\n… y ${listed.length - 15} archivos adicionales` : '') +
+        `\n\nSHA-256 del manifiesto:\n${preview.artifact_manifest_sha256}` +
+        `\n\nConfirma únicamente después de descargar y revisar los originales. ¿Aprobar exactamente estos archivos?`
+      );
+      if (!confirmed) return;
+      await megalodonClient.procurement.approve(tender.id, {
+        role: approvalRole, decision: 'APPROVED',
+        expected_artifact_manifest_sha256: preview.artifact_manifest_sha256,
+      });
+      await refresh(tender.id);
+    }
     catch (e) { setError((e as Error).message); }
     finally { setBusy(false); }
+  };
+
+  const openOriginal = async (artifactId: string) => {
+    if (!tender) return;
+    // The URL is issued only after backend tenant/revision and SHA-256 checks.
+    const tab = window.open('about:blank', '_blank');
+    if (tab) tab.opener = null;
+    try {
+      const original = await megalodonClient.procurement.originalArtifact(tender.id, artifactId);
+      if (tab) tab.location.replace(original.url);
+      else window.location.assign(original.url);
+    } catch (e) {
+      tab?.close();
+      setError((e as Error).message);
+    }
   };
 
   const signArtifact = async () => {
@@ -879,7 +910,10 @@ export default function TenderAutomationPanel({ expedienteId }: Props) {
               {!tender.frozen && ['DOCUMENTS_READY', 'CROSS_VALIDATED', 'QA_READY', 'READY_FOR_HUMAN_REVIEW', 'HUMAN_APPROVAL', 'SIGNED', 'SUBMISSION_READY', 'BLOCKED'].includes(tender.state) && <button disabled={busy} onClick={startNewRevision} className="px-3 py-2 rounded-lg border border-amber-700 text-amber-200 disabled:opacity-40">Nueva revisión (invalida aprobaciones y artefactos)</button>}
               <button disabled={busy || tender.state !== 'SUBMISSION_READY'} onClick={downloadSubmission} className="flex items-center gap-2 px-3 py-2 rounded-lg border border-zinc-700 hover:bg-zinc-800 disabled:opacity-40"><Download className="w-4 h-4" /> Descargar paquete</button>
             </div>
-            {artifacts.map(a => <div key={a.id} className="text-xs text-zinc-400 font-mono">{a.code || a.artifact_code} · v{a.version} · {a.status} · {a.internal_workspace_artifact ? 'INTERNO' : a.submission_eligible ? 'PRESENTABLE' : 'REFERENCIA'} · {a.signature_required ? 'FIRMA REQUERIDA' : 'SIN FIRMA REQUERIDA'} · {a.content_hash}</div>)}
+            {artifacts.map(a => <div key={a.id} className="text-xs text-zinc-400 font-mono flex flex-wrap items-center gap-2">
+              <span>{a.code || a.artifact_code} · v{a.version} · {a.status} · {a.internal_workspace_artifact ? 'INTERNO' : a.submission_eligible ? 'PRESENTABLE' : 'REFERENCIA'} · {a.signature_required ? 'FIRMA REQUERIDA' : 'SIN FIRMA REQUERIDA'} · SHA-256 {a.content_hash}</span>
+              {a.submission_eligible && a.status !== 'SUPERSEDED' && <button type="button" disabled={busy} onClick={() => void openOriginal(a.id)} className="rounded border border-cyan-700/50 px-2 py-1 text-cyan-300 disabled:opacity-40">Revisar original</button>}
+            </div>)}
             {tender.state === 'HUMAN_APPROVAL' && artifacts.some((a) => a.media_type === 'application/pdf' && a.signature_required === true && !['SIGNED', 'SUPERSEDED'].includes(a.status)) && (
               <div className="rounded-lg border border-zinc-700 p-3 space-y-3">
                 <h4 className="text-sm font-medium text-zinc-200">Firmar artefacto PDF con e.firma</h4>

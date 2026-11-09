@@ -692,6 +692,9 @@ class TenderApproval(Base, UUIDMixin, TenantMixin, AuditMixin):
     decision: Mapped[str] = mapped_column(String(40), nullable=False)
     reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Exact original storage paths/versions/SHA-256 reviewed in this role decision.
+    artifact_manifest_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    artifact_manifest: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("tender_id", "revision", "role", name="uq_tender_approval_role_revision"),

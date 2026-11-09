@@ -79,7 +79,21 @@ class ProcurementStorageGuard:
         else:
             raise RuntimeError(f"Bucket de Procurement no permitido: {bucket_name}")
         try:
-            await bucket.subir(path, content, content_type)
+            # Approved originals, signed renditions and submission ZIPs must be
+            # append-only. A retry may reuse the existing bytes, NEVER replace
+            # them. Supabase enforces no-overwrite atomically for new objects.
+            if entity_type in {"TenderArtifact", "SignedTenderArtifact", "SubmissionPackage"}:
+                try:
+                    await bucket.subir(path, content, content_type, overwrite=False)
+                except Exception as original_error:
+                    try:
+                        existing = await bucket.descargar(path)
+                    except Exception:
+                        raise original_error
+                    if sha256(existing).hexdigest() != digest:
+                        raise RuntimeError("El objeto ya existe con otros bytes; no se sobrescribirá.") from original_error
+            else:
+                await bucket.subir(path, content, content_type)
             stored = await bucket.descargar(path)
             stored_hash = sha256(stored).hexdigest()
             if stored_hash != digest:

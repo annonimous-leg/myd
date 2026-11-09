@@ -148,6 +148,8 @@ class ApprovalCreate(BaseModel):
     role: str
     decision: str
     reason: str | None = None
+    # Reviewer confirms the server-prepared ORIGINALS manifest observed beforehand.
+    expected_artifact_manifest_sha256: str | None = Field(default=None, min_length=64, max_length=64)
 
 
 class SubmissionResponse(BaseModel):
