@@ -20,6 +20,7 @@ class Artifact:
     tenant_id: UUID = TENANT
     tender_id: UUID = TENDER
     artifact_code: str = "ANX01"
+    name: str = "Anexo técnico"
     version: int = 2
     media_type: str = "application/pdf"
     storage_path: str = f"tenders/{TENANT}/{TENDER}/r4/ANX01-v2-{SHA}.pdf"
@@ -82,6 +83,20 @@ class ApprovalManifestTests(unittest.TestCase):
     def test_different_document_version_blocked(self):
         approval = Approval(manifest_digest(self.manifest), self.manifest)
         self.artifact.version += 1
+        current = original_artifact_manifest([self.artifact], tenant_id=TENANT, tender_id=TENDER, revision=4)
+        with self.assertRaises(ApprovalManifestError):
+            verified_approval_manifest([approval], current, {"revisor"})
+
+    def test_changed_signature_policy_revokes_approval(self):
+        approval = Approval(manifest_digest(self.manifest), self.manifest)
+        self.artifact.artifact_metadata["signature_required"] = False
+        current = original_artifact_manifest([self.artifact], tenant_id=TENANT, tender_id=TENDER, revision=4)
+        with self.assertRaises(ApprovalManifestError):
+            verified_approval_manifest([approval], current, {"revisor"})
+
+    def test_changed_artifact_filename_revokes_approval(self):
+        approval = Approval(manifest_digest(self.manifest), self.manifest)
+        self.artifact.name = "Otro anexo"
         current = original_artifact_manifest([self.artifact], tenant_id=TENANT, tender_id=TENDER, revision=4)
         with self.assertRaises(ApprovalManifestError):
             verified_approval_manifest([approval], current, {"revisor"})

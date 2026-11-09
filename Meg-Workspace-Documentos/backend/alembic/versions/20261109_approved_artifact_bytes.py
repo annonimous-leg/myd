@@ -50,7 +50,10 @@ def upgrade():
              OLD.media_type IS NOT DISTINCT FROM NEW.media_type AND
              OLD.storage_path IS NOT DISTINCT FROM NEW.storage_path AND
              OLD.content_hash IS NOT DISTINCT FROM NEW.content_hash AND
-             OLD.source_model_hash IS NOT DISTINCT FROM NEW.source_model_hash THEN
+             OLD.source_model_hash IS NOT DISTINCT FROM NEW.source_model_hash AND
+             (OLD.metadata->'signature_required') IS NOT DISTINCT FROM (NEW.metadata->'signature_required') AND
+             (OLD.metadata->'submission_eligible') IS NOT DISTINCT FROM (NEW.metadata->'submission_eligible') AND
+             (OLD.metadata->'reference_only') IS NOT DISTINCT FROM (NEW.metadata->'reference_only') THEN
             RETURN NEW;
           END IF;
           SELECT EXISTS (

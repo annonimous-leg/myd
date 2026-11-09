@@ -11,7 +11,7 @@ import json
 import re
 from typing import Any, Iterable
 
-from app.services.procurement.artifact_policy import artifact_submission_eligible
+from app.services.procurement.artifact_policy import artifact_submission_eligible, artifact_requires_signature
 
 _HEX_SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 
@@ -66,8 +66,10 @@ def original_artifact_manifest(
         entries.append({
             "id": str(a.id),
             "code": code,
+            "name": str(a.name),
             "version": int(a.version),
             "media_type": str(a.media_type),
+            "signature_required": artifact_requires_signature(a),
             "storage_path": path,
             "sha256": sha256,
             "source_model_hash": str(a.source_model_hash or ""),
