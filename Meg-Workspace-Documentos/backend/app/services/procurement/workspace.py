@@ -216,7 +216,7 @@ class TenderWorkspaceService:
             "fields": fields,
             "render_format": format_name,
             "template_token": _template_token(template, fields),
-            "file_available": bool(draft or metadata.get("artifact_id") and row.media_type in {_PDF_TYPE, _XLSX_TYPE}),
+            "file_available": bool(draft or metadata.get("artifact_id") and row.media_type in {_PDF_TYPE, _XLSX_TYPE, _DOCX_TYPE}),
             "media_type": draft_media if draft else row.media_type,
             "sha256": draft["sha256"] if draft else None,
         }
@@ -353,7 +353,7 @@ class TenderWorkspaceService:
                 TenderArtifact.tenant_id == self.user.tenant_id,
                 TenderArtifact.artifact_code == row.artifact_code,
             ))
-            if not artifact or artifact.media_type not in {_PDF_TYPE, _XLSX_TYPE} or not artifact.storage_path:
+            if not artifact or artifact.media_type not in {_PDF_TYPE, _XLSX_TYPE, _DOCX_TYPE} or not artifact.storage_path:
                 raise MegalodonException(ErrorCode.DOCUMENTO_NO_ENCONTRADO, "Esta revisión no tiene archivo.", 404)
             content = await storage_exportaciones().descargar(artifact.storage_path)
             digest, media = artifact.content_hash, artifact.media_type

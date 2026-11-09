@@ -46,6 +46,7 @@ def upgrade():
              OLD.tender_id IS NOT DISTINCT FROM NEW.tender_id AND
              OLD.tenant_id IS NOT DISTINCT FROM NEW.tenant_id AND
              OLD.artifact_code IS NOT DISTINCT FROM NEW.artifact_code AND
+             OLD.name IS NOT DISTINCT FROM NEW.name AND
              OLD.version IS NOT DISTINCT FROM NEW.version AND
              OLD.media_type IS NOT DISTINCT FROM NEW.media_type AND
              OLD.storage_path IS NOT DISTINCT FROM NEW.storage_path AND
