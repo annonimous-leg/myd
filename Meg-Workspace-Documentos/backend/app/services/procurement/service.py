@@ -63,6 +63,7 @@ from app.engines.procurement.contract_policy import ContractPolicyError
 from app.engines.procurement.rules import DeterministicRuleCompiler, RuleCompilationError
 from app.services.procurement.storage_guard import ProcurementStorageGuard
 from app.services.procurement.artifact_policy import artifact_requires_signature, artifact_submission_eligible
+from app.services.procurement.workspace_final_bytes import reviewed_workspace_artifact, WorkspaceFinalBytesError
 from app.services.procurement.approval_manifest import (
     ApprovalManifestError, manifest_digest, original_artifact_manifest,
     verified_approval_manifest, verify_original_bytes, verify_package_bytes,
@@ -2157,6 +2158,7 @@ class ProcurementService:
                     409,
                 ) from exc
 
+        workspace_provenance: dict[str, dict] = {}
         seen_codes: set[str] = set()
         for external_code in selected_codes:
             code = normalize_format_code(external_code)
@@ -2173,10 +2175,29 @@ class ProcurementService:
                     raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, f"El formato {code} requiere datos canónicos ausentes: {', '.join(map(str, missing))}.", 409)
                 continue
             try:
-                content = self.compiler.compile_from_binding(binding, modelo_para_compilar)
-            except (ValueError, TypeError, KeyError) as exc:
-                raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, f"No se pudo compilar {code}: {exc}", 409) from exc
-            media = "application/pdf" if str(binding.get("compiler", "")).endswith("pdf") else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                if "workspace_docx" in binding or "workspace_xlsx" in binding:
+                    doc = workspace_docs_by_code.get(code)
+                    revision = None
+                    if doc is not None:
+                        revision = await self.db.scalar(select(TenderDocumentRevision).where(
+                            TenderDocumentRevision.tenant_id == self.user.tenant_id,
+                            TenderDocumentRevision.document_id == doc.id,
+                            TenderDocumentRevision.version == doc.version,
+                        ))
+                    current_source_model_hash = sha256(json.dumps(
+                        tender.canonical_model or {}, sort_keys=True, default=str,
+                        separators=(",", ":"),
+                    ).encode()).hexdigest()
+                    content, media, provenance = reviewed_workspace_artifact(
+                        binding, doc, revision, tender.current_revision,
+                        current_source_model_hash=current_source_model_hash,
+                    )
+                    workspace_provenance[code] = provenance
+                else:
+                    content = self.compiler.compile_from_binding(binding, modelo_para_compilar)
+                    media = "application/pdf" if str(binding.get("compiler", "")).endswith("pdf") else "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            except (WorkspaceFinalBytesError, ValueError, TypeError, KeyError) as exc:
+                raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, f"No se pudo cerrar el original {code}: {exc}", 409) from exc
             artifact_specs.append((code, str(binding.get("title") or code), media, content, overrides_aplicados))
             seen_codes.add(code)
 
@@ -2253,7 +2274,7 @@ class ProcurementService:
                 TenderArtifact.artifact_code == code,
             ).order_by(TenderArtifact.version.desc()).limit(1)) or 0)
             version = prior + 1
-            extension = ".xlsx" if media.endswith("spreadsheetml.sheet") else ".pdf"
+            extension = ".docx" if media.endswith("wordprocessingml.document") else ".xlsx" if media.endswith("spreadsheetml.sheet") else ".pdf"
             path = f"tenders/{tender.tenant_id}/{tender.id}/r{tender.current_revision}/{code}-v{version}-{content_hash}{extension}"
             await self.storage_guard.upload_verified(tenant_id=self.user.tenant_id, job_id=None, bucket_name=get_settings().SUPABASE_BUCKET_EXPORTS, path=path, content=content, content_type=media, entity_type="TenderArtifact")
             # Submission and signature eligibility are server-owned format policy.
@@ -2269,6 +2290,7 @@ class ProcurementService:
                     "reference_only": reference_only,
                     "internal_workspace_artifact": internal_qa_report,
                     "human_field_overrides_applied": overrides_aplicados,
+                    **workspace_provenance.get(code, {}),
                 },
             )
             self.db.add(artifact)
