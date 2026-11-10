@@ -370,7 +370,7 @@ def _level_schedule(
                 prims.append(PaperPrim(kind="line", layer="NOTE", x1=right, y1=y,
                                        x2=right + 5, y2=y, weight=0.15))
                 prims.append(PaperPrim(kind="text", layer="NOTE", x=right + 5.5, y=y + 0.6,
-                                       text=label, size=1.8))
+                                       text=f"{label} {elevation:+.3f}", size=1.8))
                 last_marker_y = y
         prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=158 + 4 * number,
                                text=f"{label}   {elevation:+.3f}   {name[:32]}", size=1.9))
@@ -420,7 +420,8 @@ def compose_a3_sheet(
     prims: list[PaperPrim] = []
     _frame(prims)
 
-    for segment in document.segments:
+    # Draw concealed geometry first so visible edges stay legible at overlaps.
+    for segment in sorted(document.segments, key=lambda segment: not segment.hidden):
         bucket = _layer_bucket(segment.layer)
         prims.append(
             PaperPrim(
@@ -430,9 +431,9 @@ def compose_a3_sheet(
                 y1=my(segment.start[1]),
                 x2=mx(segment.end[0]),
                 y2=my(segment.end[1]),
-                weight=_stroke_for(bucket),
+                weight=0.10 if segment.hidden else _stroke_for(bucket),
                 dash=segment.hidden,
-                rgb=(0.1, 0.1, 0.1),
+                rgb=(0.65, 0.65, 0.65) if segment.hidden else (0.1, 0.1, 0.1),
             )
         )
 

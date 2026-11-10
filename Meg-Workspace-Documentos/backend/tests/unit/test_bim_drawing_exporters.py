@@ -79,6 +79,7 @@ def test_hidden_edges_are_dashed_in_svg_dxf_and_pdf():
             DrawingSegment((0, 0), (2, 0), "IfcWall", "front", "front"),
             DrawingSegment((0, 1), (2, 1), "IfcWall", "rear", "rear", hidden=True),
         ),
+        metadata={"view_origin_m": (0, 0, 50), "view_up": (0, 0, 1)},
     )
     svg = ET.fromstring(to_svg(document))
     paths = svg.findall(".//{http://www.w3.org/2000/svg}path")
@@ -92,7 +93,13 @@ def test_hidden_edges_are_dashed_in_svg_dxf_and_pdf():
     assert entities.count("IfcWall") == 2
     assert "IfcWall_2" not in pairs
 
-    sheet = compose_a3_sheet(document)
+    sheet = compose_a3_sheet(document, levels=[("Planta baja", 50.5)])
+    linework = [prim for prim in sheet.primitives if prim.layer == "CUT"]
+    hidden, visible = linework
+    assert hidden.dash and not visible.dash
+    assert hidden.weight < visible.weight
+    assert all(a > b for a, b in zip(hidden.rgb, visible.rgb))
+    assert any(prim.text == "N01 +50.500" for prim in sheet.primitives)
     contents = PdfReader(BytesIO(composed_to_pdf(sheet))).pages[0].get_contents().get_data()
     assert contents.count(b"[3 2] 0 d") == 1
 
