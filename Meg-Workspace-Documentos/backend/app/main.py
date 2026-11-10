@@ -116,6 +116,7 @@ from services.aviation.adsb_exchange import ADSBExchangeClient
 from services.aviation.adsb_lol import ADSBLoLClient
 from services.transport.osrm_routes import OSRMClient
 from services.weather.noaa_nws import NOAAWeatherClient
+from services.weather.ecmwf_grids import ECMWFGridStore
 from services.sar.nasa_earthdata import NASAEarthdataClient
 from services.sar.google_earth_engine import GoogleEarthEngineClient
 from services.sar.copernicus_scihub import CopernicusSciHubClient
@@ -221,6 +222,7 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         app.state.adsb_lol = adsb_lol
         app.state.osrm_routes = osrm_routes
         app.state.noaa_weather = noaa_weather
+        app.state.ecmwf_grids = ECMWFGridStore()
         app.state.nasa_earthdata = nasa_earthdata
         app.state.gee = gee
         app.state.copernicus_scihub = copernicus_scihub
@@ -245,7 +247,8 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         app.state.tezcatlipoca_components = {
             "geo": _capability("READY"),
             "aviation_open": _capability("READY", "ADSB.lol: adapter created, provider health requires a successful query."),
-            "weather_open": _capability("READY", "NOAA/NWS: only supported US territories, no global fallback."),
+            "weather_open": _capability("READY", "NOAA/NWS: only supported US territories; ECMWF requires locally ingested GRIB."),
+            "weather_global": _capability("CONFIGURED" if app.state.ecmwf_grids.root else "CONFIG_REQUIRED", None if app.state.ecmwf_grids.root else "Configure TEZCATLIPOCA_ECMWF_STORE with real ECMWF IFS grids."),
             "routing_self_hosted": _capability("CONFIGURED" if osrm_routes.base_url else "CONFIG_REQUIRED", None if osrm_routes.base_url else "Set TEZCATLIPOCA_OSRM_URL for own routing server."),
             "osint": _capability("READY"),
             "malware": _capability("READY"),

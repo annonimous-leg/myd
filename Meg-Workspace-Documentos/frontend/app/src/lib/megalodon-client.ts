@@ -529,10 +529,12 @@ export interface RutaCriticaInfo {
 export interface AeronaveTez {
   hex: string; callsign: string; lat: number; lon: number;
   altitude: number | null; track: number | null; speed: number | null; source: string;
+  timestamp?: string | null;
 }
 export interface EmbarcacionTez {
   mmsi: string; name: string; lat: number; lon: number;
   sog: number | null; cog: number | null; source: string;
+  timestamp?: string | null;
 }
 export interface SismoTez {
   id: string; lat: number; lon: number; magnitude: number;
@@ -546,6 +548,7 @@ export interface ContextoGeoTez {
   sources: {
     gnss: { status: string };
     adsb_exchange: { status: string };
+    adsb_lol?: { status: string; last_success?: string | null; coverage?: string; license?: string; attribution?: string };
     ais: { status: string };
     usgs: { status: string };
     telemetry: { status: string; sources: string[]; metrics: Record<string, unknown> };
@@ -2045,6 +2048,22 @@ export class MegalodonClient {
       return this.requestTez<ContextoGeoTez>("GET", `/geo/context?${q.toString()}`);
     },
     telemetry: async () => this.requestTez<any>("GET", "/telemetry/"),
+    weatherForecast: async (lat: number, lon: number) => {
+      const q = new URLSearchParams({ lat: String(lat), lon: String(lon) });
+      return this.requestTez<any>("GET", `/weather/forecast?${q.toString()}`);
+    },
+    globalForecast: async (lat: number, lon: number): Promise<{
+      status: string; source: string; run_time?: string; valid_time?: string;
+      temperature_2m_c?: number; wind_10m_ms?: number;
+      grid_point?: {lat: number; lon: number}; attribution?: string; reason?: string;
+    }> => this.requestTez("GET", `/weather/global?${new URLSearchParams({lat:String(lat),lon:String(lon)}).toString()}`),
+    saveSnapshot: async (payload: {
+      name: string; description?: string; layers: string[];
+      viewport: Record<string, unknown>;
+    }): Promise<{ id: number; name: string; created_at: string }> =>
+      this.requestTez("POST", "/snapshots/create", payload),
+    snapshots: async (): Promise<{ id: number; name: string; created_at: string }[]> =>
+      this.requestTez("GET", "/snapshots/"),
     osintLookup: async (q: string, type = "auto") => {
       const params = new URLSearchParams({ q, type });
       return this.requestTez<any>("GET", `/osint/lookup?${params.toString()}`);

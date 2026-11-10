@@ -121,3 +121,102 @@ no se han ejecutado ni validado en esta PR.**
 
 Fuente oficial del procedimiento:
 https://github.com/Project-OSRM/osrm-backend#using-docker
+
+## Segunda entrega — exploración terrestre y ECMWF autoalojado
+
+Esta sección documenta código agregado tras la primera entrega; no significa
+que haya sido desplegado en un servidor del usuario ni validado con datos
+científicos de campo. La integración hereda la autenticación de Megalodon.
+
+### Explorador terrestre
+
+La pestaña **Tierra** del `TezcatlipocaHub` ahora ofrece:
+- Mapa MapLibre con mosaicos públicos **NASA GIBS MODIS Terra** por fecha
+  (resolución de contexto, no una ortofoto topográfica ni Street View).
+- Coordenadas EPSG:4326, navegación por posición y selección de puntos.
+- Capas observadas de USGS, ADS-B y AIS recibidas desde el backend,
+  consultadas a demanda; estados de origen, disponibilidad y caché.
+- Enlace al motor orbital 3D existente (separado; aún no hay transición
+  cinematográfica entre ese motor y la vista terrestre).
+- Guardado de una **vista** mediante `/api/tezcatlipoca/snapshots/create`.
+  El snapshot está delimitado por usuario/tenant, conserva fechas,
+  fuentes, recuentos y parámetros geográficos. **No** es captura de
+  pantalla raster ni entrega documental del Workspace. No marca
+  información como aprobada.
+
+Para prevenir confusiones: una imagen NASA GIBS con fecha de ayer no es
+satélite a nivel de calle casi en directo; un vuelo sin posición reciente
+no se incluye en la capa como observación actual.
+
+### Meteorología mundial mediante ECMWF Open Data
+
+**Se implementó un lector geográfico de rejillas IFS locales**, con
+licencia de datos CC BY 4.0, temperatura a 2 m y vector de viento a 10 m.
+No se inventa un pronóstico cuando no hay datos ingestados. La capa
+de meteorología de NOAA/NWS permanece independiente para áreas cubiertas.
+
+Comando para preparar una **edición real de pronóstico** (servicio de ingesta
+operado por quien despliegue, no ejecutado aún):
+
+```bash
+# Ejecutar en un entorno de ingestión con Python y dependencias opcionales:
+python -m pip install eccodes ecmwf-opendata
+python - <<'PY'
+from ecmwf.opendata import Client
+Client(source="ecmwf", model="ifs", resol="0p25").retrieve(
+    type="fc", step=24, param=["2t", "10u", "10v"], target="ifs.grib2"
+)
+PY
+python scripts/ingest_ecmwf_open_data.py \
+  --grib ./ifs.grib2 --store ./data/ecmwf
+
+# En el servidor del API, solo el almacén procesado, montado read-only:
+TEZCATLIPOCA_ECMWF_STORE=/run/megalodon/ecmwf
+```
+
+Endpoint autenticado:
+`GET /api/tezcatlipoca/weather/global?lat=19.4326&lon=-99.1332`
+
+Devuelve estado `config_required` si no se ha procesado un GRIB;
+`unavailable` para archivos corruptos o checksums inválidos;
+`stale` si el modelo lleva más de 36 horas sin actualizarse;
+`out_of_coverage` donde el producto no cubre la coordenada.
+En casos disponibles devuelve **un único paso de pronóstico**
+de una versión inmutable, los metadatos ECMWF y conversión Kelvin/°C
+y viento vectorial en m/s. No promete una serie horaria ni telemetría
+observada en directo. El operador debe programar descargas y ventanas
+de publicación antes de considerarlo operativo.
+
+El ingestor acepta solo una rejilla global regular por paso,
+con los tres campos necesarios y compatibilidad espacial.
+Rechaza entradas demasiado grandes o heterogéneas, conserva el
+SHA-256 del archivo fuente, guarda matrices NumPy por versión y publica
+un puntero atómico `active.json`.
+
+El store es independiente del repositorio: `backend/data/ecmwf/` está
+excluido de Git. El despliegue opcional `docker-compose.ecmwf.yml`
+monta el store como solo lectura. Este compose **no** descarga datos
+automáticamente ni instala las dependencias científicas opcionales
+en el contenedor API.
+
+Fuentes y licencias:
+- https://www.ecmwf.int/en/forecasts/datasets/open-data
+- https://github.com/ecmwf/ecmwf-opendata
+- https://sites.ecmwf.int/docs/eccodes/
+- https://gibs.earthdata.nasa.gov/
+- https://www.earthdata.nasa.gov/engage/open-data-services-software-policies/data-use-guidance
+
+### Trabajo que sigue pendiente
+
+- Automatizar ingesta ECMWF de varios pasos con scheduler durable,
+  retención y métricas de cumplimiento, sin exceder cuotas.
+- Integrar **procesado SAR/óptico** real: ráster COG, ortorrectificación,
+  NDVI, mediciones de deformación solo con datos apropiados.
+- Construir navegación orbital → superficie en el mismo mundo 3D y
+  georreferenciación IFC con confirmación humana; no marcar cambios de
+  geometría como aprobados automáticamente.
+- Transferencia de evidencias al expediente Workspace, versionado,
+  contenido y permisos. Guardar un snapshot de Tezcatlipoca **no** crea
+  automáticamente un documento del expediente.
+- Validar requisitos legales de redistribución de imágenes concretas,
+  uso de geocodificación y un inventario de licencias de APIs heredadas.
