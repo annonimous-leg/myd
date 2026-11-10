@@ -1,5 +1,20 @@
-/* The engineering studio inherits Megalodon's theme and semantic colors. */
-.bim-studio { min-height: 0; background: var(--surface); color: var(--text-primary); }
+/* Light surfaces are scoped to the engineering studio. */
+.bim-studio {
+  --surface: #fff;
+  --surface-elevated: #f6f7f9;
+  --surface-hover: #eef1f5;
+  --border-subtle: #d9dfe7;
+  --border-active: #aab6c6;
+  --text-primary: #172232;
+  --text-secondary: #435268;
+  --text-muted: #56667c;
+  --accent-gold: #947020;
+  --void: #fff;
+  min-height: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+}
+.bim-studio-viewport { background: var(--surface); }
 .bim-studio .bim-studio-header { padding: 22px 28px; gap: 24px; background: var(--surface-elevated); }
 .bim-studio-title { display: grid; gap: 6px; min-width: 0; }
 .bim-studio-title h1 { font-size: clamp(22px, 2.4vw, 32px); font-weight: 600; letter-spacing: -.045em; line-height: 1.1; margin: 0; color: var(--text-primary); }
@@ -16,7 +31,7 @@
 .bim-studio-inspector > div:not(:first-child) { padding: 20px; scrollbar-gutter: stable; }
 .bim-studio button:not(:disabled), .bim-studio select:not(:disabled) { cursor: pointer; }
 .bim-studio button:disabled { opacity: .45; cursor: not-allowed; }
-.bim-studio button:not(:disabled):hover { filter: brightness(1.15); }
+.bim-studio button:not(:disabled):hover { filter: brightness(.94); }
 .bim-studio :is(button, select, input, summary):focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 3px; }
 .bim-studio label:focus-within { outline: 2px solid var(--accent-gold); outline-offset: 3px; }
 .bim-studio input[type="file"] { display: block; position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }

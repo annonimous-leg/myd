@@ -614,7 +614,7 @@ function IFCPanel() {
           </div>
 
           <div className="bim-studio-panels flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
-            <div className="bim-studio-viewport w-full lg:w-1/2 h-[340px] lg:h-full shrink-0 relative" style={{ background: '#05050a' }}>
+            <div className="bim-studio-viewport w-full lg:w-1/2 h-[340px] lg:h-full shrink-0 relative">
               {/* key={vista} fuerza remount de Canvas al cambiar de
                   proyección -- cambiar de perspectiva a ortográfica en la
                   misma cámara da resultados raros con Bounds/fit. */}
@@ -639,7 +639,7 @@ function IFCPanel() {
 
               {seleccionado && (
                 <div className="absolute bottom-2 left-2 right-2 rounded-md p-2 text-[11px]"
-                  style={{ background: 'rgba(10,10,15,0.9)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
+                  style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold">{seleccionado.nombre || seleccionado.tipo}</span>
                     <button onClick={() => setSeleccionado(null)} style={{ color: 'var(--text-muted)' }}>✕</button>
