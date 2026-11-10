@@ -58,13 +58,15 @@ def to_svg(document: DrawingDocument, *, margin_m: float = 0.1) -> str:
     layer_names = sorted({segment.layer for segment in segments})
     layer_ids = {name: f"layer-{index + 1}" for index, name in enumerate(layer_names)}
 
-    grouped: dict[str, list[str]] = {name: [] for name in layer_names}
+    grouped: dict[tuple[str, bool], list[str]] = {
+        (name, hidden): [] for name in layer_names for hidden in (False, True)
+    }
     for segment in segments:
         x1 = segment.start[0] - origin_x
         y1 = origin_y - segment.start[1]
         x2 = segment.end[0] - origin_x
         y2 = origin_y - segment.end[1]
-        grouped[segment.layer].append(
+        grouped[segment.layer, segment.hidden].append(
             f"M {_number(x1)} {_number(y1)} L {_number(x2)} {_number(y2)}"
         )
 
@@ -82,11 +84,13 @@ def to_svg(document: DrawingDocument, *, margin_m: float = 0.1) -> str:
         'stroke-linecap="square" stroke-linejoin="miter">',
     ]
     for layer in layer_names:
-        paths = " ".join(grouped[layer])
-        parts.append(
-            f'<g id="{layer_ids[layer]}" data-layer="{escape(layer, quote=True)}">'
-            f'<path d="{paths}"/></g>'
-        )
+        parts.append(f'<g id="{layer_ids[layer]}" data-layer="{escape(layer, quote=True)}">')
+        for hidden in (True, False):
+            paths = " ".join(grouped[layer, hidden])
+            if paths:
+                dash = ' stroke-dasharray="0.06 0.04"' if hidden else ''
+                parts.append(f'<path d="{paths}"{dash}/>')
+        parts.append("</g>")
     parts.extend(["</g>", "</svg>"])
     return "\n".join(parts) + "\n"
 
@@ -94,7 +98,7 @@ def to_svg(document: DrawingDocument, *, margin_m: float = 0.1) -> str:
 def _safe_layer_names(layers: list[str]) -> dict[str, str]:
     used: set[str] = set()
     result: dict[str, str] = {}
-    for original in sorted(layers):
+    for original in sorted(set(layers)):
         safe = re.sub(r"[^A-Za-z0-9_-]+", "_", original).strip("_") or "LAYER"
         safe = safe[:240]
         candidate = safe
@@ -118,11 +122,21 @@ def to_dxf(document: DrawingDocument) -> bytes:
         "9", "$MEASUREMENT", "70", "1",
         "0", "ENDSEC",
         "0", "SECTION", "2", "TABLES",
-        "0", "TABLE", "2", "LAYER", "70", str(len(layers)),
     ]
+    if any(segment.hidden for segment in segments):
+        lines.extend([
+            "0", "TABLE", "2", "LTYPE", "70", "1",
+            "0", "LTYPE", "100", "AcDbSymbolTableRecord", "100", "AcDbLinetypeTableRecord",
+            "2", "MEG_HIDDEN", "70", "0", "3", "Hidden mesh edges",
+            "72", "65", "73", "2", "40", "0.10",
+            "49", "0.06", "74", "0", "49", "-0.04", "74", "0", "0", "ENDTAB",
+        ])
+    lines.extend(["0", "TABLE", "2", "LAYER", "70", str(len(layers))])
     for original, safe in layers.items():
         lines.extend([
             "0", "LAYER",
+            "100", "AcDbSymbolTableRecord",
+            "100", "AcDbLayerTableRecord",
             "2", safe,
             "70", "0",
             "62", "7",
@@ -132,7 +146,10 @@ def to_dxf(document: DrawingDocument) -> bytes:
     for segment in segments:
         lines.extend([
             "0", "LINE",
+            "100", "AcDbEntity",
             "8", layers[segment.layer],
+            *(("6", "MEG_HIDDEN") if segment.hidden else ()),
+            "100", "AcDbLine",
             "10", _number(segment.start[0]),
             "20", _number(segment.start[1]),
             "30", "0",

@@ -11,12 +11,16 @@ from dataclasses import dataclass, field
 import math
 from typing import Iterable, Mapping, Sequence
 
+from app.engines.bim.drawing.occlusion import OcclusionIndex
+
 Vec2 = tuple[float, float]
 Vec3 = tuple[float, float, float]
 
 DEFAULT_TOLERANCE_M = 1e-6
 _TRIANGLE_AREA_EPSILON_SQUARED = 1e-24
 _DIRECTION_EPSILON = 1e-10
+_ELEVATION_CREASE_ANGLE_DEG = 1.0
+_ELEVATION_CREASE_COS = math.cos(math.radians(_ELEVATION_CREASE_ANGLE_DEG))
 
 
 def _finite_vec3(values: Sequence[float], label: str) -> Vec3:
@@ -60,10 +64,6 @@ def _validate_tolerance(tolerance_m: float) -> float:
     if not math.isfinite(tolerance) or tolerance <= 0:
         raise ValueError("tolerance_m must be finite and greater than zero")
     return tolerance
-
-
-def _point_key(point: Vec3, tolerance_m: float) -> tuple[int, int, int]:
-    return tuple(round(value / tolerance_m) for value in point)  # type: ignore[return-value]
 
 
 def _canonical_vertex_keys(
@@ -241,6 +241,7 @@ class DrawingSegment:
     layer: str
     element_id: str
     global_id: str
+    hidden: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -298,11 +299,11 @@ def _deduplicate_segments(
         start_key = _point2_key(segment.start, tolerance_m)
         end_key = _point2_key(segment.end, tolerance_m)
         first, second = sorted((start_key, end_key))
-        key = (segment.layer, segment.element_id, first, second)
+        key = (segment.layer, segment.element_id, first, second, segment.hidden)
         unique.setdefault(key, segment)
     return tuple(
         unique[key]
-        for key in sorted(unique, key=lambda value: (str(value[0]), str(value[1]), value[2], value[3]))
+        for key in sorted(unique, key=lambda value: (str(value[0]), str(value[1]), value[2], value[3], value[4]))
     )
 
 
@@ -459,58 +460,78 @@ def build_elevation_document(
     origin: Sequence[float] = (0.0, 0.0, 0.0),
     title: str = "Alzado",
     tolerance_m: float = DEFAULT_TOLERANCE_M,
+    include_hidden: bool = False,
 ) -> DrawingDocument:
-    """Return orthographic silhouette edges, not hidden-line-removed drawings.
+    """Project contours and front-facing creases, then clip occluded portions.
 
-    view_direction points from the model toward the observer. This algorithm
-    classifies connected mesh edges by adjacent face orientation; it does not
-    solve occlusion between separate elements or generate hidden dashed lines.
+    The view direction points toward the observer. Coplanar triangulation
+    seams are excluded by the crease angle threshold.
     """
     tolerance = _validate_tolerance(tolerance_m)
     direction = _normalize(_finite_vec3(view_direction, "view direction"), "view direction")
-    frame = ViewFrame.from_plane(Plane.from_origin_normal(origin, direction))
+    plane = Plane.from_origin_normal(origin, direction)
+    frame = ViewFrame.from_plane(plane)
+    meshes = sorted(elements, key=lambda element: (element.ifc_type, element.global_id, element.element_id))
     projected: list[DrawingSegment] = []
 
-    for mesh in sorted(elements, key=lambda element: (element.ifc_type, element.global_id, element.element_id)):
-        edges: dict[
-            tuple[tuple[int, int, int], tuple[int, int, int]],
-            dict[str, object],
-        ] = {}
+    def with_depth(point: Vec3) -> Vec3:
+        return (*frame.project(point), plane.signed_distance(point))
+
+    projected_meshes = [
+        (mesh, {vertex: with_depth(vertex) for vertex in mesh.vertices})
+        for mesh in meshes
+    ]
+    occlusion = OcclusionIndex.build(
+        (
+            (vertices[mesh.vertices[a]], vertices[mesh.vertices[b]], vertices[mesh.vertices[c]])
+            for mesh, vertices in projected_meshes
+            for a, b, c in mesh.triangles
+        ),
+        tolerance,
+    )
+    for mesh, vertices in projected_meshes:
+        vertex_keys = _canonical_vertex_keys(mesh.vertices, tolerance)
+        edges: dict[tuple[Vec3, Vec3], list[tuple[float, Vec3]]] = {}
         for triangle in mesh.triangles:
             a, b, c = (mesh.vertices[index] for index in triangle)
             normal = _cross(_sub(b, a), _sub(c, a))
             normal_length = _norm(normal)
             if normal_length <= 0:
                 continue
-            facing = _dot(normal, direction) / normal_length
-            vertices = (a, b, c)
+            unit_normal = (normal[0] / normal_length, normal[1] / normal_length, normal[2] / normal_length)
+            facing = _dot(unit_normal, direction)
             for edge_index in range(3):
-                first = vertices[edge_index]
-                second = vertices[(edge_index + 1) % 3]
-                first_key = _point_key(first, tolerance)
-                second_key = _point_key(second, tolerance)
-                if second_key < first_key:
-                    first_key, second_key = second_key, first_key
+                first = vertex_keys[triangle[edge_index]]
+                second = vertex_keys[triangle[(edge_index + 1) % 3]]
+                if second < first:
                     first, second = second, first
-                key = (first_key, second_key)
-                record = edges.setdefault(key, {"points": (first, second), "facings": []})
-                facings = record["facings"]
-                assert isinstance(facings, list)
-                facings.append(facing)
+                edges.setdefault((first, second), []).append((facing, unit_normal))
 
-        for record in edges.values():
-            facings = record["facings"]
-            points = record["points"]
-            assert isinstance(facings, list) and isinstance(points, tuple)
-            toward = any(value > _DIRECTION_EPSILON for value in facings)
-            away = any(value < -_DIRECTION_EPSILON for value in facings)
-            edge_on = any(abs(value) <= _DIRECTION_EPSILON for value in facings)
-            boundary = len(facings) == 1
-            is_silhouette = (boundary and toward) or (toward and (away or edge_on))
-            if is_silhouette:
-                segment = _project_segment(points[0], points[1], frame, mesh, tolerance)
-                if segment is not None:
-                    projected.append(segment)
+        for (first, second), faces in edges.items():
+            front_normals = [normal for facing, normal in faces if facing > _DIRECTION_EPSILON]
+            if not front_normals:
+                continue
+            is_silhouette = len(faces) == 1 or len(front_normals) < len(faces)
+            is_crease = any(
+                _dot(normal, other) < _ELEVATION_CREASE_COS
+                for index, normal in enumerate(front_normals)
+                for other in front_normals[index + 1:]
+            )
+            if is_silhouette or is_crease:
+                start, end = vertices[first], vertices[second]
+                dx, dy = end[0] - start[0], end[1] - start[1]
+                length = math.hypot(dx, dy)
+                if not math.isfinite(length) or length <= tolerance:
+                    continue
+                intervals = occlusion.classified_intervals(start, end, tolerance) if occlusion else ((0.0, 1.0, False),)
+                for low, high, hidden in intervals:
+                    if hidden and not include_hidden:
+                        continue
+                    a = start[:2] if low == 0.0 else (start[0] + dx * low, start[1] + dy * low)
+                    b = end[:2] if high == 1.0 else (start[0] + dx * high, start[1] + dy * high)
+                    if b < a:
+                        a, b = b, a
+                    projected.append(DrawingSegment(a, b, mesh.ifc_type, mesh.element_id, mesh.global_id, hidden=hidden))
 
     segments = _deduplicate_segments(projected, tolerance)
     return DrawingDocument(
@@ -522,9 +543,11 @@ def build_elevation_document(
             "coordinate_units": "m",
             "view_direction": direction,
             "view_origin_m": frame.origin,
+            "view_up": frame.up,
             "tolerance_m": tolerance,
-            "visibility_mode": "silhouette_without_hidden_line_removal",
+            "visibility_mode": "mesh_edges_with_hidden_lines" if include_hidden else "occlusion_clipped_mesh_edges",
+            "crease_angle_degrees": _ELEVATION_CREASE_ANGLE_DEG,
             "engine": "megalodon-vector-drawing",
-            "engine_version": "0.1.0",
+            "engine_version": "0.4.0",
         },
     )

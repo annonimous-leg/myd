@@ -27,6 +27,9 @@ DRAW_RIGHT = 318.0  # title block starts ~326
 DRAW_TOP = 12.0
 DRAW_BOTTOM = 285.0
 TITLE_X = 330.0
+DIM_LEFT = 36.0
+DIM_BOTTOM = 20.0
+DIM_OFFSET = 7.0
 
 # Default plot scale 1:100 → 10 mm on paper per metre
 DEFAULT_SCALE = 100.0
@@ -108,10 +111,14 @@ def _stroke_for(layer: PaperLayer) -> float:
     return 0.22
 
 
-def _fit_scale(width_m: float, height_m: float, scale: float | None) -> float:
+def _fit_scale(
+    width_m: float,
+    height_m: float,
+    draw_w: float,
+    draw_h: float,
+    scale: float | None,
+) -> float:
     """Choose 1:N so geometry fits the drawing area with margin."""
-    draw_w = DRAW_RIGHT - DRAW_LEFT - 16.0
-    draw_h = DRAW_BOTTOM - DRAW_TOP - 24.0
     if scale is not None:
         s = float(scale)
         if not math.isfinite(s) or s <= 0:
@@ -245,7 +252,7 @@ def _title_block(
             continue
         prims.append(PaperPrim(kind="text", layer="NOTE", x=x, y=y, text=line[:52], size=1.7, anchor="start", rgb=ink))
         y += 3.0
-    prims.append(PaperPrim(kind="text", layer="TITLE", x=x, y=268, text=code, size=6.5, anchor="start", rgb=ink))
+    prims.append(PaperPrim(kind="text", layer="TITLE", x=x, y=268, text=code, size=min(6.5, 78.0 / (max(1, len(code)) * 0.65)), anchor="start", rgb=ink))
     prims.append(
         PaperPrim(
             kind="text",
@@ -262,63 +269,114 @@ def _title_block(
 
 def _overall_dims(
     prims: list[PaperPrim],
-    mx,
-    my,
-    min_x: float,
-    min_y: float,
-    max_x: float,
-    max_y: float,
+    left: float,
+    bottom: float,
+    right: float,
+    top: float,
+    width_m: float,
+    height_m: float,
 ) -> None:
-    ink = (0.1, 0.1, 0.1)
-    # Horizontal overall below geometry
-    y_dim = min_y - (max_y - min_y) * 0.06 - 0.35
-    prims.append(
-        PaperPrim(kind="line", layer="DIM", x1=mx(min_x), y1=my(y_dim), x2=mx(max_x), y2=my(y_dim), weight=0.15, rgb=ink)
-    )
-    for x in (min_x, max_x):
-        prims.append(
-            PaperPrim(kind="line", layer="DIM", x1=mx(x), y1=my(y_dim) - 1.2, x2=mx(x), y2=my(y_dim) + 1.2, weight=0.15, rgb=ink)
-        )
-    span = max_x - min_x
-    prims.append(
-        PaperPrim(
-            kind="text",
-            layer="DIM",
-            x=mx((min_x + max_x) / 2),
-            y=my(y_dim) + 3.5,
-            text=f"{span:.2f}",
-            size=2.2,
-            anchor="middle",
-            rgb=ink,
-        )
-    )
-    # Vertical overall
-    x_dim = min_x - (max_x - min_x) * 0.06 - 0.35
-    prims.append(
-        PaperPrim(kind="line", layer="DIM", x1=mx(x_dim), y1=my(min_y), x2=mx(x_dim), y2=my(max_y), weight=0.15, rgb=ink)
-    )
-    for y in (min_y, max_y):
-        prims.append(
-            PaperPrim(kind="line", layer="DIM", x1=mx(x_dim) - 1.2, y1=my(y), x2=mx(x_dim) + 1.2, y2=my(y), weight=0.15, rgb=ink)
-        )
-    span_y = max_y - min_y
-    prims.append(
-        PaperPrim(
-            kind="text",
-            layer="DIM",
-            x=mx(x_dim) - 2.5,
-            y=my((min_y + max_y) / 2),
-            text=f"{span_y:.2f}",
-            size=2.2,
-            anchor="end",
-            rgb=ink,
-        )
-    )
+    def line(x1: float, y1: float, x2: float, y2: float) -> None:
+        prims.append(PaperPrim(kind="line", layer="DIM", x1=x1, y1=y1, x2=x2, y2=y2, weight=0.15))
+
+    def tick(x: float, y: float) -> None:
+        line(x - 0.8, y + 0.8, x + 0.8, y - 0.8)
+
+    if width_m > 0:
+        y = bottom + DIM_OFFSET
+        line(left, y, right, y)
+        for x in (left, right):
+            line(x, bottom + 1.2, x, y + 1.8)
+            tick(x, y)
+        prims.append(PaperPrim(
+            kind="text", layer="DIM", x=(left + right) / 2, y=y + 3.5,
+            text=f"{width_m:.2f}", size=2.2, anchor="middle",
+        ))
+
+    if height_m > 0:
+        x = left - DIM_OFFSET
+        line(x, bottom, x, top)
+        for y in (bottom, top):
+            line(left - 1.2, y, x - 1.8, y)
+            tick(x, y)
+        prims.append(PaperPrim(
+            kind="text", layer="DIM", x=x - 2.5, y=(bottom + top) / 2,
+            text=f"{height_m:.2f}", size=2.2, anchor="end",
+        ))
 
 
 def _default_code(kind: str) -> str:
     mapping = {"PLAN": "A-101", "SECTION": "A-201", "ELEVATION": "A-301"}
     return mapping.get(kind.upper(), "A-000")
+
+
+def _element_extents(document: DrawingDocument) -> list[tuple[str, str, tuple[float, float, float, float]]]:
+    groups: dict[tuple[str, str], list[DrawingSegment]] = {}
+    for segment in document.segments:
+        if not segment.hidden:
+            groups.setdefault((segment.global_id, segment.layer), []).append(segment)
+    extents = [(guid, layer, _bounds(segments)) for (guid, layer), segments in groups.items()]
+    return sorted(extents, key=lambda item: (
+        -max(item[2][2] - item[2][0], item[2][3] - item[2][1]), item[0],
+    ))
+
+
+def _element_schedule(prims: list[PaperPrim], document: DrawingDocument, mx, my) -> dict:
+    extents = _element_extents(document)
+    prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=112,
+                           text="COTAS DE TRAZOS VISIBLES (m)", size=2.2))
+    rows = []
+    for number, (guid, layer, (left, bottom, right, top)) in enumerate(extents[:8], 1):
+        label = f"E{number:02}"
+        # Anchor the key on actual visible linework. The table carries the spans.
+        segment = next(s for s in document.segments if s.global_id == guid and not s.hidden)
+        x = mx((segment.start[0] + segment.end[0]) / 2)
+        y = my((segment.start[1] + segment.end[1]) / 2)
+        prims.append(PaperPrim(kind="text", layer="NOTE", x=x, y=y - 0.8,
+                               text=label, size=1.9, anchor="middle", rgb=(0.05, 0.29, 0.46)))
+        width, height = right - left, top - bottom
+        text = f"{label}   {layer[:22]}   {width:.3f} × {height:.3f}"
+        prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=112 + 4 * number, text=text, size=1.9))
+        rows.append({"clave": label, "global_id": guid, "ancho_m": width, "alto_m": height})
+    if len(extents) > len(rows):
+        prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=148,
+                               text=f"Elementos adicionales: {len(extents) - len(rows)}", size=1.8))
+    return {"cotas_elementos": rows, "elementos_visibles": len(extents)}
+
+
+def _level_schedule(
+    prims: list[PaperPrim],
+    levels: Sequence[tuple[str, float]],
+    document: DrawingDocument,
+    right: float,
+    top: float,
+    bottom: float,
+    my,
+) -> None:
+    prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=158,
+                           text="NIVELES IFC · Z DEL MODELO (m)", size=2.2))
+    if not levels:
+        prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=162,
+                               text="Sin niveles con posición IFC disponible", size=1.9))
+    origin = document.metadata.get("plane_origin_m", document.metadata.get("view_origin_m"))
+    up = document.metadata.get("view_up")
+    vertical = document.kind != "PLAN" and origin is not None and up is not None and abs(up[2] - 1) < 1e-10
+    last_marker_y = math.inf
+    for number, (name, elevation) in enumerate(levels[:12], 1):
+        label = f"N{number:02}"
+        if vertical:
+            y = my(elevation - origin[2])
+            if top - 0.01 <= y <= bottom + 0.01 and last_marker_y - y >= 4:
+                prims.append(PaperPrim(kind="line", layer="NOTE", x1=right, y1=y,
+                                       x2=right + 5, y2=y, weight=0.15))
+                prims.append(PaperPrim(kind="text", layer="NOTE", x=right + 5.5, y=y + 0.6,
+                                       text=f"{label} {elevation:+.3f}", size=1.8))
+                last_marker_y = y
+        prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=158 + 4 * number,
+                               text=f"{label}   {elevation:+.3f}   {name[:32]}", size=1.9))
+    if len(levels) > 12:
+        prims.append(PaperPrim(kind="text", layer="NOTE", x=TITLE_X, y=210,
+                               text=f"Niveles adicionales: {len(levels) - 12}", size=1.8))
 
 
 def compose_a3_sheet(
@@ -327,6 +385,8 @@ def compose_a3_sheet(
     scale: float | None = None,
     meta: SheetMeta | None = None,
     include_overall_dims: bool = True,
+    include_element_dims: bool = False,
+    levels: Sequence[tuple[str, float]] | None = None,
 ) -> ComposedSheet:
     """Compose a professional A3 landscape sheet from an IFC DrawingDocument."""
     if document.units != "m":
@@ -342,22 +402,26 @@ def compose_a3_sheet(
     if width_m <= 0 and height_m <= 0:
         raise ValueError("drawing extents are degenerate")
 
-    plot_scale = _fit_scale(width_m, height_m, scale)
+    # Reserve paper space for labels and keep the drawing above the scale bar.
+    draw_left = DRAW_LEFT + (DIM_LEFT if include_overall_dims and height_m > 0 else 0.0)
+    draw_bottom = DRAW_BOTTOM - DIM_BOTTOM
+    draw_right = DRAW_RIGHT - (12.0 if levels and kind != "PLAN" else 0.0)
+    draw_w = draw_right - draw_left
+    draw_h = draw_bottom - DRAW_TOP
+    plot_scale = _fit_scale(width_m, height_m, draw_w - 16.0, draw_h, scale)
     mm_per_m = 1000.0 / plot_scale
 
-    # Centre geometry in drawing area
-    draw_w = DRAW_RIGHT - DRAW_LEFT
-    draw_h = DRAW_BOTTOM - DRAW_TOP
     geom_w_mm = width_m * mm_per_m
     geom_h_mm = height_m * mm_per_m
-    paper_ox = DRAW_LEFT + (draw_w - geom_w_mm) / 2.0
+    paper_ox = draw_left + (draw_w - geom_w_mm) / 2.0
     paper_oy = DRAW_TOP + (draw_h + geom_h_mm) / 2.0
     mx, my, _ = _map_factory(min_x, min_y, plot_scale, paper_ox, paper_oy)
 
     prims: list[PaperPrim] = []
     _frame(prims)
 
-    for segment in document.segments:
+    # Draw concealed geometry first so visible edges stay legible at overlaps.
+    for segment in sorted(document.segments, key=lambda segment: not segment.hidden):
         bucket = _layer_bucket(segment.layer)
         prims.append(
             PaperPrim(
@@ -367,13 +431,14 @@ def compose_a3_sheet(
                 y1=my(segment.start[1]),
                 x2=mx(segment.end[0]),
                 y2=my(segment.end[1]),
-                weight=_stroke_for(bucket),
-                rgb=(0.1, 0.1, 0.1),
+                weight=0.10 if segment.hidden else _stroke_for(bucket),
+                dash=segment.hidden,
+                rgb=(0.65, 0.65, 0.65) if segment.hidden else (0.1, 0.1, 0.1),
             )
         )
 
-    if include_overall_dims and width_m > 0 and height_m > 0:
-        _overall_dims(prims, mx, my, min_x, min_y, max_x, max_y)
+    if include_overall_dims:
+        _overall_dims(prims, mx(min_x), my(min_y), mx(max_x), my(max_y), width_m, height_m)
 
     _scale_bar(prims, plot_scale)
 
@@ -392,6 +457,11 @@ def compose_a3_sheet(
         extra=extra,
     )
 
+    detail_metadata = _element_schedule(prims, document, mx, my) if include_element_dims else {}
+    if levels is not None:
+        _level_schedule(prims, levels, document, mx(max_x), my(max_y), my(min_y), my)
+        detail_metadata["niveles_ifc"] = [{"nombre": name, "z_m": z} for name, z in levels]
+
     return ComposedSheet(
         code=code,
         title=document.title or kind,
@@ -408,6 +478,7 @@ def compose_a3_sheet(
             "engine": "megalodon-a3-sheet",
             "engine_version": "1.0.0",
             **dict(document.metadata),
+            **detail_metadata,
         },
     )
 
@@ -419,31 +490,12 @@ def compose_a3_sheet(
 _PT = 72.0 / 25.4
 
 
-def _latin1_pdf(text: str) -> str:
-    cleaned = (
-        text.replace("á", "a")
-        .replace("é", "e")
-        .replace("í", "i")
-        .replace("ó", "o")
-        .replace("ú", "u")
-        .replace("ñ", "n")
-        .replace("Á", "A")
-        .replace("É", "E")
-        .replace("Í", "I")
-        .replace("Ó", "O")
-        .replace("Ú", "U")
-        .replace("Ñ", "N")
+def _pdf_literal(text: str) -> str:
+    encoded = text.encode("cp1252", errors="replace").decode("latin-1")
+    return "".join(
+        "\\" + ch if ch in "\\()" else ch if ord(ch) >= 32 else " "
+        for ch in encoded
     )
-    out = []
-    for ch in cleaned:
-        code = ord(ch)
-        if 32 <= code <= 255 and ch not in "\\()":
-            out.append(ch)
-        elif ch in "\\()":
-            out.append("\\" + ch)
-        else:
-            out.append("?")
-    return "".join(out)
 
 
 def composed_to_pdf(sheet: ComposedSheet) -> bytes:
@@ -474,7 +526,7 @@ def composed_to_pdf(sheet: ComposedSheet) -> bytes:
             commands.append(f"{r:.3f} {g:.3f} {b:.3f} rg")
             commands.append(f"/F1 {scale(prim.size):.3f} Tf")
             commands.append(f"{scale(prim.x - shift):.3f} {pdf_y(prim.y):.3f} Td")
-            commands.append(f"({_latin1_pdf(prim.text)}) Tj")
+            commands.append(f"({_pdf_literal(prim.text)}) Tj")
             commands.append("ET")
 
     stream = "\n".join(commands)
@@ -488,7 +540,7 @@ def composed_to_pdf(sheet: ComposedSheet) -> bytes:
             f"/Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>"
         ),
         f"<< /Length {len(stream.encode('latin-1'))} >>\nstream\n{stream}\nendstream",
-        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
     ]
     out = bytearray(b"%PDF-1.4\n")
     offsets = [0]

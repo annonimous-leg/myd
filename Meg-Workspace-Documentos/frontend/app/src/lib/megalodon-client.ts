@@ -1273,6 +1273,14 @@ export interface WebSocketMessage {
   timestamp?: number;
 }
 
+type OpcionesLaminaA3 = { cotas_elementos?: boolean; niveles_ifc?: boolean; nota_lamina?: string };
+
+export type SolicitudPlanoBIM = { titulo: string } & (
+  | { tipo: "PLAN"; parametros: OpcionesLaminaA3 & { elevacion_m: number } }
+  | { tipo: "SECTION"; parametros: OpcionesLaminaA3 & { origen_m: [number, number, number]; normal: [number, number, number] } }
+  | { tipo: "ELEVATION"; parametros: OpcionesLaminaA3 & { direccion_vista: [number, number, number]; mostrar_ocultas?: boolean } }
+);
+
 export class MegalodonClient {
   private baseUrl: string;
   private token: string | null = null;
@@ -1657,26 +1665,35 @@ export class MegalodonClient {
 
   bim = {
     listarPlanos: (expedienteId: string, modelId: string) =>
-      this.request<{ id: string; titulo: string; estado: string; formatos: string[]; error?: string }[]>(
+      this.request<{
+        id: string; titulo: string; tipo: SolicitudPlanoBIM["tipo"]; estado: string;
+        formatos: string[]; error?: string; source_model_updated_at: string; obsoleto: boolean;
+        metadatos?: {
+          visibility_mode?: string;
+          cotas_elementos?: unknown[];
+          niveles_ifc?: unknown[];
+          nota_lamina?: string;
+        } | null;
+      }[]>(
         "GET", this.drawingPath(expedienteId, modelId),
       ),
 
-    generarPlantaPDF: (expedienteId: string, modelId: string, titulo: string, elevacion: number) =>
+    generarPlano: (expedienteId: string, modelId: string, solicitud: SolicitudPlanoBIM) =>
       this.request("POST", this.drawingPath(expedienteId, modelId), {
-        tipo: "PLAN", titulo, parametros: { elevacion_m: elevacion }, formatos: ["PDF"],
+        ...solicitud, formatos: ["PDF", "SVG", "DXF"],
       }),
 
-    descargarPlanoPDF: async (expedienteId: string, modelId: string, drawingId: string) => {
-      const path = `${this.drawingPath(expedienteId, modelId)}/${encodeURIComponent(drawingId)}/descarga?formato=PDF`;
+    descargarPlano: async (expedienteId: string, modelId: string, drawingId: string, formato: "PDF" | "SVG" | "DXF") => {
+      const path = `${this.drawingPath(expedienteId, modelId)}/${encodeURIComponent(drawingId)}/descarga?formato=${formato}`;
       const headers: Record<string, string> = {};
       if (this.token) headers.Authorization = `Bearer ${this.token}`;
       const response = await this.fetchWithSession(`${this.baseUrl}/api/v1${path}`, { headers, credentials: "include" });
       if (!response.ok) throw new Error(`No se pudo descargar el plano (HTTP ${response.status})`);
-      if (response.headers.get("content-type")?.includes("application/pdf")) {
-        return { blob: await response.blob() };
+      if (response.headers.get("content-type")?.includes("application/json")) {
+        const result = await response.json() as { url: string };
+        return { url: result.url };
       }
-      const result = await response.json() as { url: string };
-      return { url: result.url };
+      return { blob: await response.blob() };
     },
 
     reprocesarModelo: async (expedienteId: string, modeloId: string): Promise<ModeloBIM> =>

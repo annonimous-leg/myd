@@ -4,6 +4,8 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from tempfile import NamedTemporaryFile
+from textwrap import wrap
 from datetime import datetime, timezone
 from typing import Iterable, Optional
 from uuid import UUID
@@ -22,6 +24,7 @@ from app.engines.bim.drawing import (
     to_svg,
 )
 from app.engines.bim.drawing.sheet import SheetMeta, compose_a3_sheet, composed_to_pdf
+from app.engines.bim.motor_bim import MotorBIM
 from app.integrations.supabase_storage import storage_bim
 from app.models.bim import DibujoBIM, ElementoBIM, ModeloBIM
 from app.models.expediente import ExpedienteObra
@@ -54,6 +57,17 @@ def _canonical_parameters(kind: str, parameters: dict) -> dict:
     if tolerance <= 0:
         raise MegalodonException(ErrorCode.BIM_ERROR, "tolerancia_m debe ser mayor que cero")
     result = {"tolerancia_m": tolerance}
+    for field in ("cotas_elementos", "niveles_ifc"):
+        enabled = parameters.get(field, False)
+        if not isinstance(enabled, bool):
+            raise MegalodonException(ErrorCode.BIM_ERROR, f"{field} debe ser booleano")
+        if enabled:
+            result[field] = True
+    note = parameters.get("nota_lamina", "")
+    if not isinstance(note, str) or len(note) > 120:
+        raise MegalodonException(ErrorCode.BIM_ERROR, "La nota de lámina admite hasta 120 caracteres")
+    if clean_note := " ".join(note.split()):
+        result["nota_lamina"] = clean_note
 
     if kind == "PLAN":
         result["elevacion_m"] = _finite_number(parameters.get("elevacion_m"), "elevacion_m")
@@ -79,6 +93,11 @@ def _canonical_parameters(kind: str, parameters: dict) -> dict:
             plane = Plane.from_origin_normal(origin, direction)
         except ValueError as exc:
             raise MegalodonException(ErrorCode.BIM_ERROR, str(exc)) from exc
+        hidden = parameters.get("mostrar_ocultas", False)
+        if not isinstance(hidden, bool):
+            raise MegalodonException(ErrorCode.BIM_ERROR, "mostrar_ocultas debe ser booleano")
+        if hidden:
+            result["mostrar_ocultas"] = True
         result["direccion_vista"] = list(plane.normal)
         result["origen_m"] = list(plane.origin)
     else:
@@ -170,6 +189,9 @@ class BIMDrawingService:
             or not set(selected_formats).issubset(_ALLOWED_FORMATS)
         ):
             raise MegalodonException(ErrorCode.BIM_ERROR, "Formatos permitidos: SVG, DXF y PDF, sin duplicados")
+
+        if "PDF" not in selected_formats and {"cotas_elementos", "niveles_ifc", "nota_lamina"} & canonical.keys():
+            raise MegalodonException(ErrorCode.BIM_ERROR, "Las cotas, niveles y notas de lámina requieren formato PDF")
 
         elements = await self._elements(model.id)
         if not elements:
@@ -286,6 +308,7 @@ class BIMDrawingService:
                 origin=parameters["origen_m"],
                 title=drawing.titulo,
                 tolerance_m=tolerance,
+                include_hidden=parameters.get("mostrar_ocultas", False),
             )
 
         metadata = {
@@ -304,10 +327,13 @@ class BIMDrawingService:
         }
         if drawing.tipo == "ELEVATION":
             metadata["drawing_limitations"] = [
-                "Siluetas de malla; no incluye eliminación de líneas ocultas entre elementos",
+                "Visibilidad calculada sobre contornos y pliegues candidatos de la malla triangulada",
+                "Los tramos ocultos se dibujan discontinuos" if parameters.get("mostrar_ocultas")
+                else "Los tramos ocultos se omiten",
                 "No sustituye la revisión profesional de documentación constructiva",
             ]
 
+        storage = storage_bim()
         pdf = None
         if "PDF" in drawing.formatos:
             expediente = await self.db.scalar(
@@ -320,14 +346,28 @@ class BIMDrawingService:
                 raise MegalodonException(
                     ErrorCode.DOCUMENTO_NO_ENCONTRADO, "Expediente no encontrado", status_code=404
                 )
+            levels = None
+            if parameters.get("niveles_ifc"):
+                source = await storage.descargar(model.ruta_archivo)
+                with NamedTemporaryFile(suffix=".ifc") as tmp:
+                    tmp.write(source)
+                    tmp.flush()
+                    motor = MotorBIM()
+                    motor.cargar_ifc(tmp.name)
+                    levels = motor.cotas_niveles()
+                metadata["source_ifc_sha256"] = hashlib.sha256(source).hexdigest()
+            note = parameters.get("nota_lamina", "")
             try:
                 sheet = compose_a3_sheet(
                     document,
+                    include_element_dims=parameters.get("cotas_elementos", False),
+                    levels=levels,
                     meta=SheetMeta(
                         project_name=expediente.proyecto_nombre or expediente.titulo,
                         subtitle=model.nombre,
                         sheet_code=str(drawing.id),
-                        organization=expediente.organo,
+                        organization=expediente.organo or "",
+                        notes=tuple(wrap(note, width=44)),
                     ),
                 )
                 pdf = composed_to_pdf(sheet)
@@ -335,6 +375,11 @@ class BIMDrawingService:
                 raise MegalodonException(
                     ErrorCode.BIM_ERROR, f"No se pudo componer la lámina A3: {exc}"
                 ) from exc
+            for key in ("cotas_elementos", "elementos_visibles", "niveles_ifc"):
+                if key in sheet.metadata:
+                    metadata[key] = sheet.metadata[key]
+            if note:
+                metadata["nota_lamina"] = note
             metadata.update(
                 sheet_code=sheet.code, sheet_scale=sheet.scale, sheet_bounds_m=list(sheet.bounds_m)
             )
@@ -343,7 +388,6 @@ class BIMDrawingService:
             f"tenant/{self.tenant_id}/{drawing.expediente_id}/{drawing.modelo_id}"
             f"/drawings/{drawing.id}"
         )
-        storage = storage_bim()
         if "SVG" in drawing.formatos:
             svg = to_svg(document).encode("utf-8")
             path = f"{prefix}/drawing.svg"
