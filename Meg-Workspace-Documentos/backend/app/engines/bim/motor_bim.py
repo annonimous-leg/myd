@@ -112,6 +112,19 @@ class MotorBIM:
 
         return self.modelo
 
+    def _crear_geometria(self, entidad):
+        try:
+            return ifcopenshell.geom.create_shape(self._settings, entidad)
+        except RuntimeError:
+            # Some Revit exports put a non-triangulable Axis before the solid.
+            bodies = [
+                rep for rep in entidad.Representation.Representations
+                if rep.RepresentationIdentifier == "Body"
+            ]
+            if len(bodies) != 1:
+                raise
+            return ifcopenshell.geom.create_shape(self._settings, entidad, bodies[0])
+
     def cuantificar(
         self,
         tipos_elementos: Optional[List[str]] = None,
@@ -275,7 +288,7 @@ class MotorBIM:
         bbox = None
         if getattr(entidad, "Representation", None) is not None:
             try:
-                shape = ifcopenshell.geom.create_shape(self._settings, entidad)
+                shape = self._crear_geometria(entidad)
                 geometry = shape.geometry
                 verts_crudos = geometry.verts
                 caras = list(geometry.faces)

@@ -18,6 +18,28 @@ from app.engines.bim.motor_bim import MotorBIM
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "ifc"
 
 
+def test_ifc_wall_with_3d_axis_retains_world_space_body_mesh(tmp_path):
+    source = (FIXTURES / "wall_metres.ifc").read_text()
+    source = source.replace("(#22));", "(#32,#22));")
+    source = source.replace("#24=IFCCARTESIANPOINT((0.,0.,0.));", "#24=IFCCARTESIANPOINT((10.,20.,30.));")
+    source = source.replace(
+        "ENDSEC;\nEND-ISO",
+        "#29=IFCGEOMETRICREPRESENTATIONSUBCONTEXT('Axis','Model',*,*,*,*,#10,$,.GRAPH_VIEW.,$);\n"
+        "#30=IFCCARTESIANPOINTLIST3D(((0.,0.,0.),(2.,0.,0.)));\n"
+        "#31=IFCINDEXEDPOLYCURVE(#30,$,.F.);\n"
+        "#32=IFCSHAPEREPRESENTATION(#29,'Axis','Curve3D',(#31));\n"
+        "ENDSEC;\nEND-ISO",
+    )
+    path = tmp_path / "wall-axis-and-body.ifc"
+    path.write_text(source)
+    motor = MotorBIM()
+    motor.cargar_ifc(str(path))
+    wall, = motor.cuantificar(["IfcWall"], extraer_malla=True).elementos
+    assert wall.malla is not None
+    assert wall.bbox == pytest.approx([10, 20, 30, 12, 20.4, 33])
+    assert wall.volumen == pytest.approx(2.4)
+
+
 @pytest.mark.parametrize("filename", ["wall_metres.ifc", "wall_millimetres.ifc", "wall_metres_ifc2x3.ifc"])
 def test_native_drawing_engine_derives_same_views_from_ifc_unit_variants(filename):
     motor = MotorBIM()
