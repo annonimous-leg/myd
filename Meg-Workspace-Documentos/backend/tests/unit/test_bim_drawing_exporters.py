@@ -95,3 +95,36 @@ def test_hidden_edges_are_dashed_in_svg_dxf_and_pdf():
     sheet = compose_a3_sheet(document)
     contents = PdfReader(BytesIO(composed_to_pdf(sheet))).pages[0].get_contents().get_data()
     assert contents.count(b"[3 2] 0 d") == 1
+
+
+@pytest.mark.parametrize(
+    ("extent", "labels"),
+    [
+        ((280, 245), {"280.00", "245.00"}),
+        ((0.02, 0.01), {"0.02", "0.01"}),
+        ((0, 22), {"22.00"}),
+        ((28, 0), {"28.00"}),
+    ],
+)
+def test_a3_overall_dimensions_fit_above_scale_bar(extent, labels):
+    from app.engines.bim.drawing.sheet import compose_a3_sheet
+
+    document = DrawingDocument(
+        kind="ELEVATION",
+        title="Alzado",
+        units="m",
+        segments=(DrawingSegment((500, 700), (500 + extent[0], 700 + extent[1]), "IfcWall", "w", "g"),),
+    )
+    sheet = compose_a3_sheet(document)
+    dimensions = [prim for prim in sheet.primitives if prim.layer == "DIM"]
+    assert {prim.text for prim in dimensions if prim.kind == "text"} == labels
+    for prim in dimensions:
+        if prim.kind == "text":
+            width = len(prim.text) * prim.size * 0.65
+            left = prim.x - width / (2 if prim.anchor == "middle" else 1)
+            assert 8 < left < prim.x < 326
+            assert 8 < prim.y < 275.8
+        else:
+            assert all(8 < x < 326 for x in (prim.x1, prim.x2))
+            assert all(8 < y < 275.8 for y in (prim.y1, prim.y2))
+    assert all(prim.layer != "DIM" for prim in compose_a3_sheet(document, include_overall_dims=False).primitives)

@@ -27,6 +27,9 @@ DRAW_RIGHT = 318.0  # title block starts ~326
 DRAW_TOP = 12.0
 DRAW_BOTTOM = 285.0
 TITLE_X = 330.0
+DIM_LEFT = 36.0
+DIM_BOTTOM = 20.0
+DIM_OFFSET = 7.0
 
 # Default plot scale 1:100 → 10 mm on paper per metre
 DEFAULT_SCALE = 100.0
@@ -108,10 +111,14 @@ def _stroke_for(layer: PaperLayer) -> float:
     return 0.22
 
 
-def _fit_scale(width_m: float, height_m: float, scale: float | None) -> float:
+def _fit_scale(
+    width_m: float,
+    height_m: float,
+    draw_w: float,
+    draw_h: float,
+    scale: float | None,
+) -> float:
     """Choose 1:N so geometry fits the drawing area with margin."""
-    draw_w = DRAW_RIGHT - DRAW_LEFT - 16.0
-    draw_h = DRAW_BOTTOM - DRAW_TOP - 24.0
     if scale is not None:
         s = float(scale)
         if not math.isfinite(s) or s <= 0:
@@ -262,58 +269,40 @@ def _title_block(
 
 def _overall_dims(
     prims: list[PaperPrim],
-    mx,
-    my,
-    min_x: float,
-    min_y: float,
-    max_x: float,
-    max_y: float,
+    left: float,
+    bottom: float,
+    right: float,
+    top: float,
+    width_m: float,
+    height_m: float,
 ) -> None:
-    ink = (0.1, 0.1, 0.1)
-    # Horizontal overall below geometry
-    y_dim = min_y - (max_y - min_y) * 0.06 - 0.35
-    prims.append(
-        PaperPrim(kind="line", layer="DIM", x1=mx(min_x), y1=my(y_dim), x2=mx(max_x), y2=my(y_dim), weight=0.15, rgb=ink)
-    )
-    for x in (min_x, max_x):
-        prims.append(
-            PaperPrim(kind="line", layer="DIM", x1=mx(x), y1=my(y_dim) - 1.2, x2=mx(x), y2=my(y_dim) + 1.2, weight=0.15, rgb=ink)
-        )
-    span = max_x - min_x
-    prims.append(
-        PaperPrim(
-            kind="text",
-            layer="DIM",
-            x=mx((min_x + max_x) / 2),
-            y=my(y_dim) + 3.5,
-            text=f"{span:.2f}",
-            size=2.2,
-            anchor="middle",
-            rgb=ink,
-        )
-    )
-    # Vertical overall
-    x_dim = min_x - (max_x - min_x) * 0.06 - 0.35
-    prims.append(
-        PaperPrim(kind="line", layer="DIM", x1=mx(x_dim), y1=my(min_y), x2=mx(x_dim), y2=my(max_y), weight=0.15, rgb=ink)
-    )
-    for y in (min_y, max_y):
-        prims.append(
-            PaperPrim(kind="line", layer="DIM", x1=mx(x_dim) - 1.2, y1=my(y), x2=mx(x_dim) + 1.2, y2=my(y), weight=0.15, rgb=ink)
-        )
-    span_y = max_y - min_y
-    prims.append(
-        PaperPrim(
-            kind="text",
-            layer="DIM",
-            x=mx(x_dim) - 2.5,
-            y=my((min_y + max_y) / 2),
-            text=f"{span_y:.2f}",
-            size=2.2,
-            anchor="end",
-            rgb=ink,
-        )
-    )
+    def line(x1: float, y1: float, x2: float, y2: float) -> None:
+        prims.append(PaperPrim(kind="line", layer="DIM", x1=x1, y1=y1, x2=x2, y2=y2, weight=0.15))
+
+    def tick(x: float, y: float) -> None:
+        line(x - 0.8, y + 0.8, x + 0.8, y - 0.8)
+
+    if width_m > 0:
+        y = bottom + DIM_OFFSET
+        line(left, y, right, y)
+        for x in (left, right):
+            line(x, bottom + 1.2, x, y + 1.8)
+            tick(x, y)
+        prims.append(PaperPrim(
+            kind="text", layer="DIM", x=(left + right) / 2, y=y + 3.5,
+            text=f"{width_m:.2f}", size=2.2, anchor="middle",
+        ))
+
+    if height_m > 0:
+        x = left - DIM_OFFSET
+        line(x, bottom, x, top)
+        for y in (bottom, top):
+            line(left - 1.2, y, x - 1.8, y)
+            tick(x, y)
+        prims.append(PaperPrim(
+            kind="text", layer="DIM", x=x - 2.5, y=(bottom + top) / 2,
+            text=f"{height_m:.2f}", size=2.2, anchor="end",
+        ))
 
 
 def _default_code(kind: str) -> str:
@@ -342,15 +331,17 @@ def compose_a3_sheet(
     if width_m <= 0 and height_m <= 0:
         raise ValueError("drawing extents are degenerate")
 
-    plot_scale = _fit_scale(width_m, height_m, scale)
+    # Reserve paper space for labels and keep the drawing above the scale bar.
+    draw_left = DRAW_LEFT + (DIM_LEFT if include_overall_dims and height_m > 0 else 0.0)
+    draw_bottom = DRAW_BOTTOM - DIM_BOTTOM
+    draw_w = DRAW_RIGHT - draw_left
+    draw_h = draw_bottom - DRAW_TOP
+    plot_scale = _fit_scale(width_m, height_m, draw_w - 16.0, draw_h, scale)
     mm_per_m = 1000.0 / plot_scale
 
-    # Centre geometry in drawing area
-    draw_w = DRAW_RIGHT - DRAW_LEFT
-    draw_h = DRAW_BOTTOM - DRAW_TOP
     geom_w_mm = width_m * mm_per_m
     geom_h_mm = height_m * mm_per_m
-    paper_ox = DRAW_LEFT + (draw_w - geom_w_mm) / 2.0
+    paper_ox = draw_left + (draw_w - geom_w_mm) / 2.0
     paper_oy = DRAW_TOP + (draw_h + geom_h_mm) / 2.0
     mx, my, _ = _map_factory(min_x, min_y, plot_scale, paper_ox, paper_oy)
 
@@ -373,8 +364,8 @@ def compose_a3_sheet(
             )
         )
 
-    if include_overall_dims and width_m > 0 and height_m > 0:
-        _overall_dims(prims, mx, my, min_x, min_y, max_x, max_y)
+    if include_overall_dims:
+        _overall_dims(prims, mx(min_x), my(min_y), mx(max_x), my(max_y), width_m, height_m)
 
     _scale_bar(prims, plot_scale)
 
