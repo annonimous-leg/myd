@@ -93,3 +93,31 @@ No cambiar el catálogo de precios, las fuentes de mercado ni los trabajos
 BIM para adaptar información geoespacial. Todos los datos externos deben
 conservar proveedor, tiempo de observación, recepción, licencia y cobertura;
 sin esos campos no deben mostrarse como señales verificadas en vivo.
+
+## Ejecución reproducible del motor de rutas (OPCIONAL, no desplegado)
+
+En `backend/data/osrm/` colocar un extracto OSM `region.osm.pbf`
+obtenido bajo licencia compatible. El nombre `region` puede cambiarse; guardar
+junto al expediente de la fuente: URL, licencia, fecha, límites geográficos y
+hash SHA-256 del extracto. Los datos masivos están excluidos del repositorio.
+
+```bash
+cd Meg-Workspace-Documentos/backend
+# Inspeccionar e instalar Docker; colocar data/osrm/region.osm.pbf.
+bash scripts/prepare_osrm.sh region
+# En entorno con variables de producción y control del despliegue:
+OSRM_DATASET_BASENAME=region docker compose \
+  -f docker-compose.prod.yml -f docker-compose.osrm.yml \
+  --profile geospatial config
+# No iniciar servicios de producción sin autorización.
+```
+
+La configuración `docker-compose.osrm.yml` ejecuta OSRM sin publicar su
+puerto al host, dentro de la red del stack. El contenedor API recibe
+`TEZCATLIPOCA_OSRM_URL=http://osrm:5000`. Si el grafo no está listo,
+Tezcatlipoca devuelve error explícito; no cambia silenciosamente a proveedores
+con restricciones comerciales. **La preparación y despliegue real del servicio
+no se han ejecutado ni validado en esta PR.**
+
+Fuente oficial del procedimiento:
+https://github.com/Project-OSRM/osrm-backend#using-docker
