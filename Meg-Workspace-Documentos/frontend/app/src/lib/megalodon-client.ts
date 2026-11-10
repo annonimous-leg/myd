@@ -106,6 +106,24 @@ export interface WorkspaceDocumentSummary {
   name: string;
   status: string;
   version: number;
+  media_type?: string;
+}
+
+export interface WorkspaceDocumentDetail extends WorkspaceDocumentSummary {
+  media_type: string;
+  content_text: string;
+  content_model: Record<string, unknown>;
+  row_version: number;
+  locked: boolean;
+  human_modified: boolean;
+}
+
+export interface WorkspaceDocumentRevision {
+  version: number;
+  operation: string;
+  human_modified: boolean;
+  content_text: string;
+  created_at: string;
 }
 
 export interface WorkspaceEditor {
@@ -511,10 +529,12 @@ export interface RutaCriticaInfo {
 export interface AeronaveTez {
   hex: string; callsign: string; lat: number; lon: number;
   altitude: number | null; track: number | null; speed: number | null; source: string;
+  timestamp?: string | null;
 }
 export interface EmbarcacionTez {
   mmsi: string; name: string; lat: number; lon: number;
   sog: number | null; cog: number | null; source: string;
+  timestamp?: string | null;
 }
 export interface SismoTez {
   id: string; lat: number; lon: number; magnitude: number;
@@ -528,6 +548,7 @@ export interface ContextoGeoTez {
   sources: {
     gnss: { status: string };
     adsb_exchange: { status: string };
+    adsb_lol?: { status: string; last_success?: string | null; coverage?: string; license?: string; attribution?: string };
     ais: { status: string };
     usgs: { status: string };
     telemetry: { status: string; sources: string[]; metrics: Record<string, unknown> };
@@ -631,6 +652,7 @@ export interface CatalogoAPUOut {
   unidad: string;
   precio_unitario: number;
   fuente: string;
+  fuente_visible?: string;
   zona_economica?: string;
   estado?: string;
   incluye_iva: boolean;
@@ -640,7 +662,8 @@ export interface CatalogoAPUOut {
 
 export interface CatalogoImportacionOut {
   id: string; paquete_sha256: string; fuentes: string[];
-  resumen: { registros: number; estados: Record<string, number>; cuarentena_motivos: Record<string, number>; proyecciones_costeo: number };
+  fuentes_visibles?: string[];
+  resumen: { registros: number; estados: Record<string, number>; cuarentena_motivos: Record<string, number>; proyecciones_costeo: number; fuentes_visibles?: Record<string, string> };
 }
 export interface CatalogoRegistroOut {
   id: string; tabla: string; fuente_id: string; entidad_id: string; estado: string; motivos: string[]; original: Record<string, string>; sha256: string;
@@ -973,7 +996,7 @@ export interface InventarioCatalogos {
   vinculos_activos_tenant: number;
   revision_documental_certificada: false;
   fuentes: Array<{
-    id: string; nombre: string; activo: boolean; moneda: string | null;
+    id: string; nombre: string; nombre_visible?: string; activo: boolean; moneda: string | null;
     vigencia_inicio: string; vigencia_fin: string;
     conceptos: number; conceptos_activos: number;
     insumos: number; insumos_activos: number; materiales_sin_iva_mxn: number;
@@ -1249,6 +1272,14 @@ export interface WebSocketMessage {
   message?: string;
   timestamp?: number;
 }
+
+type OpcionesLaminaA3 = { cotas_elementos?: boolean; niveles_ifc?: boolean; nota_lamina?: string };
+
+export type SolicitudPlanoBIM = { titulo: string } & (
+  | { tipo: "PLAN"; parametros: OpcionesLaminaA3 & { elevacion_m: number } }
+  | { tipo: "SECTION"; parametros: OpcionesLaminaA3 & { origen_m: [number, number, number]; normal: [number, number, number] } }
+  | { tipo: "ELEVATION"; parametros: OpcionesLaminaA3 & { direccion_vista: [number, number, number]; mostrar_ocultas?: boolean } }
+);
 
 export class MegalodonClient {
   private baseUrl: string;
@@ -1634,26 +1665,35 @@ export class MegalodonClient {
 
   bim = {
     listarPlanos: (expedienteId: string, modelId: string) =>
-      this.request<{ id: string; titulo: string; estado: string; formatos: string[]; error?: string }[]>(
+      this.request<{
+        id: string; titulo: string; tipo: SolicitudPlanoBIM["tipo"]; estado: string;
+        formatos: string[]; error?: string; source_model_updated_at: string; obsoleto: boolean;
+        metadatos?: {
+          visibility_mode?: string;
+          cotas_elementos?: unknown[];
+          niveles_ifc?: unknown[];
+          nota_lamina?: string;
+        } | null;
+      }[]>(
         "GET", this.drawingPath(expedienteId, modelId),
       ),
 
-    generarPlantaPDF: (expedienteId: string, modelId: string, titulo: string, elevacion: number) =>
+    generarPlano: (expedienteId: string, modelId: string, solicitud: SolicitudPlanoBIM) =>
       this.request("POST", this.drawingPath(expedienteId, modelId), {
-        tipo: "PLAN", titulo, parametros: { elevacion_m: elevacion }, formatos: ["PDF"],
+        ...solicitud, formatos: ["PDF", "SVG", "DXF"],
       }),
 
-    descargarPlanoPDF: async (expedienteId: string, modelId: string, drawingId: string) => {
-      const path = `${this.drawingPath(expedienteId, modelId)}/${encodeURIComponent(drawingId)}/descarga?formato=PDF`;
+    descargarPlano: async (expedienteId: string, modelId: string, drawingId: string, formato: "PDF" | "SVG" | "DXF") => {
+      const path = `${this.drawingPath(expedienteId, modelId)}/${encodeURIComponent(drawingId)}/descarga?formato=${formato}`;
       const headers: Record<string, string> = {};
       if (this.token) headers.Authorization = `Bearer ${this.token}`;
       const response = await this.fetchWithSession(`${this.baseUrl}/api/v1${path}`, { headers, credentials: "include" });
       if (!response.ok) throw new Error(`No se pudo descargar el plano (HTTP ${response.status})`);
-      if (response.headers.get("content-type")?.includes("application/pdf")) {
-        return { blob: await response.blob() };
+      if (response.headers.get("content-type")?.includes("application/json")) {
+        const result = await response.json() as { url: string };
+        return { url: result.url };
       }
-      const result = await response.json() as { url: string };
-      return { url: result.url };
+      return { blob: await response.blob() };
     },
 
     reprocesarModelo: async (expedienteId: string, modeloId: string): Promise<ModeloBIM> =>
@@ -2025,6 +2065,22 @@ export class MegalodonClient {
       return this.requestTez<ContextoGeoTez>("GET", `/geo/context?${q.toString()}`);
     },
     telemetry: async () => this.requestTez<any>("GET", "/telemetry/"),
+    weatherForecast: async (lat: number, lon: number) => {
+      const q = new URLSearchParams({ lat: String(lat), lon: String(lon) });
+      return this.requestTez<any>("GET", `/weather/forecast?${q.toString()}`);
+    },
+    globalForecast: async (lat: number, lon: number): Promise<{
+      status: string; source: string; run_time?: string; valid_time?: string;
+      temperature_2m_c?: number; wind_10m_ms?: number;
+      grid_point?: {lat: number; lon: number}; attribution?: string; reason?: string;
+    }> => this.requestTez("GET", `/weather/global?${new URLSearchParams({lat:String(lat),lon:String(lon)}).toString()}`),
+    saveSnapshot: async (payload: {
+      name: string; description?: string; layers: string[];
+      viewport: Record<string, unknown>;
+    }): Promise<{ id: number; name: string; created_at: string }> =>
+      this.requestTez("POST", "/snapshots/create", payload),
+    snapshots: async (): Promise<{ id: number; name: string; created_at: string }[]> =>
+      this.requestTez("GET", "/snapshots/"),
     osintLookup: async (q: string, type = "auto") => {
       const params = new URLSearchParams({ q, type });
       return this.requestTez<any>("GET", `/osint/lookup?${params.toString()}`);
@@ -2538,7 +2594,7 @@ export class MegalodonClient {
     listar: () => this.request<{total: number; items: CatalogoImportacionOut[]}>('GET', '/catalogo-apu/importaciones'),
     verificar: (archivo: File) => {
       const form = new FormData(); form.append('archivo', archivo);
-      return this.request<{ fuentes: Array<{fuente_id: string; titulo: string; fecha_vigencia: string; original_cotejado: boolean}> }>(
+      return this.request<{ fuentes: Array<{fuente_id: string; titulo: string; nombre_visible?: string; sha256: string; fecha_vigencia: string; original_cotejado: boolean}> }>(
         'POST', '/catalogo-apu/importaciones/verificar', form);
     },
     importar: (archivo: File, fuentes: string[]) => {
@@ -2858,8 +2914,19 @@ export class MegalodonClient {
     enqueueRun: async (id: string, idempotencyKey: string) => this.request<any>("POST", `/procurement/tenders/${id}/jobs/run`, undefined, { headers: { "Idempotency-Key": idempotencyKey } }),
     enqueueCompile: async (id: string, idempotencyKey: string) => this.request<any>("POST", `/procurement/tenders/${id}/jobs/compile`, undefined, { headers: { "Idempotency-Key": idempotencyKey } }),
     job: async (jobId: string) => this.request<any>("GET", `/procurement/jobs/${jobId}`),
-    approve: async (id: string, data: { role: string; decision: "APPROVED" | "REJECTED"; reason?: string }) => this.request<any>("POST", `/procurement/tenders/${id}/approvals`, data),
-    createRevision: async (id: string, reason: string) => this.request<any>("POST", `/procurement/tenders/${id}/revisions`, { reason }),
+    approvalManifest: async (id: string) => this.request<{ artifact_manifest_sha256: string; originals: { revision: number; artifacts: Array<{ id: string; code: string; version: number; sha256: string; storage_path: string }> } }>("GET", `/procurement/tenders/${id}/approvals/manifest`),
+    originalArtifact: async (id: string, artifactId: string) => this.request<{ url: string; sha256: string }>("GET", `/procurement/tenders/${id}/artifacts/${artifactId}/original`),
+    approve: async (id: string, data: { role: string; decision: "APPROVED" | "REJECTED"; reason?: string; expected_artifact_manifest_sha256?: string }) => this.request<any>("POST", `/procurement/tenders/${id}/approvals`, data),
+    createRevision: async (id: string, reason: string, formatAmendment?: {
+      version: string;
+      format_definitions: Record<string, unknown>[];
+      expected_revision: number;
+      base_evidence_id: string;
+      amendment_evidence_id: string;
+    }) => this.request<any>("POST", `/procurement/tenders/${id}/revisions`, {
+      reason,
+      ...(formatAmendment && { format_amendment: formatAmendment }),
+    }),
     signArtifact: async (id: string, artifactId: string, data: {
       certificadoCer: File;
       certificadoKey: File;
@@ -2921,9 +2988,15 @@ export class MegalodonClient {
       }
       return response.blob();
     },
-    workspaceGetDocument: async (id: string, documentId: string) => this.request<any>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}`),
-    workspaceUpdateDocument: async (id: string, documentId: string, data: any) => this.request<any>("PUT", `/procurement/tenders/${id}/workspace/documents/${documentId}`, data),
-    workspaceHistory: async (id: string, documentId: string) => this.request<any[]>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}/history`),
+    workspaceGetDocument: async (id: string, documentId: string) =>
+      this.request<WorkspaceDocumentDetail>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}`),
+    workspaceUpdateDocument: async (id: string, documentId: string, data: {
+      content_text: string;
+      content_model: Record<string, unknown>;
+      expected_row_version: number;
+    }) => this.request<WorkspaceDocumentDetail>("PUT", `/procurement/tenders/${id}/workspace/documents/${documentId}`, data),
+    workspaceHistory: async (id: string, documentId: string) =>
+      this.request<WorkspaceDocumentRevision[]>("GET", `/procurement/tenders/${id}/workspace/documents/${documentId}/history`),
     workspaceRegenerate: async (id: string, documentId: string, data: any) => this.request<any>("POST", `/procurement/tenders/${id}/workspace/documents/${documentId}/regenerate`, data),
     workspaceLock: async (id: string, documentId: string, locked: boolean) => this.request<any>("PATCH", `/procurement/tenders/${id}/workspace/documents/${documentId}/lock`, { locked }),
     bridgeLicitacion: async (id: string, licitacion_id: string, relationship_type = "PRIMARY") => this.request<any>("POST", `/procurement/tenders/${id}/bridge/licitacion`, { licitacion_id, relationship_type }),

@@ -282,10 +282,21 @@ async def preparation_history(tender_id: UUID, db: AsyncSession = Depends(get_db
     return await ProcurementService(db, user).preparation_history(tender_id)
 
 
+@router.get("/tenders/{tender_id}/approvals/manifest", response_model=dict, dependencies=[Depends(requiere_rol(UserRole.REVISOR, UserRole.ADMIN, UserRole.SUPERADMIN))])
+async def preview_approval_manifest(tender_id: UUID, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    return await ProcurementService(db, user).approval_manifest_preview(tender_id)
+
+
+@router.get("/tenders/{tender_id}/artifacts/{artifact_id}/original", response_model=dict, dependencies=[Depends(requiere_rol(UserRole.REVISOR, UserRole.ADMIN, UserRole.SUPERADMIN))])
+async def download_original_artifact(tender_id: UUID, artifact_id: UUID, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    return await ProcurementService(db, user).original_download_url(tender_id, artifact_id)
+
+
 @router.post("/tenders/{tender_id}/approvals", response_model=dict, status_code=201, dependencies=[Depends(requiere_rol(UserRole.REVISOR, UserRole.ADMIN, UserRole.SUPERADMIN))])
 async def approve_tender(tender_id: UUID, data: ApprovalCreate, db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
     row = await ProcurementService(db, user).approval(tender_id, data)
-    return {"id": str(row.id), "decision": row.decision, "revision": row.revision}
+    return {"id": str(row.id), "decision": row.decision, "revision": row.revision,
+            "artifact_manifest_sha256": row.artifact_manifest_hash}
 
 
 @router.post("/tenders/{tender_id}/artifacts/{artifact_id}/sign", response_model=dict, dependencies=[Depends(requiere_rol(UserRole.REVISOR, UserRole.ADMIN, UserRole.SUPERADMIN))])

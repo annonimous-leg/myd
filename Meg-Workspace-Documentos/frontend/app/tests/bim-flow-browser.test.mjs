@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { before, after, test } from 'node:test';
 import { spawn, execFileSync } from 'node:child_process';
 import { once } from 'node:events';
+import { createHash } from 'node:crypto';
 import { createWriteStream } from 'node:fs';
 import { readFile, mkdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
@@ -77,7 +78,7 @@ after(async () => {
   for (const process of processes.reverse()) await stop(process);
 });
 
-test('user creates an obra, resumes an IFC job after restart, approves and exports, then opens 4D', {timeout:240000}, async () => {
+test('user creates an obra, resumes an IFC job after restart, approves and exports, then opens 4D', {timeout:300000}, async () => {
   const context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});
   await context.tracing.start({screenshots:true,snapshots:true});
   const page=await context.newPage();
@@ -115,6 +116,67 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     assert.equal(apiModel.status(),200);
     const elements=await apiModel.json(); assert.equal(elements.length,1);
     assert.equal(elements[0].volumen,2.4); assert.ok(elements[0].malla_vertices.length>0);
+    const drawingPath = `/api/v1/bim/${model.expediente_id}/modelos/${model.id}/dibujos`;
+    await page.getByText('Planos PDF A3',{exact:true}).click();
+    const drawingList = page.getByRole('list',{name:'Planos generados'});
+    const drawings = [
+      { type:'PLAN', title:'Planta del IFC de aceptación', name:'planta', mode:'cut_geometry_only',
+        configure:() => page.getByLabel('Elevación de corte (m)',{exact:true}).fill('1.5') },
+      { type:'SECTION', title:'Sección del IFC de aceptación', name:'sección', mode:'cut_geometry_only',
+        configure:() => page.getByLabel('Coordenada de corte (m)',{exact:true}).fill('1') },
+      { type:'ELEVATION', title:'Alzado del IFC de aceptación', name:'alzado', mode:'mesh_edges_with_hidden_lines',
+        configure:async () => {
+          await page.getByLabel('Lado de observación',{exact:true}).selectOption('y-');
+          await page.getByLabel('Mostrar líneas ocultas',{exact:true}).check();
+        } },
+    ];
+    for (const spec of drawings) {
+      await page.getByLabel('Tipo de plano',{exact:true}).selectOption(spec.type);
+      await page.getByLabel('Título',{exact:true}).fill(spec.title);
+      await spec.configure();
+      const [drawingResponse] = await Promise.all([
+        page.waitForResponse(r => r.request().method()==='POST' && new URL(r.url()).pathname===drawingPath),
+        page.getByRole('button',{name:`Generar ${spec.name} A3`}).click(),
+      ]);
+      assert.equal(drawingResponse.status(),202);
+      const requestedDrawing = await drawingResponse.json();
+      const drawingRow = drawingList.getByRole('listitem').filter({hasText:spec.title});
+      await drawingRow.getByRole('button',{name:'Ver plano'}).waitFor({timeout:60000});
+      const drawingResult = await page.request.get(`${apiOrigin}${drawingPath}/${requestedDrawing.id}`);
+      assert.equal(drawingResult.status(),200);
+      const drawing = await drawingResult.json();
+      assert.equal(drawing.tipo,spec.type);
+      assert.equal(drawing.modelo_id,model.id);
+      assert.equal(drawing.obsoleto,false);
+      assert.equal(drawing.metadatos.visibility_mode,spec.mode);
+      assert.match(drawing.metadatos.source_geometry_sha256,/^[a-f0-9]{64}$/);
+      assert.equal(await drawingRow.locator('time').getAttribute('datetime'),drawing.source_model_updated_at);
+      await drawingRow.getByRole('button',{name:'Ver plano'}).click();
+      const image = drawingRow.getByRole('img',{name:`Vista previa de ${spec.title}`});
+      await image.waitFor();
+      await page.waitForFunction(img => img.complete && img.naturalWidth > 0,await image.elementHandle());
+      const previewBytes = await image.evaluate(async img => Array.from(new Uint8Array(await (await fetch(img.src)).arrayBuffer())));
+      assert.equal(createHash('sha256').update(Buffer.from(previewBytes)).digest('hex'),drawing.sha256_svg);
+      await page.screenshot({path:join(evidence,`01b-plano-${spec.type.toLowerCase()}.png`),fullPage:true});
+      for (const format of ['PDF','SVG','DXF']) {
+        const [download] = await Promise.all([
+          page.waitForEvent('download'),
+          drawingRow.getByRole('button',{name:`Descargar ${format}`}).click(),
+        ]);
+        const ext = format.toLowerCase();
+        const destination = join(evidence,`${spec.type.toLowerCase()}-ifc.${ext}`);
+        await download.saveAs(destination);
+        const bytes = await readFile(destination);
+        assert.equal(createHash('sha256').update(bytes).digest('hex'),drawing[`sha256_${ext}`]);
+      }
+    }
+    await page.reload();
+    await page.getByText('Planos PDF A3',{exact:true}).click({timeout:60000});
+    for (const spec of drawings) {
+      await drawingList.getByRole('listitem').filter({hasText:spec.title})
+        .getByRole('button',{name:'Ver plano'}).waitFor({timeout:60000});
+    }
+    await page.getByText('Planos PDF A3',{exact:true}).click();
     await page.getByRole('button',{name:'2. Preparar presupuesto'}).click();
     await page.getByPlaceholder('Buscar en catálogo (ej. muro, concreto)...').fill('Muro de prueba');
     const [catalogResponse]=await Promise.all([
@@ -149,12 +211,18 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await page.getByRole('button',{name:'3. Crear cronograma'}).click();
     await page.locator('input[type="date"]').fill('2026-10-06');
     await page.getByRole('button',{name:'Generar cronograma 4D',exact:true}).click();
-    await page.getByRole('button',{name:'Abrir cronograma en Programación'}).waitFor({timeout:60000});
-    await page.reload(); // 4D history is recovered too, not only transient component state.
+    // The program must survive a reload and open in the actual workspace editor.
+    await page.getByRole('button',{name:'Editar cronograma en Workspace',exact:true}).waitFor({timeout:60000});
+    await page.reload();
     await page.getByRole('button',{name:'3. Crear cronograma'}).click();
-    await page.getByRole('button',{name:'Abrir cronograma en Programación'}).click();
-    const scheduleId=new URL(page.url()).searchParams.get('programa');
-    assert.ok(scheduleId);
+    await page.getByRole('button',{name:'Editar cronograma en Workspace',exact:true}).click();
+    const scheduleUrl=new URL(page.url());
+    assert.equal(scheduleUrl.searchParams.get('app'),'licitaciones-obra');
+    assert.equal(scheduleUrl.searchParams.get('seccion'),'cronograma');
+    const scheduleId=scheduleUrl.searchParams.get('programa');
+    assert.ok(scheduleId,'The 4D generation must link a persisted program ID.');
+    await page.getByRole('navigation',{name:'Secciones de Workspace'})
+      .getByRole('button',{name:'Cronograma de obra',exact:true}).waitFor();
     await page.waitForFunction(id=>document.querySelector('select[aria-label="Cronograma de esta obra"]')?.value===id,scheduleId);
     await page.screenshot({path:join(evidence,'03-cronograma.png'),fullPage:true});
     await page.setViewportSize({width:390,height:844});
@@ -174,11 +242,7 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     // Select the m3 catalogue for this model too; captures must use its unit.
     if (await page.getByPlaceholder('Buscar en catálogo (ej. muro, concreto)...').count()) {
       await page.getByPlaceholder('Buscar en catálogo (ej. muro, concreto)...').fill('Muro de prueba');
-      const [catalogResponse]=await Promise.all([
-        page.waitForResponse(r=>r.url().includes('/api/v1/catalogo-apu?')&&r.request().method()==='GET'),
-        page.getByRole('button',{name:'Buscar concepto para IfcWall'}).click(),
-      ]);
-      assert.equal(catalogResponse.status(),200);
+      await page.getByRole('button',{name:'Buscar concepto para IfcWall'}).click();
       await page.getByRole('button',{name:/Muro de prueba sintética CI/}).click();
     }
     await page.getByPlaceholder('Fuente: contrato, convocatoria o análisis').fill('Prueba parcial: factores cero explícitos');
@@ -327,7 +391,10 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.getByRole('button',{name:'Presupuesto',exact:true}).click();
     await page.getByRole('button',{name:'Actualizar material',exact:true}).click();
     await page.getByText('Catálogos en la base conectada',{exact:true}).click();
-    await page.getByText('CI sintético: catálogo de aceptación',{exact:false}).waitFor();
+    // CI-only source must remain visibly identified as a test fixture, not a commercial source.
+    const fixtureInventoryRow = page.getByRole('row').filter({hasText:'CI sintético: catálogo de aceptación'});
+    await fixtureInventoryRow.waitFor();
+    assert.equal(await fixtureInventoryRow.getByText('Investigación de mercado Megalodon · enero 2020',{exact:false}).count(),0);
     await page.getByLabel('Material revisado',{exact:true}).selectOption(credentials.indexed_material);
     await page.getByLabel('Fecha de corte de publicaciones',{exact:true}).fill('2020-09-10');
     await page.getByRole('button',{name:'Usar última publicación disponible',exact:true}).click();
@@ -335,19 +402,28 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.getByText('Original: $100.0000 MXN · Estimado: $115.00 MXN/kg sin IVA.',{exact:true}).waitFor();
     await page.screenshot({path:join(evidence,'08-catalogos-indices.png'),fullPage:true});
     // Synthetic source ZIP crosses the real import API and migrated schema.
-    // The private authentic CMIC/Varela packages are exercised separately.
-    await page.getByRole('button',{name:'Catálogos CMIC / fuentes',exact:true}).click();
+    // Real CMIC/Varela prices must be accepted against their own original PDFs;
+    // no CI fixture authorizes or replaces that independent acceptance.
+    await page.getByRole('button',{name:'Investigación de mercado Megalodon',exact:true}).click();
     await page.getByText('Ediciones importadas y revisiones pendientes',{exact:true}).click();
     const [previewed] = await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/catalogo-apu/importaciones/verificar'),
       page.getByLabel('Importar paquete de catálogo ZIP').setInputFiles(credentials.catalog_package)]);
     assert.equal(previewed.status(),200);
+    const inspectedSources = (await previewed.json()).fuentes;
+    assert.equal(inspectedSources.length,1);
+    assert.equal(inspectedSources[0].fuente_id,'SYNTHETIC');
+    assert.equal(inspectedSources[0].titulo,'Synthetic test source');
+    await page.getByText('Prueba aislada de CI · Synthetic test source · ID SYNTHETIC',{exact:false}).waitFor();
     const [imported] = await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/catalogo-apu/importaciones'),
       page.getByRole('button',{name:'Importar fuentes seleccionadas',exact:true}).click()]);
     assert.equal(imported.status(),200);
     const edition = await imported.json();
     assert.equal(edition.resumen.proyecciones_costeo,1);
+    assert.deepEqual(edition.fuentes,['SYNTHETIC']);
+    await page.getByLabel('Edición para consultar',{exact:true}).locator('option')
+      .filter({hasText:'Prueba aislada de CI · SYNTHETIC'}).waitFor({state:'attached'});
     await page.getByLabel('Modelo paramétrico',{exact:true}).selectOption({label:'MODEL-TEST · Synthetic parametric model · $4029.74/m2'});
     await page.getByLabel('Localidad de la obra',{exact:true}).selectOption({label:'Synthetic city · FIC 0.897'});
     await page.getByLabel('Cantidad m2',{exact:true}).fill('36');
@@ -361,6 +437,7 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     assert.equal(estimate.evidencia.apto_aprobacion_contractual,false);
     await page.getByLabel('Buscar en catálogos importados',{exact:true}).fill('TEST-EXC');
     await page.getByLabel('Concepto importado',{exact:true}).selectOption({label:'TEST-EXC · Synthetic excavation with six-decimal consumption · 152.43 / m3 · 2026-01-01'});
+    await page.getByText('Prueba aislada de CI · Synthetic test source · página(s)',{exact:false}).waitFor();
     await page.getByLabel('Cantidad medida m3',{exact:true}).fill('2.4');
     await page.getByRole('button',{name:'Agregar concepto al presupuesto',exact:true}).click();
     await page.getByLabel('Cantidad medida m3',{exact:true}).fill('0.0420');

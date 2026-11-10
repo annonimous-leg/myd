@@ -14,6 +14,7 @@ from starlette.concurrency import run_in_threadpool
 from app.config import settings
 from app.core.deps import get_current_user, get_db, module_access
 from app.core.errors import handle_megalodon_errors
+from app.core.catalogo_labels import market_research_label
 from app.core.rate_limit import rate_limit_standard, rate_limit_strict
 from app.models.catalogo_importacion import CatalogoImportacion, CatalogoRegistro, EstimacionParametrica
 from app.models.user import User
@@ -45,7 +46,9 @@ async def uploaded_package(archivo):
 
 def batch_out(batch, created=None):
     result = {'id': str(batch.id), 'paquete_sha256': batch.paquete_sha256,
-              'fuentes': batch.fuentes, 'resumen': batch.resumen}
+              'fuentes': batch.fuentes, 'resumen': batch.resumen,
+              'fuentes_visibles': [batch.resumen.get('fuentes_visibles', {}).get(
+                  source_id, market_research_label(None)) for source_id in batch.fuentes]}
     if created is not None: result['creada'] = created
     return result
 
@@ -56,7 +59,8 @@ async def verificar(archivo: UploadFile = File(...)):
         async with uploaded_package(archivo) as package:
             result = await run_in_threadpool(verify_package, package, Path(settings.CATALOGO_ORIGINALES_DIR))
             return {'paquete_sha256': result.package_sha256, 'resumen': result.report(), 'fuentes': [
-                {**source, 'original_cotejado': source['fuente_id'] in result.verified_source_ids}
+                {**source, 'nombre_visible': market_research_label(source['fecha_vigencia']),
+                 'original_cotejado': source['fuente_id'] in result.verified_source_ids}
                 for source in result.records['fuente']]}
     except (CatalogPackageError, ValueError, KeyError) as exc:
         raise HTTPException(422, f'Paquete rechazado: {exc}') from exc

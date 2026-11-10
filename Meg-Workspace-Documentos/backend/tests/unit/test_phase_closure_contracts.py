@@ -1,5 +1,7 @@
 from pathlib import Path
 import ast
+import builtins
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -16,22 +18,40 @@ def test_no_runtime_shadow_packages():
     assert not [name for name in forbidden if (ROOT / name).exists()]
 
 
+def unfinished_code(source):
+    tree = ast.parse(source)
+    exception_bodies = {
+        id(item)
+        for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
+        if any(isinstance(base, ast.Name) and isinstance(getattr(builtins, base.id, None), type)
+               and issubclass(getattr(builtins, base.id), BaseException) for base in node.bases)
+        for item in node.body if isinstance(item, ast.Pass)
+    }
+    return [(node.lineno, 'pass') for node in ast.walk(tree)
+            if isinstance(node, ast.Pass) and id(node) not in exception_bodies] + [
+        (node.lineno, 'NotImplementedError') for node in ast.walk(tree)
+        if isinstance(node, ast.Raise) and isinstance(node.exc, ast.Call)
+        and isinstance(node.exc.func, ast.Name) and node.exc.func.id == 'NotImplementedError'
+    ]
+
+
+@pytest.mark.parametrize('source,expected', [
+    ('class InvalidDocument(ValueError):\n    pass', []),
+    ('class IncompleteService:\n    pass', [(2, 'pass')]),
+    ('def unfinished():\n    pass', [(2, 'pass')]),
+    ('class InvalidDocument(ValueError):\n    def unfinished(self):\n        pass', [(3, 'pass')]),
+    ('def unfinished():\n    raise NotImplementedError()', [(2, 'NotImplementedError')]),
+])
+def test_unfinished_code_gate_distinguishes_exceptions_from_stubs(source, expected):
+    assert unfinished_code(source) == expected
+
+
 def test_no_python_pass_or_notimplemented_in_product():
     findings = []
     for base in [ROOT / 'app', ROOT / 'tezcatlipoca']:
         for path in base.rglob('*.py'):
-            tree = ast.parse(path.read_text(encoding='utf-8'))
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Pass):
-                    findings.append((str(path), node.lineno, 'pass'))
-                if (
-                    isinstance(node, ast.Raise)
-                    and isinstance(node.exc, ast.Call)
-                    and isinstance(node.exc.func, ast.Name)
-                    and node.exc.func.id == 'NotImplementedError'
-                ):
-                    findings.append((str(path), node.lineno, 'NotImplementedError'))
-    assert findings == findings  # structural gate; zero is asserted below
+            findings.extend((str(path), line, reason) for line, reason in unfinished_code(
+                path.read_text(encoding='utf-8')))
     assert not findings, findings
 
 

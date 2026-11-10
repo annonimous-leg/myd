@@ -1,5 +1,7 @@
 # Instalación de Meg en Supabase
 
+> Nota de vigencia, 2026-11-09: el registro de organización y disponibilidad siguiente describe la consulta de octubre. La aceptación actual del dominio del licitante está en [ACEPTACION_BACKEND_LICITANTE.md](ACEPTACION_BACKEND_LICITANTE.md); el registro de proyectos, credenciales y pruebas del proveedor se conserva por separado como evidencia privada.
+
 Estado al 2026-10-15: el propietario autorizó la organización `Tio-cpu's` (`cztytulwkmcgoknbxjnz`) y región `us-east-1`. El conector devuelve `projects: []`. La consulta de coste falla con `UNAVAILABLE: MCP tool get_cost was not returned by tools/list`. No se recibió coste ni `confirm_cost_id`; no se creó un proyecto. El plan free de la organización no acredita el coste del proyecto. Este documento prepara la instalación y no acredita un despliegue ejecutado.
 
 ## Autoridades del sistema
@@ -77,7 +79,7 @@ El job `production-compose-config` comprueba el render con valores ficticios, si
 2. Crear identidades de aceptación de dos organizaciones. Confirmar aislamiento de expedientes, documentos, sesiones, tareas y eventos.
 3. Subir, recuperar y verificar SHA-256 de PDF e IFC por el API. Confirmar que los objetos son privados y conservan sus referencias tras reiniciar procesos.
 4. Ejecutar dos cofirmas simultáneas sobre el mismo PDF; recuperar ambas rendiciones, verificar la cadena, cifrado y firmas. Probar confianza/revocación de certificados y la TSA configurada con el proveedor real.
-5. Ejecutar licitación con bases congeladas, revisión documental, tres dictámenes, fallo y contrato; conservar las evidencias y los errores de los casos rechazados. No reutilizar el questionnaire como evidencia legal.
+5. Ejecutar `/procurement`: fuentes y requisitos confirmados, presupuesto, Workspace, revisión, aprobación por roles ligada a originales, firma cuando aplique y ZIP verificado. Registrar el acuse de presentación aportado y conservar evidencias y errores. Los routers de autoridad convocante están desmontados; publicación de convocatoria, fallo y adjudicación no son pasos del licitante.
 6. Ejecutar IFC → cantidades → mapeo APU → presupuesto → exportación desde navegador, con recarga y recuperación de tareas.
 7. Restaurar copia de base y objetos en un entorno separado, comprobar hashes y acceso, y registrar tiempos de recuperación. Las pruebas destructivas de recuperación de CI se ejecutan únicamente en sus bases desechables.
 

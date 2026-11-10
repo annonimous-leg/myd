@@ -1,0 +1,23 @@
+# Override opcional para desplegar OSRM dentro de la red Megalodon.
+# Usar con:
+# docker compose -f docker-compose.prod.yml -f docker-compose.osrm.yml --profile geospatial up -d
+# Requiere scripts/prepare_osrm.sh ejecutado con un extracto OSM permitido.
+# El contenedor NO publica el puerto de rutas hacia Internet.
+services:
+  api:
+    environment:
+      TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS: "false"
+      TEZCATLIPOCA_OSRM_URL: "http://osrm:5000"
+  osrm:
+    profiles: ["geospatial"]
+    image: ${OSRM_IMAGE:-ghcr.io/project-osrm/osrm-backend:26.10}
+    command:
+      - osrm-routed
+      - --algorithm
+      - mld
+      - /data/${OSRM_DATASET_BASENAME:-region}.osrm
+    volumes:
+      - ./data/osrm:/data:ro
+    expose:
+      - "5000"
+    restart: unless-stopped

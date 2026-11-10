@@ -2,7 +2,12 @@ import math
 
 import pytest
 
-from app.engines.bim.drawing.core import MeshElement, Plane, cut_mesh_with_plane
+from app.engines.bim.drawing.core import (
+    MeshElement,
+    Plane,
+    build_elevation_document,
+    cut_mesh_with_plane,
+)
 
 
 def test_coplanar_patch_merges_shared_edges_within_tolerance_across_quantization_bins():
@@ -37,3 +42,32 @@ def test_coplanar_patch_merges_shared_edges_within_tolerance_across_quantization
     # A coplanar triangulation seam is not part of the drawing boundary.
     assert len(segments) == 4
     assert total_length == pytest.approx(6.0, abs=1e-6)
+
+
+@pytest.mark.parametrize("faces", ([0, 1, 2, 3, 2, 4], [3, 2, 4, 0, 1, 2]))
+def test_elevation_omits_triangulation_seam_across_quantization_bins(faces):
+    tolerance_m = 1e-6
+    mesh = MeshElement.from_flat(
+        element_id="panel",
+        global_id="panel-guid",
+        ifc_type="IfcPlate",
+        vertices=[
+            0.49 * tolerance_m, 0.0, 0.0,
+            2.0, 0.0, 0.0,
+            2.0, 0.0, 1.0,
+            0.51 * tolerance_m, 0.0, 0.0,
+            0.0, 0.0, 1.0,
+        ],
+        faces=faces,
+    )
+
+    document = build_elevation_document(
+        [mesh], view_direction=(0.0, -1.0, 0.0), tolerance_m=tolerance_m,
+    )
+
+    assert len(document.segments) == 4
+    assert all(
+        abs(segment.end[0] - segment.start[0]) <= tolerance_m
+        or abs(segment.end[1] - segment.start[1]) <= tolerance_m
+        for segment in document.segments
+    )

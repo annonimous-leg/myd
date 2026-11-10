@@ -9,7 +9,8 @@ Schemas de catálogo APU.
 from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
+from app.core.catalogo_labels import market_research_label
 
 from app.models.catalogo_apu import TipoConceptoAPU, UnidadMedida
 
@@ -42,6 +43,13 @@ class CatalogoAPUOut(BaseModel):
     vigencia_fin: Optional[str]
     origen: Optional[dict] = None
     created_at: datetime
+
+    @computed_field
+    @property
+    def fuente_visible(self) -> str:
+        source = (self.origen or {}).get('fuente')
+        source_date = source.get('fecha_vigencia') if isinstance(source, dict) else None
+        return market_research_label(source_date or self.vigencia_inicio)
 
     class Config:
         from_attributes = True

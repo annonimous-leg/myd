@@ -94,7 +94,8 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     assert.ok(tender.id);
     assert.equal(tender.expediente_id, expediente.id);
     assert.equal(tender.jurisdiction_code, profileCode);
-    await page.getByRole("heading", { name: "Workspace documental", exact: true }).waitFor();
+    // The bid stays on its evidence/review panel. Annex editing is a separate view.
+    await page.getByRole("heading", { name: "Automatización de proposición", exact: true }).waitFor();
     await page.getByRole("heading", { name: "1. Fuentes", exact: true }).waitFor();
 
     const sourceBuffer = Buffer.from(SOURCE_TEXT, "utf8");
@@ -204,12 +205,24 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     const workspaceDocument = await workspaceCreateResponse.json();
     assert.equal(workspaceDocument.version, 1);
     assert.equal(workspaceDocument.human_modified, false);
-    await page.getByRole("button", { name: "Actualizar workspace de licitación", exact: true }).click();
-    await page.getByRole("button", { name: /CI-TECHNICAL-MEMO/ }).click();
-    const workspaceEditor = page.locator('textarea[placeholder="Contenido editable del documento..."]');
+    const [workspaceListResponse] = await Promise.all([
+      page.waitForResponse(response =>
+        response.request().method() === "GET" &&
+        new URL(response.url()).pathname ===
+          "/api/v1/procurement/tenders/" + tender.id + "/workspace/documents",
+      ),
+      page.getByRole("button", { name: "Actualizar workspace de licitación", exact: true }).click(),
+    ]);
+    assert.equal(workspaceListResponse.status(), 200, await workspaceListResponse.text());
+    await page.getByRole("button", { name: "Abrir Documentos", exact: true }).click();
+    await page.getByRole("heading", { name: "Documentos", exact: true }).waitFor();
+    await page.getByRole("navigation", { name: "Anexos de la propuesta" })
+      .getByRole("button", { name: /CI-TECHNICAL-MEMO/ }).click();
+    const workspaceEditor = page.getByPlaceholder("Contenido editable del documento...", { exact: true });
     await workspaceEditor.waitFor();
     const humanText = "NOTA DE TRABAJO CI: revisar el programa, el presupuesto y los anexos antes de presentar.";
     await workspaceEditor.fill(humanText);
+    await page.getByText("Cambios pendientes: guarda una nueva revisión antes de salir.", { exact: true }).waitFor();
     const [workspaceUpdateResponse] = await Promise.all([
       page.waitForResponse((response) =>
         response.request().method() === "PUT" &&
@@ -220,6 +233,37 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     ]);
     assert.equal(workspaceUpdateResponse.status(), 200, await workspaceUpdateResponse.text());
     const updatedWorkspaceDocument = await workspaceUpdateResponse.json();
+    await page.getByText("Revisión 2", { exact: true }).waitFor();
+    await page.getByRole("article", { name: "Vista del documento guardado" })
+      .getByText(humanText, { exact: true }).waitFor();
+    await page.getByText("Historial de revisiones (2)", { exact: true }).click();
+    await page.getByRole("button", { name: /Ver revisión 1/ }).click();
+    await page.getByRole("article", { name: "Vista del documento guardado" })
+      .getByText("Esta revisión todavía no tiene contenido.", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "Volver a la revisión vigente", exact: true }).click();
+    await page.getByRole("article", { name: "Vista del documento guardado" })
+      .getByText(humanText, { exact: true }).waitFor();
+
+    // Two editors cannot silently overwrite each other after a saved human edit.
+    const staleUpdate = await page.request.put(
+      apiOrigin + "/api/v1/procurement/tenders/" + tender.id +
+        "/workspace/documents/" + workspaceDocument.id,
+      {
+        headers: { Origin: origin },
+        data: {
+          content_text: "Conflicto: actualización antigua",
+          content_model: {},
+          expected_row_version: workspaceDocument.row_version,
+        },
+      },
+    );
+    assert.equal(staleUpdate.status(), 409, await staleUpdate.text());
+    const persistedDocumentResponse = await page.request.get(
+      apiOrigin + "/api/v1/procurement/tenders/" + tender.id +
+        "/workspace/documents/" + workspaceDocument.id,
+    );
+    assert.equal(persistedDocumentResponse.status(), 200, await persistedDocumentResponse.text());
+    assert.equal((await persistedDocumentResponse.json()).content_text, humanText);
     assert.equal(updatedWorkspaceDocument.version, 2);
     assert.equal(updatedWorkspaceDocument.human_modified, true);
     assert.equal(updatedWorkspaceDocument.status, "DRAFT");

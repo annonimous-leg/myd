@@ -219,7 +219,9 @@ class IndicesCostosService:
         ).outerjoin(conceptos, conceptos.c.fuente_id == CatalogoFuente.id)
          .outerjoin(insumos, insumos.c.fuente_id == CatalogoFuente.id)
          .order_by(CatalogoFuente.nombre, CatalogoFuente.id).offset(skip).limit(limit))).all()
-        fuentes = [{**serializar(fuente), 'conceptos': conceptos_total,
+        from app.core.catalogo_labels import market_research_label
+        fuentes = [{**serializar(fuente), 'nombre_visible': market_research_label(fuente.vigencia_inicio),
+                    'conceptos': conceptos_total,
                     'conceptos_activos': conceptos_activos, 'insumos': insumos_total,
                     'insumos_activos': insumos_activos,
                     'materiales_sin_iva_mxn': materiales if fuente.activo and fuente.moneda == 'MXN' else 0}

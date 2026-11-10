@@ -3,8 +3,13 @@ from __future__ import annotations
 import io
 import re
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
+from zipfile import BadZipFile, ZIP_DEFLATED, ZIP_STORED, ZipFile
+
+from lxml.etree import XMLSyntaxError
+
+from .workspace_docx import MAX_ENTRIES, MAX_EXPANDED, parse_xml
 
 
 @dataclass(frozen=True)
@@ -35,6 +40,8 @@ class TenderSourceExtractor:
     """
 
     MAX_TEXT_CHARS = 5_000_000
+    MAX_OFFICE_EXPANDED_BYTES = MAX_EXPANDED
+    MAX_OFFICE_ENTRIES = MAX_ENTRIES
     _OFFICIAL_ID_PATTERNS = (
         re.compile(r"\b(?:REQUISITO|REQ(?:UISITO)?|R)\s*[-.:#]?\s*([A-Z0-9][A-Z0-9._/-]{0,30})\b", re.I),
         re.compile(r"\b(?:FORMATO|ANEXO|AP[ÉE]NDICE|APENDICE)\s*[-.:#]?\s*([A-Z0-9][A-Z0-9._/-]{0,30})\b", re.I),
@@ -51,16 +58,63 @@ class TenderSourceExtractor:
         if not content:
             raise ValueError("El documento fuente está vacío.")
         suffix = Path(filename).suffix.lower()
+        if suffix in {".docm", ".dotm", ".xlsm", ".xltm", ".xlam"} or "macroenabled" in media_type.lower():
+            raise ValueError("No se admiten fuentes Office con macros.")
         if suffix == ".pdf" or media_type == "application/pdf":
             return self._pdf(filename, media_type, content)
         if suffix == ".docx" or media_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            return self._docx(filename, media_type, content)
+            return self._office(filename, media_type, content, "docx")
         if suffix in {".xlsx", ".xlsm"} or "spreadsheet" in media_type or "excel" in media_type:
-            return self._xlsx(filename, media_type, content)
+            return self._office(filename, media_type, content, "xlsx")
         if suffix in {".txt", ".csv", ".json", ".xml", ".md"} or media_type.startswith("text/") or "json" in media_type or "xml" in media_type:
             text = content.decode("utf-8-sig", errors="strict")
             return ExtractedSource(filename, media_type, text[: self.MAX_TEXT_CHARS], None, {"format": suffix.lstrip("."), "blocks": self._text_blocks(text)})
         raise ValueError(f"Formato documental no soportado sin un extractor explícito: {filename}")
+
+    def _office(self, filename: str, media_type: str, content: bytes, kind: str) -> ExtractedSource:
+        self._validate_office_source(content, kind)
+        try:
+            parser = self._docx if kind == "docx" else self._xlsx
+            return parser(filename, media_type, content)
+        except (XMLSyntaxError, BadZipFile, KeyError) as exc:
+            # Only expected package/parser failures become document errors.
+            # Programming, storage and database errors retain their own paths.
+            raise ValueError("La fuente Office contiene XML inválido o partes ausentes.") from exc
+
+    def _validate_office_source(self, content: bytes, kind: str) -> None:
+        """Bound OOXML before a parser inflates it; never rewrite the original."""
+        try:
+            with ZipFile(io.BytesIO(content)) as archive:
+                entries = archive.infolist()
+                if (len(entries) > self.MAX_OFFICE_ENTRIES or
+                        sum(entry.file_size for entry in entries) > self.MAX_OFFICE_EXPANDED_BYTES):
+                    raise ValueError("La fuente Office supera el límite de descompresión.")
+                seen: set[str] = set()
+                names: set[str] = set()
+                for entry in entries:
+                    name = entry.filename
+                    path = PurePosixPath(name)
+                    canonical = name.casefold().rstrip("/")
+                    if (not canonical or path.is_absolute() or ".." in path.parts or
+                            "\\" in name or name.rstrip("/") != path.as_posix() or
+                            canonical in seen or entry.flag_bits & 1 or
+                            entry.compress_type not in (ZIP_STORED, ZIP_DEFLATED)):
+                        raise ValueError("La fuente Office contiene una entrada ZIP incompatible.")
+                    seen.add(canonical)
+                    names.add(name)
+                    if ("vbaproject" in canonical or
+                            canonical.startswith(("word/activex/", "word/embeddings/",
+                                                  "xl/activex/", "xl/embeddings/", "xl/macrosheets/"))):
+                        raise ValueError("La fuente Office contiene macros o componentes activos.")
+                expected = "word/document.xml" if kind == "docx" else "xl/workbook.xml"
+                if not {"[Content_Types].xml", "_rels/.rels", expected} <= names:
+                    raise ValueError("El paquete Office está incompleto o no corresponde al formato declarado.")
+                content_types = parse_xml(archive.read("[Content_Types].xml"))
+                if any("macroenabled" in node.get("ContentType", "").lower() or
+                       "vbaproject" in node.get("ContentType", "").lower() for node in content_types):
+                    raise ValueError("No se admiten fuentes Office con macros.")
+        except (BadZipFile, OSError, EOFError, RuntimeError) as exc:
+            raise ValueError("La fuente no es un archivo Office válido y sin cifrar.") from exc
 
     def detect_document_version(self, extracted: ExtractedSource, pattern: str | None = None) -> str | None:
         rx = pattern or r"(?:versi[oó]n|version|rev(?:isi[oó]n)?|revision)\s*[:#-]?\s*([A-Za-z0-9._-]+)"

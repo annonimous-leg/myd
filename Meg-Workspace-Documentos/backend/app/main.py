@@ -32,6 +32,21 @@ import structlog
 
 logger = structlog.get_logger()
 
+# Hosted providers that do not have an approved, no-fee commercial licence.
+# Reject at the API boundary without calling their clients. Keep local engines,
+# source code and historical records available for replacement adapters.
+_TEZCATLIPOCA_BLOCKED_ROUTES = (
+    "/api/tezcatlipoca/aviation/adsb/",  # ADS-B Exchange
+    "/api/tezcatlipoca/aviation/metar/",  # AVWX hosted (review tier)
+    "/api/tezcatlipoca/aviation/taf/",    # AVWX hosted (review tier)
+    "/api/tezcatlipoca/sar/gee/",        # Google Earth Engine
+    "/api/tezcatlipoca/transport/isochrone",
+    "/api/tezcatlipoca/cyber/shodan/",
+    "/api/tezcatlipoca/cyber/censys/",
+    "/api/tezcatlipoca/cyber/greynoise/",
+)
+
+
 # ═══════════════════════════════════════════════════════════════════
 # INTEGRACIÓN ZIP 4: TEZCATLIPOCA (geo / OSINT / cyber / aviación / SAR)
 # ═══════════════════════════════════════════════════════════════════
@@ -53,6 +68,7 @@ from routers import (  # noqa: E402 -- import tardío: depende del sys.path.inse
     cyber_router as tz_cyber_router,
     entity_router as tz_entity_router,
     geo_router as tz_geo_router,
+    weather_router as tz_weather_router,
     geo_threats_router as tz_geo_threats_router,
     layers_router as tz_layers_router,
     malware_router as tz_malware_router,
@@ -112,6 +128,10 @@ from services.transport.gtfs_mobility import GTFSMobilityClient
 from services.aviation.faa_notams import FAANOTAMClient
 from services.aviation.avwx_engine import AVWXClient
 from services.aviation.adsb_exchange import ADSBExchangeClient
+from services.aviation.adsb_lol import ADSBLoLClient
+from services.transport.osrm_routes import OSRMClient
+from services.weather.noaa_nws import NOAAWeatherClient
+from services.weather.ecmwf_grids import ECMWFGridStore
 from services.sar.nasa_earthdata import NASAEarthdataClient
 from services.sar.google_earth_engine import GoogleEarthEngineClient
 from services.sar.copernicus_scihub import CopernicusSciHubClient
@@ -179,7 +199,7 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         await data_fetcher.start()
         await ais_connector.connect()
 
-        graphhopper = GraphHopperClient()
+        graphhopper = None  # Hosted Directions API blocked pending free commercial replacement
         parcial["clients_con_http_session"].append(graphhopper)
         db_trains = DBTrainClient()
         parcial["clients_con_http_session"].append(db_trains)
@@ -187,13 +207,19 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         parcial["clients_con_http_session"].append(gtfs_mobility)
         faa_notams = FAANOTAMClient()
         parcial["clients_con_http_session"].append(faa_notams)
-        avwx = AVWXClient()
+        avwx = None  # Hosted AVWX tier not approved for production
         parcial["clients_con_http_session"].append(avwx)
-        adsb_exchange = ADSBExchangeClient()
+        adsb_exchange = None  # Paid commercial ADS-B Exchange
         parcial["clients_con_http_session"].append(adsb_exchange)
+        adsb_lol = ADSBLoLClient()
+        parcial["clients_con_http_session"].append(adsb_lol)
+        osrm_routes = OSRMClient()
+        parcial["clients_con_http_session"].append(osrm_routes)
+        noaa_weather = NOAAWeatherClient()
+        parcial["clients_con_http_session"].append(noaa_weather)
         nasa_earthdata = NASAEarthdataClient()
         parcial["clients_con_http_session"].append(nasa_earthdata)
-        gee = GoogleEarthEngineClient()
+        gee = None  # Commercial Google Earth Engine requires billing
         copernicus_scihub = CopernicusSciHubClient()
         parcial["clients_con_http_session"].append(copernicus_scihub)
         webodm = WebODMClient()
@@ -208,6 +234,10 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         app.state.faa_notams = faa_notams
         app.state.avwx = avwx
         app.state.adsb_exchange = adsb_exchange
+        app.state.adsb_lol = adsb_lol
+        app.state.osrm_routes = osrm_routes
+        app.state.noaa_weather = noaa_weather
+        app.state.ecmwf_grids = ECMWFGridStore()
         app.state.nasa_earthdata = nasa_earthdata
         app.state.gee = gee
         app.state.copernicus_scihub = copernicus_scihub
@@ -231,6 +261,10 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
 
         app.state.tezcatlipoca_components = {
             "geo": _capability("READY"),
+            "aviation_open": _capability("READY", "ADSB.lol: adapter created, provider health requires a successful query."),
+            "weather_open": _capability("READY", "NOAA/NWS: only supported US territories; ECMWF requires locally ingested GRIB."),
+            "weather_global": _capability("CONFIGURED" if app.state.ecmwf_grids.root else "CONFIG_REQUIRED", None if app.state.ecmwf_grids.root else "Configure TEZCATLIPOCA_ECMWF_STORE with real ECMWF IFS grids."),
+            "routing_self_hosted": _capability("CONFIGURED" if osrm_routes.base_url else "CONFIG_REQUIRED", None if osrm_routes.base_url else "Set TEZCATLIPOCA_OSRM_URL for own routing server."),
             "osint": _capability("READY"),
             "malware": _capability("READY"),
             "sar": _capability(
@@ -480,6 +514,16 @@ def create_app() -> FastAPI:
     # restringir por firewall/reverse-proxy, no aquí.
     app.add_api_route("/metrics", metrics_endpoint, methods=["GET"], include_in_schema=False)
 
+    @app.middleware("http")
+    async def block_unlicensed_tezcatlipoca_providers(request: Request, call_next):
+        path = request.scope["path"]
+        if any(path.startswith(prefix) for prefix in _TEZCATLIPOCA_BLOCKED_ROUTES):
+            return JSONResponse(
+                {"error": "provider_disabled", "reason": "No approved free commercial licence",
+                 "replacement_required": True}, status_code=503,
+            )
+        return await call_next(request)
+
     # API REST v1
     app.include_router(api_router, prefix="/api/v1")
 
@@ -498,6 +542,7 @@ def create_app() -> FastAPI:
     app.include_router(tz_cyber_router, prefix="/api/tezcatlipoca/cyber", tags=["Tezcatlipoca: Cyber"])
     app.include_router(tz_entity_router, prefix="/api/tezcatlipoca/entity", tags=["Tezcatlipoca: Entity"])
     app.include_router(tz_geo_router, prefix="/api/tezcatlipoca/geo", tags=["Tezcatlipoca: Geo"])
+    app.include_router(tz_weather_router, prefix="/api/tezcatlipoca/weather", tags=["Tezcatlipoca: Weather"])
     app.include_router(tz_geo_threats_router, prefix="/api/tezcatlipoca/geo", tags=["Tezcatlipoca: Geo Threats"])
     app.include_router(tz_layers_router, prefix="/api/tezcatlipoca/layers", tags=["Tezcatlipoca: Layers"])
     app.include_router(tz_malware_router, prefix="/api/tezcatlipoca/malware", tags=["Tezcatlipoca: Malware"])

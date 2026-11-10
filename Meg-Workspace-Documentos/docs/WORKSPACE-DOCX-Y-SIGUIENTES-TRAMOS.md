@@ -1,5 +1,7 @@
 # Megalodon · DOCX en Workspace y siguientes tramos
 
+> Nota de vigencia, 2026-11-09: las etapas descritas a continuación son un registro histórico. El código actual ya incluye recálculo servidor y controles de promoción/bytes finales sujetos a validación. Para ejecutar el cierre vigente consultar [Aceptación del backend del licitante](ACEPTACION_BACKEND_LICITANTE.md) y sus resultados de pruebas; no interpretar todos los pendientes históricos como ausencias actuales.
+
 © 2026 Carl Own Megalodon
 
 ## Activación por dependencia

@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowLeft, Download, FileText, Moon, Sun } from 'lucide-react';
 import { megalodonClient } from '@/lib/api-client';
-import type { WorkspaceDocumentSummary, WorkspaceEditor } from '@/lib/megalodon-client';
+import type { WorkspaceDocumentSummary, WorkspaceDocumentDetail, WorkspaceDocumentRevision, WorkspaceEditor } from '@/lib/megalodon-client';
 import { useAuthStore } from '@/stores/useAuthStore';
 import './workspace-documents.css';
 
@@ -17,14 +17,20 @@ interface Props {
   onBack: () => void;
   onOpen: (document: WorkspaceDocumentSummary) => void;
   onVersion: (id: string, version: number) => void;
+  frozen?: boolean;
 }
 
-export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen, onVersion }: Props) {
+export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen, onVersion, frozen = false }: Props) {
   const role = useAuthStore(state => state.user?.role?.toLowerCase());
   const canEdit = role === 'tecnico' || role === 'admin' || role === 'superadmin';
   const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
   const [selection, setSelectedId] = useState('');
   const [editor, setEditor] = useState<WorkspaceEditor | null>(null);
+  const [plainDocument, setPlainDocument] = useState<WorkspaceDocumentDetail | null>(null);
+  const [plainText, setPlainText] = useState('');
+  const [history, setHistory] = useState<WorkspaceDocumentRevision[]>([]);
+  const [historyPreview, setHistoryPreview] = useState<WorkspaceDocumentRevision | null>(null);
+  const [notice, setNotice] = useState('');
   const [values, setValues] = useState<Record<string, string>>({});
   const [preview, setPreview] = useState<{ url: string; version: number; documentId: string } | null>(null);
   const [error, setError] = useState('');
@@ -38,7 +44,11 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
   const changed = Object.fromEntries((editor?.fields ?? [])
     .filter(field => !field.read_only && values[field.path] !== field.value)
     .map(field => [field.path, values[field.path]]));
-  const dirty = Object.keys(changed).length > 0;
+  const fieldDirty = Object.keys(changed).length > 0;
+  const plainDirty = Boolean(plainDocument && plainText !== plainDocument.content_text);
+  const dirty = fieldDirty || plainDirty;
+  const locked = frozen || Boolean(editor?.locked || plainDocument?.locked);
+  const currentVersion = plainDocument?.version ?? editor?.version;
   const initialValues = Object.fromEntries((editor?.fields ?? [])
     .filter(field => !field.read_only && field.value.trim())
     .map(field => [field.path, field.value]));
@@ -46,7 +56,7 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
   const extension = extensions[editor?.media_type ?? ''];
   const needsFile = !editor?.file_available || (isTemplate && extension !== editor?.render_format);
   const hasBudgetFields = editor?.fields.some(field => field.read_only);
-  const canRender = dirty || hasBudgetFields || (needsFile && Object.keys(initialValues).length > 0);
+  const canRender = fieldDirty || hasBudgetFields || (needsFile && Object.keys(initialValues).length > 0);
   const currentPreview = preview?.documentId === selectedId && preview.version === editor?.version ? preview : null;
 
   function loadFields(data: WorkspaceEditor) {
@@ -68,11 +78,31 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
     let active = true;
     setLoading(true);
     setEditor(null);
+    setPlainDocument(null);
+    setPlainText('');
+    setHistory([]);
+    setHistoryPreview(null);
     setValues({});
+    setNotice('');
     setError('');
-    megalodonClient.procurement.workspaceEditor(tenderId, selectedId)
-      .then(data => { if (active) loadFields(data); })
-      .catch(err => { if (active) setError(String(err.message || err)); })
+    const load = async () => {
+      // The server owns the format and revision. Never infer editability from
+      // an annex name: text notes use the versioned PUT; mapped Office/PDF
+      // annexes retain their template-aware render endpoint.
+      const document = await megalodonClient.procurement.workspaceGetDocument(tenderId, selectedId);
+      if (!active) return;
+      if (document.media_type === 'text/plain') {
+        const revisions = await megalodonClient.procurement.workspaceHistory(tenderId, selectedId);
+        if (!active) return;
+        setPlainDocument(document);
+        setPlainText(document.content_text);
+        setHistory(revisions);
+      } else {
+        const mappedEditor = await megalodonClient.procurement.workspaceEditor(tenderId, selectedId);
+        if (active) loadFields(mappedEditor);
+      }
+    };
+    void load().catch(err => { if (active) setError(String(err.message || err)); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [tenderId, selectedId, reload]);
@@ -116,13 +146,42 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!editor || saving || editor.locked || !canEdit || !canRender) return;
+    if (saving || locked || !canEdit) return;
+    if (plainDocument) {
+      if (!plainDirty) return;
+      setSaving(true);
+      setError('');
+      setNotice('');
+      try {
+        const saved = await megalodonClient.procurement.workspaceUpdateDocument(tenderId, plainDocument.id, {
+          content_text: plainText,
+          content_model: plainDocument.content_model,
+          expected_row_version: plainDocument.row_version,
+        });
+        setPlainDocument(saved);
+        setPlainText(saved.content_text);
+        setHistoryPreview(null);
+        onVersion(saved.id, saved.version);
+        setNotice('Revisión ' + saved.version + ' guardada en el expediente con trazabilidad de autor.');
+        // The server remains the source of truth for immutable history.
+        const versions = await megalodonClient.procurement.workspaceHistory(tenderId, saved.id);
+        setHistory(versions);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+    if (!editor || !canRender) return;
     setSaving(true);
     setError('');
+    setNotice('');
     try {
-      const saved = await megalodonClient.procurement.workspaceRender(tenderId, editor.id, editor.row_version, dirty ? changed : initialValues, editor.template_token);
+      const saved = await megalodonClient.procurement.workspaceRender(tenderId, editor.id, editor.row_version, fieldDirty ? changed : initialValues, editor.template_token);
       loadFields(saved);
       onVersion(saved.id, saved.version);
+      setNotice('Revisión ' + saved.version + ' guardada y disponible para revisión.');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -138,10 +197,11 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
             <ArrowLeft size={15} aria-hidden /> Expediente
           </button>
           <h1>Documentos</h1>
-          <p>Edita los campos del anexo y comprueba el archivo de esa revisión.</p>
+          <p>Edición verificable, versiones trazables y anexos vinculados a su expediente.</p>
         </div>
         <div className="workspace-docs__actions">
-          {editor && <span className="workspace-docs__badge">{editor.sha256 ? 'Borrador · ' : ''}Revisión {editor.version}</span>}
+          {currentVersion != null && <span className="workspace-docs__badge">{editor?.sha256 ? 'Borrador · ' : ''}Revisión {currentVersion}</span>}
+          {locked && <span className="workspace-docs__badge" role="status">Solo lectura</span>}
           {currentPreview && <a href={currentPreview.url}
             download={`anexo-${editor!.id}-v${currentPreview.version}.${extension}`}>
             <Download size={15} aria-hidden /> Descargar revisión
@@ -155,6 +215,7 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
       <div className="workspace-docs__grid">
         <nav aria-label="Anexos de la propuesta" className="workspace-docs__annexes">
           <h2>Anexos de la propuesta</h2>
+          <p className="workspace-docs__eyebrow">EXPEDIENTE DOCUMENTAL</p>
           {documents.length === 0 && templates.length === 0 && <p>Los anexos aparecerán aquí después de compilar el expediente.</p>}
           {documents.map(doc => (
             <button key={doc.id} type="button" aria-current={doc.id === selectedId ? 'true' : undefined}
@@ -175,7 +236,22 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
             ))}
         </nav>
         <div className="workspace-docs__preview" aria-label="Vista previa del archivo">
-          {currentPreview && editor?.media_type === 'application/pdf' ?
+          {plainDocument ? (
+            <article className="workspace-docs__page" aria-label="Vista del documento guardado">
+              <div className="workspace-docs__page-head">
+                <span>{selected?.artifact_code}</span>
+                <span>v{historyPreview?.version ?? plainDocument.version}</span>
+              </div>
+              <div className="workspace-docs__page-main">
+                <span className="workspace-docs__eyebrow">NOTA DE TRABAJO · SIN FIRMA</span>
+                <h2>{plainDocument.name}</h2>
+                {plainDirty && !historyPreview && <p role="status">Hay cambios sin guardar. Esta vista muestra la última revisión registrada.</p>}
+                {historyPreview && <p role="status">Consulta histórica de solo lectura. La revisión actual no cambia.</p>}
+                <div className="workspace-docs__text-preview">{(historyPreview?.content_text ?? plainDocument.content_text) || 'Esta revisión todavía no tiene contenido.'}</div>
+              </div>
+              <div className="workspace-docs__page-foot">Megalodon · Workspace documental · {historyPreview ? 'Historial' : 'Revisión vigente'}</div>
+            </article>
+          ) : currentPreview && editor?.media_type === 'application/pdf' ?
             <iframe src={currentPreview.url} title={`Vista previa de ${selected?.name || 'anexo'}, revisión ${editor.version}`} /> :
             <div className="workspace-docs__empty">
               <FileText size={26} aria-hidden />
@@ -185,25 +261,62 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
             </div>}
         </div>
         <aside className="workspace-docs__fields">
-          <h2>Campos del anexo</h2>
-          {error && <p role="alert">{error} <button type="button" onClick={() => leave(() => setReload(n => n + 1))}>Recargar</button></p>}
-          {editor?.locked && <p>Esta revisión está bloqueada.</p>}
-          {editor && !editor.fields.length && <p>El perfil de este formato no tiene campos habilitados para editar.</p>}
+          <h2>{plainDocument ? 'Edición del documento' : 'Campos del anexo'}</h2>
+          <p className="workspace-docs__eyebrow">{plainDocument ? 'BORRADOR HUMANO · VERSIONADO' : 'FORMATO VINCULADO AL BACKEND'}</p>
+          {error && <p role="alert" className="workspace-docs__alert">{error} <button type="button" onClick={() => leave(() => setReload(n => n + 1))}>Recargar desde servidor</button></p>}
+          {notice && <p role="status" className="workspace-docs__success">{notice}</p>}
+          {locked && <p>Este documento o expediente está bloqueado para edición.</p>}
+          {plainDocument && (
+            <>
+              <form onSubmit={save}>
+                <label>Contenido del documento
+                  <textarea
+                    placeholder="Contenido editable del documento..."
+                    aria-label="Contenido del documento"
+                    rows={16}
+                    value={plainText}
+                    disabled={saving || locked || !canEdit}
+                    onChange={event => { setPlainText(event.target.value); setNotice(''); }}
+                  />
+                </label>
+                {plainDirty && <p role="status">Cambios pendientes: guarda una nueva revisión antes de salir.</p>}
+                <p className="workspace-docs__hint">Las notas internas de texto se guardan en el backend. No son anexos oficiales firmados ni generan automáticamente un PDF.</p>
+                {canEdit && <button type="submit" disabled={saving || locked || !plainDirty}>
+                  {saving ? 'Guardando revisión…' : 'Guardar versión'}
+                </button>}
+              </form>
+              <details className="workspace-docs__history">
+                <summary>Historial de revisiones ({history.length})</summary>
+                <div className="workspace-docs__history-entries">
+                  {history.map(revision => (
+                    <button type="button" key={revision.version}
+                      aria-pressed={historyPreview?.version === revision.version}
+                      onClick={() => setHistoryPreview(revision)}>
+                      <strong>Ver revisión {revision.version}</strong>
+                      <small>{revision.operation} · {new Date(revision.created_at).toLocaleString('es-MX')}</small>
+                    </button>
+                  ))}
+                  {historyPreview && <button type="button" onClick={() => setHistoryPreview(null)}>Volver a la revisión vigente</button>}
+                </div>
+              </details>
+            </>
+          )}
+          {editor && !editor.fields.length && <p>El perfil de este formato no tiene campos habilitados para editar. Adjunta el mapa oficial de la plantilla para habilitar campos verificables.</p>}
           {editor && editor.fields.length > 0 && (
             <form onSubmit={save}>
               {editor.fields.map(field => (
                 <label key={field.path}>{field.label}{field.read_only && <small> · Presupuesto</small>}
                   {!isTemplate && field.path.startsWith('technical.') ?
                     <textarea maxLength={field.max_length} value={values[field.path] ?? ''} rows={4}
-                      disabled={saving || editor.locked || !canEdit}
+                      disabled={saving || locked || !canEdit}
                       onChange={e => setValues(old => ({ ...old, [field.path]: e.target.value }))} /> :
                     <input readOnly={field.read_only} maxLength={field.max_length} value={values[field.path] ?? ''}
-                      disabled={saving || editor.locked || !canEdit}
+                      disabled={saving || locked || !canEdit}
                       onChange={e => setValues(old => ({ ...old, [field.path]: e.target.value }))} />}
                 </label>
               ))}
               {dirty && <p role="status">El archivo disponible corresponde a la última revisión guardada.</p>}
-              {canEdit && <button type="submit" disabled={saving || editor.locked || !canRender}>
+              {canEdit && <button type="submit" disabled={saving || locked || !canRender}>
                 {saving ? 'Generando archivo…' : isTemplate ? 'Guardar borrador' : 'Guardar y previsualizar'}
               </button>}
             </form>

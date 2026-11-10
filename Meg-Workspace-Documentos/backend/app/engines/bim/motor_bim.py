@@ -28,6 +28,7 @@ from typing import Dict, List, Optional, Any
 import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.element
+import ifcopenshell.util.placement
 import ifcopenshell.util.shape
 import ifcopenshell.util.unit
 
@@ -170,6 +171,19 @@ class MotorBIM:
         except Exception:
             return []
 
+    def cotas_niveles(self) -> list[tuple[str, float]]:
+        """Storey elevations in the same world coordinates and units as meshes."""
+        levels = []
+        for storey in self.modelo.by_type("IfcBuildingStorey"):
+            placement = storey.ObjectPlacement
+            if placement is None or not placement.is_a("IfcLocalPlacement"):
+                continue
+            z = float(ifcopenshell.util.placement.get_local_placement(placement)[2, 3])
+            elevation = z * self._escala_longitud
+            if math.isfinite(elevation):
+                levels.append((storey.Name or f"Nivel {storey.id()}", elevation))
+        return sorted(levels, key=lambda level: (level[1], level[0]))
+
     def _obtener_nivel(self, entidad) -> Optional[str]:
         """Nombre del IfcBuildingStorey que contiene al elemento, si existe."""
         try:
@@ -183,12 +197,34 @@ class MotorBIM:
             )
         return None
 
-    def _cantidad_si(self, data: dict, unit_type: str) -> float:
-        quantity = self.modelo.by_id(data["id"])
+    @staticmethod
+    def _cantidades_declaradas(entidad) -> dict:
+        """Read whole-element quantities with occurrence values overriding their type."""
+        tipo = ifcopenshell.util.element.get_type(entidad)
+        definitions = list(getattr(tipo, "HasPropertySets", None) or ())
+        for relation in getattr(entidad, "IsDefinedBy", ()) or ():
+            if relation.is_a("IfcRelDefinesByProperties"):
+                definition = relation.RelatingPropertyDefinition
+                if definition.is_a("IfcPropertySetDefinitionSet"):
+                    definitions.extend(definition.wrappedValue)
+                else:
+                    definitions.append(definition)
+
+        qtos: dict = {}
+        for definition in definitions:
+            if definition.is_a("IfcElementQuantity"):
+                quantities = qtos.setdefault(definition.Name, {})
+                for quantity in definition.Quantities:
+                    # A complex quantity can describe a material layer. Its
+                    # children must not be read as totals for the entire element.
+                    quantities[quantity.Name] = quantity
+        return qtos
+
+    def _cantidad_si(self, quantity, unit_type: str) -> float:
         unit = ifcopenshell.util.unit.get_property_unit(quantity, self.modelo)
         if unit is None or getattr(unit, "UnitType", None) != unit_type:
             raise ValueError(f"Cantidad {quantity.Name} sin unidad dimensional válida: {unit_type}")
-        value = float(data["value"]) * ifcopenshell.util.unit.get_unit_scale(unit)
+        value = float(quantity[3]) * ifcopenshell.util.unit.get_unit_scale(unit)
         if not math.isfinite(value) or value < 0:
             raise ValueError(f"Cantidad {quantity.Name} no finita o negativa")
         return value
@@ -210,17 +246,18 @@ class MotorBIM:
                 for prop_name, prop_value in pset_data.items():
                     propiedades[f"{pset_name}.{prop_name}"] = prop_value
 
-            qtos = ifcopenshell.util.element.get_psets(entidad, qtos_only=True, verbose=True)
+            qtos = self._cantidades_declaradas(entidad)
             quantities = {}
             for field, keys, unit_type in (("volumen", CLAVES_VOLUMEN, "VOLUMEUNIT"),
                                           ("area", CLAVES_AREA, "AREAUNIT"),
                                           ("longitud", CLAVES_LONGITUD, "LENGTHUNIT")):
                 for qto_data in qtos.values():
                     for key in keys:
-                        if key not in qto_data or field in quantities:
+                        quantity = qto_data.get(key)
+                        if field in quantities or quantity is None or not quantity.is_a("IfcPhysicalSimpleQuantity"):
                             continue
                         try:
-                            quantities[field] = self._cantidad_si(qto_data[key], unit_type)
+                            quantities[field] = self._cantidad_si(quantity, unit_type)
                         except (ValueError, TypeError, KeyError) as exc:
                             propiedades.setdefault("_errores_qto", []).append(str(exc))
                             logger.warning("bim_quantity_invalid", extra={"entity_id": entidad.id(), "error": str(exc)})

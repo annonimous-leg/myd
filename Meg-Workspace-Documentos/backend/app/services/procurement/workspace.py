@@ -5,17 +5,18 @@ from hashlib import sha256
 import json
 from math import isfinite
 import re
-from anyio import to_thread
+from anyio import CapacityLimiter, to_thread
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.errors import ErrorCode, MegalodonException
-from app.models.procurement import TenderPackage, TenderDocument, TenderDocumentRevision, TenderRequirement, TenderEvidence, TenderArtifact
+from app.models.procurement import TenderPackage, TenderDocument, TenderDocumentRevision, TenderRequirement, TenderEvidence, TenderEvidenceLink, TenderArtifact
 
-from app.engines.procurement.format_field_map import load_format_catalog, resolve_format
+from app.engines.procurement.format_field_map import load_tender_format_catalog, normalize_format_code
 from app.engines.procurement.workspace_pdf import render_workspace_pdf
 from app.engines.procurement.workspace_docx import Field, TemplateError, render_draft
 from app.engines.procurement.workspace_xlsx import render_xlsx
+from app.engines.procurement.office import recalculate_xlsx
 from app.integrations.supabase_storage import storage_documentos, storage_exportaciones
 
 
@@ -28,6 +29,7 @@ _FIELD_LABELS = {
     "technical.planning": "Planeación integral",
     "technical.construction_method": "Procedimiento constructivo",
 }
+_OFFICE_LIMITER = CapacityLimiter(2)
 _MAX_FIELD_LENGTH = 2000
 _MAX_DRAFT_BYTES = 128 * 1024
 _MAX_DOCX_DRAFT_BYTES = 512 * 1024
@@ -81,9 +83,7 @@ class TenderWorkspaceService:
         if not tender.jurisdiction_code or tender.frozen:
             return []
         try:
-            catalog = await load_format_catalog(
-                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=tender.jurisdiction_code,
-            )
+            catalog = await load_tender_format_catalog(self.db, tender)
         except ValueError:
             return []
         return [{"artifact_code": code, "name": binding.get("title") or code}
@@ -97,11 +97,37 @@ class TenderWorkspaceService:
 
     async def _context(self, tender: TenderPackage, artifact_code: str) -> tuple[list[str], list[str], list[str]]:
         reqs = list((await self.db.scalars(select(TenderRequirement).where(TenderRequirement.tender_id == tender.id, TenderRequirement.tenant_id == self.user.tenant_id))).all())
-        evid = list((await self.db.scalars(select(TenderEvidence).where(TenderEvidence.tender_id == tender.id, TenderEvidence.tenant_id == self.user.tenant_id))).all())
-        related_reqs = [str(r.id) for r in reqs if artifact_code in (r.artifact_required or [])]
-        sources = [str(e.id) for e in evid]
+        related_reqs = [r.id for r in reqs if artifact_code in (r.artifact_required or [])]
+        # Bind provenance only through an explicit relation to this document's
+        # requirements or to an artifact with the same code. Unlinked evidence
+        # must not appear to support every generated annex by default.
+        link_query = select(TenderEvidenceLink.evidence_id).where(
+            TenderEvidenceLink.tender_id == tender.id,
+            TenderEvidenceLink.tenant_id == self.user.tenant_id,
+            TenderEvidenceLink.evidence_id.is_not(None),
+        )
+        if related_reqs:
+            link_query = link_query.where(
+                (TenderEvidenceLink.requirement_id.in_(related_reqs))
+                | (TenderEvidenceLink.artifact_id.in_(
+                    select(TenderArtifact.id).where(
+                        TenderArtifact.tender_id == tender.id,
+                        TenderArtifact.tenant_id == self.user.tenant_id,
+                        TenderArtifact.artifact_code == artifact_code,
+                    )
+                ))
+            )
+        else:
+            link_query = link_query.where(TenderEvidenceLink.artifact_id.in_(
+                select(TenderArtifact.id).where(
+                    TenderArtifact.tender_id == tender.id,
+                    TenderArtifact.tenant_id == self.user.tenant_id,
+                    TenderArtifact.artifact_code == artifact_code,
+                )
+            ))
+        sources = [str(evidence_id) for evidence_id in (await self.db.scalars(link_query)).all()]
         deps = ["canonical_model.facts", "canonical_model.technical", "canonical_model.economic", "canonical_model.schedule"]
-        return sources, related_reqs, deps
+        return sources, [str(requirement_id) for requirement_id in related_reqs], deps
 
     async def open_or_create(self, tender_id: UUID, artifact_code: str, name: str, media_type: str="text/plain") -> TenderDocument:
         tender = await self.tender(tender_id, lock=True)
@@ -127,10 +153,7 @@ class TenderWorkspaceService:
 
     async def _editor_binding(self, tender: TenderPackage, row: TenderDocument) -> dict:
         try:
-            return (await resolve_format(
-                self.db, tenant_id=self.user.tenant_id, jurisdiction_code=tender.jurisdiction_code,
-                code=row.artifact_code,
-            ) or {}) if tender.jurisdiction_code else {}
+            return (await load_tender_format_catalog(self.db, tender)).get(normalize_format_code(row.artifact_code), {}) if tender.jurisdiction_code else {}
         except ValueError:
             return {}
 
@@ -214,7 +237,7 @@ class TenderWorkspaceService:
             "fields": fields,
             "render_format": format_name,
             "template_token": _template_token(template, fields),
-            "file_available": bool(draft or metadata.get("artifact_id") and row.media_type in {_PDF_TYPE, _XLSX_TYPE}),
+            "file_available": bool(draft or metadata.get("artifact_id") and row.media_type in {_PDF_TYPE, _XLSX_TYPE, _DOCX_TYPE}),
             "media_type": draft_media if draft else row.media_type,
             "sha256": draft["sha256"] if draft else None,
         }
@@ -248,12 +271,18 @@ class TenderWorkspaceService:
                 field_map = {key: Field(item["tag"], item.get("required", True))
                              for key, item in config["fields"].items()}
                 draft = await to_thread.run_sync(render_draft, original, field_map, values)
+            content = draft.content
+            if format_name == "xlsx":
+                content = await to_thread.run_sync(
+                    recalculate_xlsx, content, _MAX_DOCX_DRAFT_BYTES, limiter=_OFFICE_LIMITER,
+                )
         except TemplateError as exc:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, str(exc), 422) from exc
-        if len(draft.content) > _MAX_DOCX_DRAFT_BYTES:
+        if len(content) > _MAX_DOCX_DRAFT_BYTES:
             raise MegalodonException(ErrorCode.VALIDACION_FALLIDA, "El borrador supera el límite de Workspace.", 422)
         return {
-            "sha256": draft.content_sha256, "content": b64encode(draft.content).decode("ascii"),
+            "sha256": sha256(content).hexdigest(), "content": b64encode(content).decode("ascii"),
+            "server_recalculated": format_name == "xlsx",
             "source_sha256": draft.source_sha256, "source_evidence_id": str(source.id),
             "map_version": config["version"], "map_sha256": model_hash(config),
             "renderer": draft.renderer, "submission_eligible": False,
@@ -345,7 +374,7 @@ class TenderWorkspaceService:
                 TenderArtifact.tenant_id == self.user.tenant_id,
                 TenderArtifact.artifact_code == row.artifact_code,
             ))
-            if not artifact or artifact.media_type not in {_PDF_TYPE, _XLSX_TYPE} or not artifact.storage_path:
+            if not artifact or artifact.media_type not in {_PDF_TYPE, _XLSX_TYPE, _DOCX_TYPE} or not artifact.storage_path:
                 raise MegalodonException(ErrorCode.DOCUMENTO_NO_ENCONTRADO, "Esta revisión no tiene archivo.", 404)
             content = await storage_exportaciones().descargar(artifact.storage_path)
             digest, media = artifact.content_hash, artifact.media_type

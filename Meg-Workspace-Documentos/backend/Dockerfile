@@ -9,7 +9,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ libpq-dev libgdal-dev tesseract-ocr tesseract-ocr-spa poppler-utils \
-    libgl1 libglib2.0-0 ca-certificates curl \
+    libgl1 libglib2.0-0 ca-certificates curl libreoffice-calc \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --system --gid 10001 megalodon \
     && useradd --system --uid 10001 --gid 10001 --home-dir /app --no-create-home megalodon

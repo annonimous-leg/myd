@@ -60,6 +60,12 @@ class ProcurementCanonicalModel(BaseModel):
     submission: dict[str, Any] = Field(default_factory=dict)
 
 
+class TenderFormatConfigurationCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    version: str = Field(min_length=1, max_length=100)
+    format_definitions: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class TenderCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     expediente_id: UUID
@@ -76,6 +82,7 @@ class TenderCreate(BaseModel):
     object_class: str | None = None
     legal_regime: str | None = None
     source_manifest: dict[str, Any] = Field(default_factory=dict)
+    format_configuration: TenderFormatConfigurationCreate | None = None
     canonical_model: ProcurementCanonicalModel
 
 
@@ -125,7 +132,14 @@ class ArtifactCreate(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class TenderFormatAmendment(TenderFormatConfigurationCreate):
+    expected_revision: int = Field(ge=1)
+    amendment_evidence_id: UUID
+    base_evidence_id: UUID
+
+
 class RevisionCreate(BaseModel):
+    format_amendment: TenderFormatAmendment | None = None
     reason: str = Field(min_length=1, max_length=500)
     source_hash: str | None = None
     model_snapshot: dict[str, Any] | None = None
@@ -148,6 +162,8 @@ class ApprovalCreate(BaseModel):
     role: str
     decision: str
     reason: str | None = None
+    # Reviewer confirms the server-prepared ORIGINALS manifest observed beforehand.
+    expected_artifact_manifest_sha256: str | None = Field(default=None, min_length=64, max_length=64)
 
 
 class SubmissionResponse(BaseModel):

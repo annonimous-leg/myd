@@ -14,6 +14,12 @@ const reasons: Record<string, string> = {
   TIPO_AMBIGUO_REQUIERE_REVISION: 'Hay que distinguir si es insumo o concepto', NO_USAR_PARA_COSTEAR: 'Referencia sin precio habilitado',
 };
 const pendingPageSize = 200;
+// CI-only fixtures must never be presented as commercial research. Preserve
+// authentic source labels, originals and catalog identities for all other IDs.
+const sourceDisplayName = (id: string, original: string | undefined, commercial: string | undefined) =>
+  id === 'SYNTHETIC' && (!original || original === 'Synthetic test source')
+    ? `Prueba aislada de CI${original ? ' · ' + original : ''}`
+    : (commercial || original || id);
 const recordTypes: Record<string, string> = {
   partida_catalogo: 'Concepto o insumo', modelo_parametrico: 'Modelo paramétrico',
   factor_geografico: 'Factor geográfico', componente_partida: 'Componente de concepto',
@@ -91,7 +97,7 @@ function Edition({batch, canWrite}: {batch: CatalogoImportacionOut; canWrite: bo
         {r.original.descripcion || r.original.nombre || r.original.localidad_base || r.original.titulo}<br />
         {r.motivos.map(m => reasons[m] || m).join(' · ')}
         <details><summary>Ver datos de la fuente</summary>
-          <p>Fuente: {r.fuente_id} · Página: {r.original.pagina_inicio || r.original.pagina_pdf || 'Sin página indicada'}</p>
+          <p>{sourceDisplayName(r.fuente_id, undefined, batch.resumen.fuentes_visibles?.[r.fuente_id])} · Identidad de fuente {r.fuente_id} · Página: {r.original.pagina_inicio || r.original.pagina_pdf || 'Sin página indicada'}</p>
           <p>Valor publicado: {r.original.costo || r.original.costo_por_unidad || r.original.valor || 'Sin valor identificado'} · Unidad: {r.original.unidad || r.original.unidad_medida_base || 'Sin unidad identificada'}</p>
           <pre className="whitespace-pre-wrap break-all">{JSON.stringify(r.original, null, 2)}</pre>
         </details>
@@ -124,7 +130,7 @@ export function ImportacionesCatalogosPanel({onImported}: {onImported: () => voi
   const [batches, setBatches] = useState<CatalogoImportacionOut[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const [sources, setSources] = useState<Array<{fuente_id: string; titulo: string; fecha_vigencia: string; original_cotejado: boolean}>>([]);
+  const [sources, setSources] = useState<Array<{fuente_id: string; titulo: string; nombre_visible?: string; sha256: string; fecha_vigencia: string; original_cotejado: boolean}>>([]);
   const [chosen, setChosen] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -164,13 +170,13 @@ export function ImportacionesCatalogosPanel({onImported}: {onImported: () => voi
     {canWrite && <label>Importar paquete de catálogo ZIP<input type="file" accept=".zip" disabled={busy} className={className} onChange={e => { const f = e.target.files?.[0]; if (f) void preview(f); }} /></label>}
     {sources.length > 0 && <div className="my-3">
       <p>Elige las fuentes de esta edición. Las que ya tienen una edición importada se dejan sin seleccionar para evitar incorporar versiones antiguas por accidente.</p>
-      {sources.map(s => <label key={s.fuente_id} className="block my-2"><input type="checkbox" disabled={busy || !s.original_cotejado} checked={chosen.includes(s.fuente_id)} onChange={e => setChosen(prev => e.target.checked ? [...prev, s.fuente_id] : prev.filter(id => id !== s.fuente_id))} /> {s.titulo} · {s.fecha_vigencia} {s.original_cotejado ? '' : '· Falta PDF original'}</label>)}
+      {sources.map(s => <label key={s.fuente_id} className="block my-2"><input type="checkbox" disabled={busy || !s.original_cotejado} checked={chosen.includes(s.fuente_id)} onChange={e => setChosen(prev => e.target.checked ? [...prev, s.fuente_id] : prev.filter(id => id !== s.fuente_id))} /> {sourceDisplayName(s.fuente_id, s.titulo, s.nombre_visible)} · ID {s.fuente_id} · referencia {s.sha256.slice(0, 8)} {s.original_cotejado ? '' : '· Falta PDF original'}</label>)}
       <button disabled={busy || !chosen.length} onClick={() => void save()} className="rounded border p-2 disabled:opacity-40">Importar fuentes seleccionadas</button>
     </div>}
     {busy && <p role="status">Verificando y guardando la edición…</p>}
     {notice && <p role="status">{notice}</p>}
     <label>Edición para consultar<select aria-label="Edición para consultar" className={className} value={selectedId} onChange={e => setSelectedId(e.target.value)}>
-      <option value="">Elige una edición ({batches.length})</option>{batches.map(b => <option key={b.id} value={b.id}>{b.fuentes.join(', ')} · {b.resumen.proyecciones_costeo} precios habilitados</option>)}
+      <option value="">Elige una edición ({batches.length})</option>{batches.map(b => <option key={b.id} value={b.id}>{b.fuentes.map((id, index) => `${sourceDisplayName(id, undefined, b.fuentes_visibles?.[index])} · ${id}`).join(', ')} · edición {b.id.slice(0, 8)} · {b.resumen.proyecciones_costeo} precios habilitados</option>)}
     </select></label>
     {batch && <Edition key={batch.id} batch={batch} canWrite={canWrite} />}
     {error && <p role="alert" className="text-[#F08080]">{error}</p>}

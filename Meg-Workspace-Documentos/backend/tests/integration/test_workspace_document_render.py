@@ -23,7 +23,7 @@ async def test_workspace_pdf_versions_use_edited_fields_and_identical_downloads(
     code = f"MX-TEST-{uuid4().hex[:8].upper()}"
     db_session.add(JurisdictionProfile(
         tenant_id=tenant.id, code=code, authority="Dependencia", government_level="STATE",
-        matter="PUBLIC_WORKS", profile_version="1", active=True,
+        matter="PUBLIC_WORKS", profile_version=1, active=True,
         templates={"format_definitions": [{
             "format_code": "DA-01", "title": "Carta de interés", "compiler": "compile_annex_pdf",
             "canonical_paths": ["bidder.representative_name", "bidder.representative_role"],
@@ -114,7 +114,7 @@ async def test_workspace_template_uses_verified_tender_source_and_keeps_old_revi
     source_hash = sha256(original).hexdigest()
     db_session.add(JurisdictionProfile(
         tenant_id=tenant.id, code=code, authority="Dependencia", government_level="STATE",
-        matter="PUBLIC_WORKS", profile_version="1", active=True,
+        matter="PUBLIC_WORKS", profile_version=1, active=True,
         templates={"format_definitions": [{
             "format_code": "DA-01", "title": "Carta de interés", "compiler": "compile_annex_pdf",
             f"workspace_{format_name}": {
