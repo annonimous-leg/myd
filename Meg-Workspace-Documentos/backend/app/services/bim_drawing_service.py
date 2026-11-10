@@ -304,7 +304,7 @@ class BIMDrawingService:
         }
         if drawing.tipo == "ELEVATION":
             metadata["drawing_limitations"] = [
-                "Siluetas de malla con recorte por oclusión; omite aristas ocultas y no genera líneas discontinuas",
+                "Contornos y aristas de pliegue de la malla con recorte por oclusión; los tramos ocultos se omiten",
                 "No sustituye la revisión profesional de documentación constructiva",
             ]
 

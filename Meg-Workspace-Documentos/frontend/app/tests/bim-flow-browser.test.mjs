@@ -124,7 +124,7 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
         configure:() => page.getByLabel('Elevación de corte (m)',{exact:true}).fill('1.5') },
       { type:'SECTION', title:'Sección del IFC de aceptación', name:'sección', mode:'cut_geometry_only',
         configure:() => page.getByLabel('Coordenada de corte (m)',{exact:true}).fill('1') },
-      { type:'ELEVATION', title:'Alzado del IFC de aceptación', name:'alzado', mode:'occlusion_clipped_mesh_silhouette',
+      { type:'ELEVATION', title:'Alzado del IFC de aceptación', name:'alzado', mode:'occlusion_clipped_mesh_edges',
         configure:() => page.getByLabel('Lado de observación',{exact:true}).selectOption('y-') },
     ];
     for (const spec of drawings) {

@@ -19,6 +19,8 @@ Vec3 = tuple[float, float, float]
 DEFAULT_TOLERANCE_M = 1e-6
 _TRIANGLE_AREA_EPSILON_SQUARED = 1e-24
 _DIRECTION_EPSILON = 1e-10
+_ELEVATION_CREASE_ANGLE_DEG = 1.0
+_ELEVATION_CREASE_COS = math.cos(math.radians(_ELEVATION_CREASE_ANGLE_DEG))
 
 
 def _finite_vec3(values: Sequence[float], label: str) -> Vec3:
@@ -458,10 +460,10 @@ def build_elevation_document(
     title: str = "Alzado",
     tolerance_m: float = DEFAULT_TOLERANCE_M,
 ) -> DrawingDocument:
-    """Project silhouette edges and clip portions behind the mesh surfaces.
+    """Project contours and front-facing creases, then clip occluded portions.
 
-    The view direction points toward the observer. The candidates remain
-    silhouette and boundary edges of the triangulated input.
+    The view direction points toward the observer. Coplanar triangulation
+    seams are excluded by the crease angle threshold.
     """
     tolerance = _validate_tolerance(tolerance_m)
     direction = _normalize(_finite_vec3(view_direction, "view direction"), "view direction")
@@ -487,28 +489,33 @@ def build_elevation_document(
     )
     for mesh, vertices in projected_meshes:
         vertex_keys = _canonical_vertex_keys(mesh.vertices, tolerance)
-        edges: dict[tuple[Vec3, Vec3], list[float]] = {}
+        edges: dict[tuple[Vec3, Vec3], list[tuple[float, Vec3]]] = {}
         for triangle in mesh.triangles:
             a, b, c = (mesh.vertices[index] for index in triangle)
             normal = _cross(_sub(b, a), _sub(c, a))
             normal_length = _norm(normal)
             if normal_length <= 0:
                 continue
-            facing = _dot(normal, direction) / normal_length
+            unit_normal = (normal[0] / normal_length, normal[1] / normal_length, normal[2] / normal_length)
+            facing = _dot(unit_normal, direction)
             for edge_index in range(3):
                 first = vertex_keys[triangle[edge_index]]
                 second = vertex_keys[triangle[(edge_index + 1) % 3]]
                 if second < first:
                     first, second = second, first
-                edges.setdefault((first, second), []).append(facing)
+                edges.setdefault((first, second), []).append((facing, unit_normal))
 
-        for (first, second), facings in edges.items():
-            toward = any(value > _DIRECTION_EPSILON for value in facings)
-            away = any(value < -_DIRECTION_EPSILON for value in facings)
-            edge_on = any(abs(value) <= _DIRECTION_EPSILON for value in facings)
-            boundary = len(facings) == 1
-            is_silhouette = (boundary and toward) or (toward and (away or edge_on))
-            if is_silhouette:
+        for (first, second), faces in edges.items():
+            front_normals = [normal for facing, normal in faces if facing > _DIRECTION_EPSILON]
+            if not front_normals:
+                continue
+            is_silhouette = len(faces) == 1 or len(front_normals) < len(faces)
+            is_crease = any(
+                _dot(normal, other) < _ELEVATION_CREASE_COS
+                for index, normal in enumerate(front_normals)
+                for other in front_normals[index + 1:]
+            )
+            if is_silhouette or is_crease:
                 start, end = vertices[first], vertices[second]
                 dx, dy = end[0] - start[0], end[1] - start[1]
                 length = math.hypot(dx, dy)
@@ -533,8 +540,9 @@ def build_elevation_document(
             "view_direction": direction,
             "view_origin_m": frame.origin,
             "tolerance_m": tolerance,
-            "visibility_mode": "occlusion_clipped_mesh_silhouette",
+            "visibility_mode": "occlusion_clipped_mesh_edges",
+            "crease_angle_degrees": _ELEVATION_CREASE_ANGLE_DEG,
             "engine": "megalodon-vector-drawing",
-            "engine_version": "0.2.0",
+            "engine_version": "0.3.0",
         },
     )

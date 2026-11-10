@@ -166,6 +166,7 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
           {plano.obsoleto && ' · El modelo tiene una revisión posterior'}
         </small>
         {plano.metadatos?.visibility_mode === 'occlusion_clipped_mesh_silhouette' && <small className="block">Alzado de siluetas. Los tramos ocultos se omiten.</small>}
+        {plano.metadatos?.visibility_mode === 'occlusion_clipped_mesh_edges' && <small className="block">Alzado de contornos y pliegues. Los tramos ocultos se omiten.</small>}
         {plano.estado === 'COMPLETADO' && <div className="space-x-2">
           {plano.formatos.includes('SVG') && <button type="button" aria-expanded={vistaId === plano.id}
             onClick={() => setVistaId(vistaId === plano.id ? '' : plano.id)}>

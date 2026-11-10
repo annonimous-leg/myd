@@ -132,7 +132,7 @@ def test_elevation_outputs_visible_cube_outline():
     document = build_elevation_document([cube_mesh()], view_direction=(0, -1, 0))
 
     assert document.kind == "ELEVATION"
-    assert document.metadata["visibility_mode"] == "occlusion_clipped_mesh_silhouette"
+    assert document.metadata["visibility_mode"] == "occlusion_clipped_mesh_edges"
     assert bounds(document) == pytest.approx((0, 0, 2, 3))
     assert total_length(document) == pytest.approx(10.0)
 
@@ -186,3 +186,34 @@ def test_elevation_distinguishes_occluded_and_coincident_panels(depth, rear_visi
 
     assert sum(line.element_id == "rear" for line in document.segments) == (4 if rear_visible else 0)
     assert sum(line.element_id == "front" for line in document.segments) == 4
+
+
+def _folded_panel(fold_depth):
+    return MeshElement.from_flat(
+        element_id="folded",
+        global_id="folded",
+        ifc_type="IfcPlate",
+        vertices=[0, 0, 0, 1, -fold_depth, 0, 2, 0, 0,
+                  0, 0, 2, 1, -fold_depth, 2, 2, 0, 2],
+        faces=[0, 1, 4, 0, 4, 3, 1, 2, 5, 1, 5, 4],
+    )
+
+
+@pytest.mark.parametrize("fold_depth, visible_crease", [(0.5, True), (0.001, False)])
+def test_elevation_draws_front_facing_folds_but_omits_nearly_flat_seams(fold_depth, visible_crease):
+    document = build_elevation_document([_folded_panel(fold_depth)], view_direction=(0, -1, 0))
+
+    assert any(line.start == (1, 0) and line.end == (1, 2) for line in document.segments) is visible_crease
+    assert len(document.segments) == (7 if visible_crease else 6)
+
+
+
+def test_elevation_clips_a_crease_behind_another_element():
+    foreground = _elevation_panel("front", 0.5, 1.5, 0.5, 1.5, -1)
+    document = build_elevation_document([_folded_panel(0.5), foreground], view_direction=(0, -1, 0))
+
+    crease = [
+        (line.start, line.end) for line in document.segments
+        if line.element_id == "folded" and line.start[0] == line.end[0] == 1
+    ]
+    assert crease == [((1, 0), (1, 0.5)), ((1, 1.5), (1, 2))]
