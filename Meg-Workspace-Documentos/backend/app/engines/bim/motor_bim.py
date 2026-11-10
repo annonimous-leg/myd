@@ -28,6 +28,7 @@ from typing import Dict, List, Optional, Any
 import ifcopenshell
 import ifcopenshell.geom
 import ifcopenshell.util.element
+import ifcopenshell.util.placement
 import ifcopenshell.util.shape
 import ifcopenshell.util.unit
 
@@ -169,6 +170,19 @@ class MotorBIM:
             return [nombre for nombre, _ in con_elevacion]
         except Exception:
             return []
+
+    def cotas_niveles(self) -> list[tuple[str, float]]:
+        """Storey elevations in the same world coordinates and units as meshes."""
+        levels = []
+        for storey in self.modelo.by_type("IfcBuildingStorey"):
+            placement = storey.ObjectPlacement
+            if placement is None or not placement.is_a("IfcLocalPlacement"):
+                continue
+            z = float(ifcopenshell.util.placement.get_local_placement(placement)[2, 3])
+            elevation = z * self._escala_longitud
+            if math.isfinite(elevation):
+                levels.append((storey.Name or f"Nivel {storey.id()}", elevation))
+        return sorted(levels, key=lambda level: (level[1], level[0]))
 
     def _obtener_nivel(self, entidad) -> Optional[str]:
         """Nombre del IfcBuildingStorey que contiene al elemento, si existe."""

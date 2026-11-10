@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from io import BytesIO
+from pathlib import Path
 import xml.etree.ElementTree as ET
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
@@ -42,6 +43,9 @@ class MemoryStorage:
     async def subir(self, path, content, **options):
         self.objects[path] = bytes(content)
         self.uploads.append((path, options.get("content_type"), options.get("overwrite")))
+
+    async def descargar(self, path):
+        return self.objects[path]
 
     async def eliminar(self, paths):
         for path in paths:
@@ -108,10 +112,20 @@ async def test_durable_worker_generates_private_svg_dxf_and_pdf_once(
     from app.services import bim_drawing_service
 
     tenant, user = tenant_a_user
-    expediente, model, _ = await completed_model(db_session, tenant, user)
+    expediente, model, element = await completed_model(db_session, tenant, user)
     expediente.proyecto_nombre = "Proyecto de la prueba"
     await db_session.commit()
     storage = MemoryStorage()
+    fixture = Path(__file__).parents[1] / "fixtures" / "ifc" / "wall_millimetres.ifc"
+    source = fixture.read_bytes().replace(
+        b"ENDSEC;\nEND-ISO-10303-21;",
+        b"#999=IFCCARTESIANPOINT((0.,0.,1500.));\n"
+        b"#998=IFCAXIS2PLACEMENT3D(#999,$,$);\n"
+        b"#997=IFCLOCALPLACEMENT(#28,#998);\n"
+        b"#996=IFCBUILDINGSTOREY('0ww2UeVUP0iABYFc9B52Cz',$,'Nivel uno',$,$,#997,$,$,.ELEMENT.,$);\n"
+        b"ENDSEC;\nEND-ISO-10303-21;",
+    )
+    storage.objects[model.ruta_archivo] = source
     monkeypatch.setattr(bim_drawing_service, "storage_bim", lambda: storage)
 
     drawing = await BIMDrawingService(db_session, tenant.id).crear_dibujo(
@@ -120,7 +134,12 @@ async def test_durable_worker_generates_private_svg_dxf_and_pdf_once(
         creado_por_id=user.id,
         tipo="PLAN",
         titulo="Planta de prueba",
-        parametros={"elevacion_m": 1.5},
+        parametros={
+            "elevacion_m": 1.5,
+            "cotas_elementos": True,
+            "niveles_ifc": True,
+            "nota_lamina": "Revisión (obra) · paño",
+        },
         formatos=["SVG", "DXF", "PDF"],
     )
     job = await db_session.scalar(
@@ -143,6 +162,13 @@ async def test_durable_worker_generates_private_svg_dxf_and_pdf_once(
     assert float(page.mediabox.height) == pytest.approx(297 * 72 / 25.4, abs=0.01)
     assert "Proyecto de la prueba" in page.extract_text()
     assert "Planta de prueba" in page.extract_text()
+    assert "Revisión (obra) · paño" in page.extract_text()
+    assert "+1.500" in page.extract_text()
+    assert drawing.metadatos["niveles_ifc"] == [{"nombre": "Nivel uno", "z_m": 1.5}]
+    assert drawing.metadatos["cotas_elementos"] == [
+        {"clave": "E01", "global_id": element.global_id, "ancho_m": 2.0, "alto_m": 1.0}
+    ]
+    assert len(drawing.metadatos["source_ifc_sha256"]) == 64
     assert drawing.ruta_svg in storage.objects
     assert drawing.ruta_dxf in storage.objects
     ET.fromstring(storage.objects[drawing.ruta_svg])

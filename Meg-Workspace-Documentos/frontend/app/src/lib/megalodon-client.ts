@@ -1273,10 +1273,12 @@ export interface WebSocketMessage {
   timestamp?: number;
 }
 
+type OpcionesLaminaA3 = { cotas_elementos?: boolean; niveles_ifc?: boolean; nota_lamina?: string };
+
 export type SolicitudPlanoBIM = { titulo: string } & (
-  | { tipo: "PLAN"; parametros: { elevacion_m: number } }
-  | { tipo: "SECTION"; parametros: { origen_m: [number, number, number]; normal: [number, number, number] } }
-  | { tipo: "ELEVATION"; parametros: { direccion_vista: [number, number, number]; mostrar_ocultas?: boolean } }
+  | { tipo: "PLAN"; parametros: OpcionesLaminaA3 & { elevacion_m: number } }
+  | { tipo: "SECTION"; parametros: OpcionesLaminaA3 & { origen_m: [number, number, number]; normal: [number, number, number] } }
+  | { tipo: "ELEVATION"; parametros: OpcionesLaminaA3 & { direccion_vista: [number, number, number]; mostrar_ocultas?: boolean } }
 );
 
 export class MegalodonClient {
@@ -1666,7 +1668,12 @@ export class MegalodonClient {
       this.request<{
         id: string; titulo: string; tipo: SolicitudPlanoBIM["tipo"]; estado: string;
         formatos: string[]; error?: string; source_model_updated_at: string; obsoleto: boolean;
-        metadatos?: { visibility_mode?: string } | null;
+        metadatos?: {
+          visibility_mode?: string;
+          cotas_elementos?: unknown[];
+          niveles_ifc?: unknown[];
+          nota_lamina?: string;
+        } | null;
       }[]>(
         "GET", this.drawingPath(expedienteId, modelId),
       ),

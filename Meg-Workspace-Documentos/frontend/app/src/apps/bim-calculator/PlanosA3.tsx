@@ -55,6 +55,9 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
   const [coordenada, setCoordenada] = useState('');
   const [direccion, setDireccion] = useState<keyof typeof direcciones>('y-');
   const [mostrarOcultas, setMostrarOcultas] = useState(false);
+  const [cotasElementos, setCotasElementos] = useState(false);
+  const [nivelesIfc, setNivelesIfc] = useState(false);
+  const [notaLamina, setNotaLamina] = useState('');
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState('');
   const [actualizacion, setActualizacion] = useState(0);
@@ -107,6 +110,9 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
         parametros: { direccion_vista: direcciones[direccion], mostrar_ocultas: mostrarOcultas },
       };
     }
+    solicitud.parametros.cotas_elementos = cotasElementos;
+    solicitud.parametros.niveles_ifc = nivelesIfc;
+    solicitud.parametros.nota_lamina = notaLamina.trim();
     setOcupado(true);
     setError('');
     try {
@@ -161,6 +167,15 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
         <label><input type="checkbox" checked={mostrarOcultas}
           onChange={event => setMostrarOcultas(event.target.checked)} /> Mostrar líneas ocultas</label>
       </>}
+      <fieldset className="flex flex-wrap gap-2">
+        <legend>Detalle en PDF A3</legend>
+        <label><input type="checkbox" checked={cotasElementos}
+          onChange={event => setCotasElementos(event.target.checked)} /> Cotas proyectadas por elemento</label>
+        <label><input type="checkbox" checked={nivelesIfc}
+          onChange={event => setNivelesIfc(event.target.checked)} /> Niveles del IFC</label>
+        <label>Nota de lámina <input maxLength={120} value={notaLamina}
+          onChange={event => setNotaLamina(event.target.value)} /></label>
+      </fieldset>
       <button type="submit" disabled={ocupado}>Generar {nombres[tipo].toLowerCase()} A3</button>
     </form>}
     <button type="button" onClick={() => { setError(''); setActualizacion(value => value + 1); }}>Actualizar planos</button>
@@ -176,6 +191,8 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
         {plano.metadatos?.visibility_mode === 'occlusion_clipped_mesh_silhouette' && <small className="block">Alzado de siluetas. Los tramos ocultos se omiten.</small>}
         {plano.metadatos?.visibility_mode === 'occlusion_clipped_mesh_edges' && <small className="block">Alzado de contornos y pliegues. Los tramos ocultos se omiten.</small>}
         {plano.metadatos?.visibility_mode === 'mesh_edges_with_hidden_lines' && <small className="block">Los tramos ocultos se muestran con línea discontinua.</small>}
+        {(plano.metadatos?.cotas_elementos || plano.metadatos?.niveles_ifc || plano.metadatos?.nota_lamina) &&
+          <small className="block">Las cotas de elementos, niveles y notas se consultan en el PDF A3.</small>}
         {plano.estado === 'COMPLETADO' && <div className="space-x-2">
           {plano.formatos.includes('SVG') && <button type="button" aria-expanded={vistaId === plano.id}
             onClick={() => setVistaId(vistaId === plano.id ? '' : plano.id)}>

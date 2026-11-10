@@ -543,6 +543,7 @@ def build_elevation_document(
             "coordinate_units": "m",
             "view_direction": direction,
             "view_origin_m": frame.origin,
+            "view_up": frame.up,
             "tolerance_m": tolerance,
             "visibility_mode": "mesh_edges_with_hidden_lines" if include_hidden else "occlusion_clipped_mesh_edges",
             "crease_angle_degrees": _ELEVATION_CREASE_ANGLE_DEG,
