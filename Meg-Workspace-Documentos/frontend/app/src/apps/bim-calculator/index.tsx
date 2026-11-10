@@ -1,3 +1,4 @@
+import './bim-studio.css';
 /**
  * Copyright © 2026 Cristian Rodriguez
  * All rights reserved.
@@ -496,11 +497,11 @@ function IFCPanel() {
   const selectedElementSearchKey = seleccionado ? 'elemento:' + seleccionado.id : null;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-2 gap-2" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+    <div className="bim-studio flex-1 flex flex-col overflow-hidden">
+      <div className="bim-studio-header flex items-center justify-between px-3 py-2 gap-2" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
           <FolderKanban size={12} style={{ color: 'var(--accent-gold)' }} />
-          Expediente activo: <span style={{ color: 'var(--text-primary)' }}>{expedienteActivo.titulo}</span>
+          <div className="bim-studio-title"><span className="bim-studio-eyebrow">MEGALODON / INGENIERÍA</span><h1>BIM + CostOS</h1><span>{expedienteActivo.titulo}</span></div>
         </div>
         <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors"
           style={{ background: 'var(--accent-gold)', color: 'var(--void)' }}>
@@ -517,7 +518,7 @@ function IFCPanel() {
         </label>
       </div>
 
-      <div className="shrink-0 p-3 space-y-2 border-b border-(--border-subtle) text-xs">
+      <div className="bim-studio-workflow shrink-0 p-3 space-y-2 border-b border-(--border-subtle) text-xs">
         <p className="text-(--text-secondary)">Sube o abre un modelo, revisa sus cantidades y continúa con el presupuesto y el cronograma.</p>
         {!!modelos.length && <label className="flex items-center gap-2">Modelo de esta obra
           <select aria-label="Modelo de esta obra" value={modelo?.id || ''} disabled={procesando}
@@ -529,10 +530,10 @@ function IFCPanel() {
           <button className="p-2 border rounded border-(--border-subtle)" disabled={procesando || !modelo}
             onClick={() => modelo && void megalodonClient.bim.obtenerModelo(expedienteActivo.id, modelo.id).then(cargarModelo).catch(e => setError(e.message))}>Actualizar</button>
         </label>}
-        <nav aria-label="Pasos de trabajo BIM" className="flex flex-wrap gap-2">
-          <button className="p-2 rounded bg-(--surface-elevated)" disabled={!elementos.length} onClick={() => setTabDerecho('resumen')}>1. Revisar cantidades</button>
-          <button className="p-2 rounded bg-(--surface-elevated)" disabled={!elementos.length} onClick={() => setTabDerecho('presupuesto5d')}>2. Preparar presupuesto</button>
-          <button className="p-2 rounded bg-(--surface-elevated)" disabled={!elementos.length} onClick={() => setTabDerecho('cronograma4d')}>3. Crear cronograma</button>
+        <nav aria-label="Pasos de trabajo BIM" className="bim-studio-steps flex flex-wrap gap-2">
+          <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'resumen'} disabled={!elementos.length} onClick={() => setTabDerecho('resumen')}>1. Revisar cantidades</button>
+          <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'presupuesto5d'} disabled={!elementos.length} onClick={() => setTabDerecho('presupuesto5d')}>2. Preparar presupuesto</button>
+          <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'cronograma4d'} disabled={!elementos.length} onClick={() => setTabDerecho('cronograma4d')}>3. Crear cronograma</button>
         </nav>
         {modelo?.estado_procesamiento === 'COMPLETADO' &&
           <PlanosA3 key={modelo.id} expedienteId={expedienteActivo.id} modeloId={modelo.id} canWrite={canWrite} />}
@@ -568,6 +569,7 @@ function IFCPanel() {
           <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--surface)' }}>
             {modelo.niveles && modelo.niveles.length > 0 && (
               <select
+                aria-label="Filtrar por nivel"
                 value={nivelFiltro}
                 onChange={(e) => { setNivelFiltro(e.target.value); setSeleccionado(null); }}
                 className="text-[11px] rounded px-2 py-1"
@@ -611,8 +613,8 @@ function IFCPanel() {
             </span>
           </div>
 
-          <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
-            <div className="w-full lg:w-1/2 h-[340px] lg:h-full shrink-0 relative" style={{ background: '#05050a' }}>
+          <div className="bim-studio-panels flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+            <div className="bim-studio-viewport w-full lg:w-1/2 h-[340px] lg:h-full shrink-0 relative" style={{ background: '#05050a' }}>
               {/* key={vista} fuerza remount de Canvas al cambiar de
                   proyección -- cambiar de perspectiva a ortográfica en la
                   misma cámara da resultados raros con Bounds/fit. */}
@@ -707,12 +709,13 @@ function IFCPanel() {
               )}
             </div>
 
-            <div className="w-full lg:w-1/2 min-h-[400px] lg:min-h-0 lg:h-full flex flex-col overflow-hidden">
+            <div className="bim-studio-inspector w-full lg:w-1/2 min-h-[400px] lg:min-h-0 lg:h-full flex flex-col overflow-hidden">
               {/* Tabs panel derecho */}
               <div className="flex shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                 {(['resumen', 'clash', 'presupuesto5d', 'cronograma4d'] as const).map((t) => (
                   <button
                     key={t}
+                    aria-pressed={tabDerecho === t}
                     onClick={() => setTabDerecho(t)}
                     className="flex items-center gap-1 px-3 py-2 text-[11px] font-medium transition-colors"
                     style={{
