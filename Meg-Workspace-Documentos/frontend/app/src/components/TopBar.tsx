@@ -11,6 +11,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useNotificationStore } from '@/stores/useNotificationStore';
 import { useCommandPaletteStore } from '@/stores/useCommandPaletteStore';
 import NotificationPanel from './NotificationPanel';
+import ThemeControl from './ThemeControl';
+import WorkspaceMenu from './WorkspaceMenu';
 
 interface TopBarProps {
   title: string;
@@ -32,10 +34,11 @@ export default function TopBar({ title }: TopBarProps) {
 
   return (
     <header
-      className="flex items-center justify-between h-16 px-3 sm:px-6 shrink-0 border-b"
+      className="megalodon-topbar flex items-center justify-between h-16 px-3 sm:px-6 shrink-0 border-b"
       style={{ background: 'var(--surface)', borderColor: 'var(--border-subtle)' }}
     >
       <div className="flex items-center gap-3">
+        <WorkspaceMenu />
         <h1 className="text-[15px] font-semibold" style={{ color: 'var(--text-primary)' }}>
           {title}
         </h1>
@@ -49,6 +52,7 @@ export default function TopBar({ title }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-4">
+        <ThemeControl />
         <button
           onClick={openPalette}
           className="hidden sm:flex items-center gap-2.5 pl-3 pr-2.5 py-1.5 rounded-lg text-[12px] transition-colors hover:border-(--border-active)"

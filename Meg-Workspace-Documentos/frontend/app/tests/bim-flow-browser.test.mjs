@@ -15,6 +15,7 @@ const backend = resolve('../../backend');
 const evidence = resolve(process.env.BIM_EVIDENCE_DIR || 'bim-browser-evidence');
 const origin = 'http://127.0.0.1:4173';
 const apiOrigin = 'http://127.0.0.1:8000';
+const acceptanceIfc = process.env.BIM_ACCEPTANCE_IFC || join(backend, 'tests/fixtures/ifc/wall_millimetres.ifc');
 let browser, api, worker, dispatcher, preview, credentials;
 const processes = [];
 const env = { ...process.env, CORS_ALLOWED_ORIGINS: JSON.stringify([origin]),
@@ -99,7 +100,7 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await page.getByRole('button',{name:'Calculadora BIM',exact:true}).click();
     const [uploadResponse]=await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && /\/bim\/[^/]+\/modelos$/.test(new URL(r.url()).pathname)),
-      page.getByLabel('Subir archivo IFC').setInputFiles(join(backend,'tests/fixtures/ifc/wall_millimetres.ifc'))]);
+      page.getByLabel('Subir archivo IFC').setInputFiles(acceptanceIfc)]);
     assert.equal(uploadResponse.status(),200);
     const model=await uploadResponse.json();
     assert.equal(model.estado_procesamiento,'PENDIENTE');
@@ -116,6 +117,21 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     assert.equal(apiModel.status(),200);
     const elements=await apiModel.json(); assert.equal(elements.length,1);
     assert.equal(elements[0].volumen,2.4); assert.ok(elements[0].malla_vertices.length>0);
+    await page.getByText('Herramientas de vista', {exact:true}).click();
+    await page.getByLabel('Mostrar IfcWall', {exact:true}).uncheck();
+    await page.getByText('0 de 1 elementos visibles', {exact:true}).waitFor();
+    await page.getByRole('button', {name:'Restablecer vista',exact:true}).click();
+    await page.getByText('1 de 1 elementos visibles', {exact:true}).waitFor();
+    const [originalDownload] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('button', {name:'Descargar IFC original',exact:true}).click(),
+    ]);
+    const originalPath = join(evidence, 'original-descargado.ifc');
+    await originalDownload.saveAs(originalPath);
+    assert.deepEqual(await readFile(originalPath), await readFile(acceptanceIfc));
+    const unchangedElements = await page.request.get(`${apiOrigin}/api/v1/bim/${model.expediente_id}/modelos/${model.id}/elementos?incluir_malla=true`);
+    assert.deepEqual(await unchangedElements.json(), elements, 'View-only edits must not mutate server quantities or meshes');
+    await page.getByText('Herramientas de vista', {exact:true}).click();
     const drawingPath = `/api/v1/bim/${model.expediente_id}/modelos/${model.id}/dibujos`;
     await page.getByText('Planos PDF A3',{exact:true}).click();
     const drawingList = page.getByRole('list',{name:'Planos generados'});

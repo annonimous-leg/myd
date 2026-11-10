@@ -23,7 +23,7 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      theme: 'dark',
+      theme: 'light',
       accentColor: '#C9A84C',
       wallpaperBrightness: 100,
       wallpaperAnimated: false,

@@ -14,6 +14,8 @@ import CommandPalette from './CommandPalette';
 import { useAppRegistry } from '@/stores/useAppRegistry';
 import { useRecentAppsStore } from '@/stores/useRecentAppsStore';
 import { useExpedienteStore } from '@/stores/useExpedienteStore';
+import { ThemeController } from './ThemeControl';
+import { abrirModulo } from '@/lib/navigation';
 
 const appModules = import.meta.glob('../apps/*/index.tsx') as Record<
   string,
@@ -41,7 +43,7 @@ function getAppComponent(appId: string) {
 export default function CommandCenter() {
   const [activeId, setActiveId] = useState(() => {
     const value = new URLSearchParams(window.location.search).get('app');
-    return value && appModules[`../apps/${value}/index.tsx`] ? value : 'inicio';
+    return value === 'inicio' ? 'inicio' : value && appModules[`../apps/${value}/index.tsx`] ? value : 'licitaciones-obra';
   });
   const { getApp } = useAppRegistry();
   const registerRecent = useRecentAppsStore((s) => s.register);
@@ -50,11 +52,12 @@ export default function CommandCenter() {
   useEffect(() => { void cargarExpedientes(); }, [cargarExpedientes]);
   const activeApp = activeId !== 'inicio' ? getApp(activeId) : null;
   const title = activeId === 'inicio' ? 'Inicio' : activeApp?.name || activeId;
+  useEffect(() => { document.title = `${title} · Megalodon`; }, [title]);
 
   useEffect(() => {
     const onPopState = () => {
       const value = new URLSearchParams(window.location.search).get('app');
-      setActiveId(value && appModules[`../apps/${value}/index.tsx`] ? value : 'inicio');
+      setActiveId(value === 'inicio' ? 'inicio' : value && appModules[`../apps/${value}/index.tsx`] ? value : 'licitaciones-obra');
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
@@ -62,15 +65,12 @@ export default function CommandCenter() {
 
   const navigateTo = (id: string) => {
     if (id !== 'inicio') registerRecent(id);
-    const url = new URL(window.location.href);
-    if (id === 'inicio') url.searchParams.delete('app');
-    else url.searchParams.set('app', id);
-    window.history.pushState({}, '', url);
-    setActiveId(id);
+    abrirModulo(id);
   };
 
   return (
     <div className="flex w-full h-full overflow-hidden" style={{ background: 'var(--void)' }}>
+      <ThemeController />
       <CommandPalette onSelectApp={navigateTo} />
       <Sidebar activeId={activeId} onSelect={navigateTo} />
 

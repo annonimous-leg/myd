@@ -1,4 +1,5 @@
 import './bim-studio.css';
+import { IFC_VIEW_ROTATION } from './bim-view';
 /**
  * Copyright © 2026 Cristian Rodriguez
  * All rights reserved.
@@ -49,20 +50,21 @@ const COLOR_POR_TIPO: Record<string, string> = {
 const COLOR_DEFAULT = '#8899aa';
 
 function ElementoMesh({
-  elemento, seleccionado, wireframe, onSelect, enClash = false,
+  elemento, seleccionado, wireframe, onSelect, enClash = false, customColor,
 }: {
   elemento: ElementoBIM;
   seleccionado: boolean;
   wireframe: boolean;
   onSelect: (el: ElementoBIM) => void;
   enClash?: boolean;
+  customColor?: string;
 }) {
   if (!elemento.malla_vertices?.length || !elemento.malla_caras?.length) return null;
   const color = seleccionado
     ? '#ffd166'
     : enClash
       ? '#ef4444'
-      : (COLOR_POR_TIPO[elemento.tipo] || COLOR_DEFAULT);
+      : (customColor || COLOR_POR_TIPO[elemento.tipo] || COLOR_DEFAULT);
   return (
     <mesh
       onClick={(e) => { e.stopPropagation(); onSelect(elemento); }}
@@ -110,6 +112,10 @@ function IFCPanel() {
   const [nivelFiltro, setNivelFiltro] = useState<string>('__todos__');
   const [vista, setVista] = useState<'3d' | '2d'>('3d');
   const [wireframe, setWireframe] = useState(false);
+  const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
+  const [viewColors, setViewColors] = useState<Record<string, string>>({});
+  const [viewRotation, setViewRotation] = useState(0);
+  const [downloadBusy, setDownloadBusy] = useState(false);
   const [seleccionado, setSeleccionado] = useState<ElementoBIM | null>(null);
   // FIX P1 auditoría BIM 2026-09-14 (Caso 2 "mapear-partidas"): el backend
   // ya tenía POST /mapear-partidas y el cliente ya tenía
@@ -173,6 +179,7 @@ function IFCPanel() {
     const current = ++requestId.current;
     setProcesando(true); setError(''); setModelo(selected); setElementos([]);
     setSeleccionado(null); setNivelFiltro('__todos__'); setGeneracion4D(null);
+    setHiddenTypes(new Set()); setViewColors({}); setViewRotation(0);
     setMapeoCatalogo({}); setMapeoCatalogoElementos({});
     setResultadosCatalogo({}); setBusquedaCatalogo({}); setErroresCatalogo({});
     setAnalisis(null); setClashes([]); setClashesResaltados(new Set()); setTrabajos([]);
@@ -481,6 +488,8 @@ function IFCPanel() {
     ? elementos
     : elementos.filter((el) => (el.nivel || 'Sin nivel') === nivelFiltro);
 
+  const elementosEnVista = elementosVisibles.filter(el => !hiddenTypes.has(el.tipo));
+
   const resumenPorTipo = elementosVisibles.reduce<Record<string, { cantidad: number; volumen: number; area: number }>>((acc, el) => {
     const r = acc[el.tipo] || { cantidad: 0, volumen: 0, area: 0 };
     r.cantidad += 1;
@@ -499,11 +508,11 @@ function IFCPanel() {
   return (
     <div className="bim-studio flex-1 flex flex-col overflow-hidden">
       <div className="bim-studio-header flex items-center justify-between px-3 py-2 gap-2" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+        <div className="min-w-0 flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
           <FolderKanban size={12} style={{ color: 'var(--accent-gold)' }} />
           <div className="bim-studio-title"><span className="bim-studio-eyebrow">MEGALODON / INGENIERÍA</span><h1>BIM + CostOS</h1><span>{expedienteActivo.titulo}</span></div>
         </div>
-        <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors"
+        <label className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors"
           style={{ background: 'var(--accent-gold)', color: 'var(--void)' }}>
           {procesando ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
           {procesando ? 'Procesando...' : 'Subir IFC'}
@@ -564,7 +573,7 @@ function IFCPanel() {
       )}
 
       {modelo && elementos.length > 0 && (
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="bim-studio-model min-h-0 flex-1 flex flex-col overflow-hidden">
           {/* Barra de controles del visor */}
           <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--surface)' }}>
             {modelo.niveles && modelo.niveles.length > 0 && (
@@ -584,6 +593,7 @@ function IFCPanel() {
               {(['3d', '2d'] as const).map((v) => (
                 <button
                   key={v}
+                  aria-pressed={vista === v}
                   onClick={() => setVista(v)}
                   className="px-2 py-1 text-[11px] font-medium transition-colors"
                   style={{
@@ -597,6 +607,7 @@ function IFCPanel() {
             </div>
 
             <button
+              aria-pressed={wireframe}
               onClick={() => setWireframe(!wireframe)}
               className="flex items-center gap-1 px-2 py-1 rounded text-[11px] transition-colors"
               style={{
@@ -609,9 +620,36 @@ function IFCPanel() {
             </button>
 
             <span className="text-[10px] ml-auto" style={{ color: 'var(--text-muted)' }}>
-              {elementosVisibles.length} de {elementos.length} elementos
+              {elementosEnVista.length} de {elementos.length} elementos visibles
             </span>
           </div>
+
+          <details className="bim-studio-view-tools shrink-0">
+            <summary>Herramientas de vista</summary>
+            <div>
+              <p>Oculta elementos o cambia su presentación para revisar el interior. Las cantidades y el IFC original se conservan.</p>
+              <div className="bim-studio-type-controls">
+                {tiposDelModelo.map(tipo => <div key={tipo}>
+                  <label><input type="checkbox" checked={!hiddenTypes.has(tipo)} onChange={e => {
+                    setHiddenTypes(previous => { const next = new Set(previous); if (e.target.checked) next.delete(tipo); else next.add(tipo); return next; });
+                    setSeleccionado(null);
+                  }} /> Mostrar {tipo}</label>
+                  <input type="color" aria-label={`Color de ${tipo}`} value={viewColors[tipo] || COLOR_POR_TIPO[tipo] || COLOR_DEFAULT}
+                    onChange={e => setViewColors(previous => ({ ...previous, [tipo]: e.target.value }))} />
+                </div>)}
+              </div>
+              <label>Giro del modelo <input type="range" aria-label="Giro del modelo" min="0" max="360" step="15" value={viewRotation} onChange={e => setViewRotation(Number(e.target.value))} /> {viewRotation}°</label>
+              <button type="button" onClick={() => { setHiddenTypes(new Set()); setViewColors({}); setViewRotation(0); setWireframe(false); }}>Restablecer vista</button>
+              <button type="button" disabled={downloadBusy} onClick={async () => {
+                setDownloadBusy(true);
+                try {
+                  const result = await megalodonClient.bim.descargarModeloUrl(expedienteActivo.id, modelo.id);
+                  const link = document.createElement('a'); link.href = result.url; link.download = `${modelo.nombre}.ifc`; link.rel = 'noopener'; link.click();
+                } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo descargar el IFC'); }
+                finally { setDownloadBusy(false); }
+              }}>{downloadBusy ? 'Preparando descarga…' : 'Descargar IFC original'}</button>
+            </div>
+          </details>
 
           <div className="bim-studio-panels flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
             <div className="bim-studio-viewport w-full lg:w-1/2 h-[340px] lg:h-full shrink-0 relative">
@@ -622,16 +660,21 @@ function IFCPanel() {
                 <ambientLight intensity={0.7} />
                 <directionalLight position={[10, 15, 10]} intensity={0.8} />
                 <Bounds fit clip observe margin={1.3}>
-                  {elementosVisibles.map((el) => (
+                  <group rotation={[0, viewRotation * Math.PI / 180, 0]}>
+                  <group rotation={IFC_VIEW_ROTATION}>
+                  {elementosEnVista.map((el) => (
                     <ElementoMesh
                       key={el.id}
                       elemento={el}
+                      customColor={viewColors[el.tipo]}
                       seleccionado={seleccionado?.id === el.id}
                       wireframe={wireframe}
                       onSelect={setSeleccionado}
                       enClash={clashesResaltados.has(el.id)}
                     />
                   ))}
+                  </group>
+                  </group>
                 </Bounds>
                 <OrbitControls enableRotate={vista === '3d'} />
                 {vista === '3d' && <gridHelper args={[50, 50]} />}
@@ -642,7 +685,7 @@ function IFCPanel() {
                   style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold">{seleccionado.nombre || seleccionado.tipo}</span>
-                    <button onClick={() => setSeleccionado(null)} style={{ color: 'var(--text-muted)' }}>✕</button>
+                    <button aria-label="Cerrar detalle del elemento" onClick={() => setSeleccionado(null)} style={{ color: 'var(--text-muted)' }}>✕</button>
                   </div>
                   <div style={{ color: 'var(--text-muted)' }}>
                     {seleccionado.tipo}{seleccionado.nivel ? ` · ${seleccionado.nivel}` : ''}
@@ -748,7 +791,7 @@ function IFCPanel() {
                       Generar presupuesto
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 lg:grid-cols-6 gap-1.5 mb-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                  <div className="bim-studio-cost-factors grid gap-1.5 mb-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
                     {[
                       ['Indirectos %', factorIndirecto, setFactorIndirecto],
                       ['Financiamiento %', factorFinanciamiento, setFactorFinanciamiento],

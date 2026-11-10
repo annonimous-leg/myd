@@ -1,9 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowLeft, Download, FileText, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Download, FileText } from 'lucide-react';
 import { megalodonClient } from '@/lib/api-client';
 import type { WorkspaceDocumentSummary, WorkspaceDocumentDetail, WorkspaceDocumentRevision, WorkspaceEditor } from '@/lib/megalodon-client';
 import { useAuthStore } from '@/stores/useAuthStore';
 import './workspace-documents.css';
+import ThemeControl from '@/components/ThemeControl';
+import { useResolvedTheme } from '@/hooks/useResolvedTheme';
+import { useConfirmation } from '@/components/useConfirmation';
 
 const extensions: Record<string, string> = {
   'application/pdf': 'pdf',
@@ -21,9 +24,10 @@ interface Props {
 }
 
 export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen, onVersion, frozen = false }: Props) {
+  const { confirm, dialog } = useConfirmation();
   const role = useAuthStore(state => state.user?.role?.toLowerCase());
   const canEdit = role === 'tecnico' || role === 'admin' || role === 'superadmin';
-  const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const dark = useResolvedTheme() === 'dark';
   const [selection, setSelectedId] = useState('');
   const [editor, setEditor] = useState<WorkspaceEditor | null>(null);
   const [plainDocument, setPlainDocument] = useState<WorkspaceDocumentDetail | null>(null);
@@ -47,6 +51,22 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
   const fieldDirty = Object.keys(changed).length > 0;
   const plainDirty = Boolean(plainDocument && plainText !== plainDocument.content_text);
   const dirty = fieldDirty || plainDirty;
+  useEffect(() => {
+    if (!dirty) return;
+    const beforeUnload = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
+    const beforeNavigate = (event: Event) => {
+      event.preventDefault();
+      const navigate = (event as CustomEvent<{ navigate: () => void }>).detail.navigate;
+      void confirm({ title: 'Hay cambios sin guardar', description: 'Guarda una nueva versión para conservar tus cambios, o descártalos para salir del documento.', action: 'Descartar y salir' })
+        .then(accepted => { if (accepted) navigate(); });
+    };
+    window.addEventListener('beforeunload', beforeUnload);
+    window.addEventListener('megalodon:before-navigate', beforeNavigate);
+    return () => {
+      window.removeEventListener('beforeunload', beforeUnload);
+      window.removeEventListener('megalodon:before-navigate', beforeNavigate);
+    };
+  }, [dirty, confirm]);
   const locked = frozen || Boolean(editor?.locked || plainDocument?.locked);
   const currentVersion = plainDocument?.version ?? editor?.version;
   const initialValues = Object.fromEntries((editor?.fields ?? [])
@@ -126,8 +146,8 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
     };
   }, [tenderId, editor]);
 
-  function leave(action: () => void) {
-    if (!dirty || window.confirm('¿Salir sin guardar los cambios de este anexo?')) action();
+  async function leave(action: () => void) {
+    if (!dirty || await confirm({ title: 'Hay cambios sin guardar', description: 'Guarda una nueva versión para conservar tus cambios, o descártalos para salir del documento.', action: 'Descartar y salir' })) action();
   }
 
   async function openTemplate(template: { artifact_code: string; name: string }) {
@@ -191,6 +211,7 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
 
   return (
     <section className="workspace-docs" data-theme={dark ? 'dark' : 'light'} aria-label="Documentos del Workspace">
+      {dialog}
       <header className="workspace-docs__header">
         <div>
           <button type="button" className="workspace-docs__back" onClick={() => leave(onBack)} disabled={saving}>
@@ -206,10 +227,7 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
             download={`anexo-${editor!.id}-v${currentPreview.version}.${extension}`}>
             <Download size={15} aria-hidden /> Descargar revisión
           </a>}
-          <button type="button" onClick={() => setDark(value => !value)}
-            aria-label={dark ? 'Activar modo claro' : 'Activar modo oscuro'}>
-            {dark ? <Sun size={16} aria-hidden /> : <Moon size={16} aria-hidden />}
-          </button>
+          <ThemeControl />
         </div>
       </header>
       <div className="workspace-docs__grid">
@@ -268,9 +286,9 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
           {locked && <p>Este documento o expediente está bloqueado para edición.</p>}
           {plainDocument && (
             <>
-              <form onSubmit={save}>
+              <form noValidate onSubmit={save}>
                 <label>Contenido del documento
-                  <textarea
+                  <textarea style={{ resize: 'none' }}
                     placeholder="Contenido editable del documento..."
                     aria-label="Contenido del documento"
                     rows={16}
@@ -303,11 +321,11 @@ export default function WorkspaceDocuments({ tenderId, documents, onBack, onOpen
           )}
           {editor && !editor.fields.length && <p>El perfil de este formato no tiene campos habilitados para editar. Adjunta el mapa oficial de la plantilla para habilitar campos verificables.</p>}
           {editor && editor.fields.length > 0 && (
-            <form onSubmit={save}>
+            <form noValidate onSubmit={save}>
               {editor.fields.map(field => (
                 <label key={field.path}>{field.label}{field.read_only && <small> · Presupuesto</small>}
                   {!isTemplate && field.path.startsWith('technical.') ?
-                    <textarea maxLength={field.max_length} value={values[field.path] ?? ''} rows={4}
+                    <textarea style={{ resize: 'none' }} maxLength={field.max_length} value={values[field.path] ?? ''} rows={4}
                       disabled={saving || locked || !canEdit}
                       onChange={e => setValues(old => ({ ...old, [field.path]: e.target.value }))} /> :
                     <input readOnly={field.read_only} maxLength={field.max_length} value={values[field.path] ?? ''}

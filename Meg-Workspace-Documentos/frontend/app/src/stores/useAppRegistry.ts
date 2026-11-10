@@ -32,7 +32,7 @@ const ALL_APPS: AppDefinition[] = [
   // ═══════════════════════════════════════════════════════════════════════
   // INTEGRACIÓN ZIP 2: LICITACIONES DE OBRA
   // ═══════════════════════════════════════════════════════════════════════
-  { id: 'licitaciones-obra', name: 'Licitaciones de Obra', icon: 'Gavel', category: 'flagship', component: 'LicitacionesObra', defaultSize: { width: 1200, height: 800 }, minSize: { width: 800, height: 600 }, pinned: true , estado: 'core', requiresPlan: 'FREE' },
+  { id: 'licitaciones-obra', name: 'Workspace', icon: 'Gavel', category: 'flagship', component: 'LicitacionesObra', defaultSize: { width: 1200, height: 800 }, minSize: { width: 800, height: 600 }, pinned: true , estado: 'core', requiresPlan: 'FREE' },
   // ═══════════════════════════════════════════════════════════════════════
   // INTEGRACIÓN ZIP 3: CONSULTOR LEGAL LEGL
   // ═══════════════════════════════════════════════════════════════════════
