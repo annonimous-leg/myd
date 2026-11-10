@@ -1273,6 +1273,12 @@ export interface WebSocketMessage {
   timestamp?: number;
 }
 
+export type SolicitudPlanoBIM = { titulo: string } & (
+  | { tipo: "PLAN"; parametros: { elevacion_m: number } }
+  | { tipo: "SECTION"; parametros: { origen_m: [number, number, number]; normal: [number, number, number] } }
+  | { tipo: "ELEVATION"; parametros: { direccion_vista: [number, number, number] } }
+);
+
 export class MegalodonClient {
   private baseUrl: string;
   private token: string | null = null;
@@ -1658,15 +1664,16 @@ export class MegalodonClient {
   bim = {
     listarPlanos: (expedienteId: string, modelId: string) =>
       this.request<{
-        id: string; titulo: string; estado: string; formatos: string[]; error?: string;
-        source_model_updated_at: string; obsoleto: boolean;
+        id: string; titulo: string; tipo: SolicitudPlanoBIM["tipo"]; estado: string;
+        formatos: string[]; error?: string; source_model_updated_at: string; obsoleto: boolean;
+        metadatos?: { visibility_mode?: string } | null;
       }[]>(
         "GET", this.drawingPath(expedienteId, modelId),
       ),
 
-    generarPlantaPDF: (expedienteId: string, modelId: string, titulo: string, elevacion: number) =>
+    generarPlano: (expedienteId: string, modelId: string, solicitud: SolicitudPlanoBIM) =>
       this.request("POST", this.drawingPath(expedienteId, modelId), {
-        tipo: "PLAN", titulo, parametros: { elevacion_m: elevacion }, formatos: ["PDF", "SVG", "DXF"],
+        ...solicitud, formatos: ["PDF", "SVG", "DXF"],
       }),
 
     descargarPlano: async (expedienteId: string, modelId: string, drawingId: string, formato: "PDF" | "SVG" | "DXF") => {

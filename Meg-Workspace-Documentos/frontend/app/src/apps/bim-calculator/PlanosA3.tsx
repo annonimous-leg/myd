@@ -1,7 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { megalodonClient } from '@/lib/api-client';
+import type { SolicitudPlanoBIM } from '@/lib/megalodon-client';
 
 const formatos = ['PDF', 'SVG', 'DXF'] as const;
+
+const nombres = { PLAN: 'Planta', SECTION: 'Sección', ELEVATION: 'Alzado' } as const;
+const direcciones: Record<'x+' | 'x-' | 'y+' | 'y-', [number, number, number]> = {
+  'x+': [1, 0, 0], 'x-': [-1, 0, 0], 'y+': [0, 1, 0], 'y-': [0, -1, 0],
+};
 
 type Plano = Awaited<ReturnType<typeof megalodonClient.bim.listarPlanos>>[number];
 
@@ -43,7 +49,11 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
   const [planos, setPlanos] = useState<Plano[]>([]);
   const [vistaId, setVistaId] = useState('');
   const [titulo, setTitulo] = useState('');
+  const [tipo, setTipo] = useState<SolicitudPlanoBIM['tipo']>('PLAN');
   const [elevacion, setElevacion] = useState('');
+  const [eje, setEje] = useState<'X' | 'Y'>('X');
+  const [coordenada, setCoordenada] = useState('');
+  const [direccion, setDireccion] = useState<keyof typeof direcciones>('y-');
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState('');
   const [actualizacion, setActualizacion] = useState(0);
@@ -74,11 +84,29 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
 
   async function generar(event: FormEvent) {
     event.preventDefault();
-    if (!titulo.trim() || !elevacion.trim() || !Number.isFinite(Number(elevacion))) return;
+    const nombre = titulo.trim();
+    if (!nombre) return;
+    let solicitud: SolicitudPlanoBIM;
+    if (tipo === 'PLAN') {
+      if (!elevacion.trim() || !Number.isFinite(Number(elevacion))) return;
+      solicitud = { tipo, titulo: nombre, parametros: { elevacion_m: Number(elevacion) } };
+    } else if (tipo === 'SECTION') {
+      const posicion = Number(coordenada);
+      if (!coordenada.trim() || !Number.isFinite(posicion)) return;
+      solicitud = {
+        tipo, titulo: nombre,
+        parametros: {
+          origen_m: eje === 'X' ? [posicion, 0, 0] : [0, posicion, 0],
+          normal: direcciones[eje === 'X' ? 'x+' : 'y+'],
+        },
+      };
+    } else {
+      solicitud = { tipo, titulo: nombre, parametros: { direccion_vista: direcciones[direccion] } };
+    }
     setOcupado(true);
     setError('');
     try {
-      await megalodonClient.bim.generarPlantaPDF(expedienteId, modeloId, titulo.trim(), Number(elevacion));
+      await megalodonClient.bim.generarPlano(expedienteId, modeloId, solicitud);
       setActualizacion(value => value + 1);
     } catch (err) {
       setError(String(err instanceof Error ? err.message : err));
@@ -106,19 +134,38 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
     <summary className="cursor-pointer">Planos PDF A3</summary>
     {canWrite && <form onSubmit={generar} className="flex flex-wrap gap-2 items-end">
       <label>Título <input required maxLength={300} value={titulo} onChange={event => setTitulo(event.target.value)} /></label>
-      <label>Elevación de corte (m) <input required type="number" step="any" value={elevacion} onChange={event => setElevacion(event.target.value)} /></label>
-      <button type="submit" disabled={ocupado}>Generar planta A3</button>
+      <label>Tipo de plano <select value={tipo} onChange={event => setTipo(event.target.value as typeof tipo)}>
+        {Object.entries(nombres).map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}
+      </select></label>
+      {tipo === 'PLAN' && <label>Elevación de corte (m)
+        <input required type="number" step="any" value={elevacion} onChange={event => setElevacion(event.target.value)} />
+      </label>}
+      {tipo === 'SECTION' && <>
+        <label>Eje de corte <select value={eje} onChange={event => setEje(event.target.value as typeof eje)}>
+          <option value="X">X constante</option><option value="Y">Y constante</option>
+        </select></label>
+        <label>Coordenada de corte (m)
+          <input required type="number" step="any" value={coordenada} onChange={event => setCoordenada(event.target.value)} />
+        </label>
+      </>}
+      {tipo === 'ELEVATION' && <label>Lado de observación <select value={direccion}
+        onChange={event => setDireccion(event.target.value as typeof direccion)}>
+        <option value="x+">Desde +X</option><option value="x-">Desde −X</option>
+        <option value="y+">Desde +Y</option><option value="y-">Desde −Y</option>
+      </select></label>}
+      <button type="submit" disabled={ocupado}>Generar {nombres[tipo].toLowerCase()} A3</button>
     </form>}
     <button type="button" onClick={() => { setError(''); setActualizacion(value => value + 1); }}>Actualizar planos</button>
     {error && <p role="alert">{error}</p>}
     <ul aria-label="Planos generados">
       {planos.map(plano => <li key={plano.id}>
-        {plano.titulo} · {plano.estado}
+        {plano.titulo} · {nombres[plano.tipo]} · {plano.estado}
         {plano.error && <span> · {plano.error}</span>}
         <small className="block">
           Revisión IFC: <time dateTime={plano.source_model_updated_at}>{plano.source_model_updated_at}</time>
           {plano.obsoleto && ' · El modelo tiene una revisión posterior'}
         </small>
+        {plano.metadatos?.visibility_mode === 'occlusion_clipped_mesh_silhouette' && <small className="block">Alzado de siluetas. Los tramos ocultos se omiten.</small>}
         {plano.estado === 'COMPLETADO' && <div className="space-x-2">
           {plano.formatos.includes('SVG') && <button type="button" aria-expanded={vistaId === plano.id}
             onClick={() => setVistaId(vistaId === plano.id ? '' : plano.id)}>
