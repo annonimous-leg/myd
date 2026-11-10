@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 import math
 from typing import Iterable, Mapping, Sequence
 
+from app.engines.bim.drawing.occlusion import OcclusionIndex
+
 Vec2 = tuple[float, float]
 Vec3 = tuple[float, float, float]
 
@@ -60,10 +62,6 @@ def _validate_tolerance(tolerance_m: float) -> float:
     if not math.isfinite(tolerance) or tolerance <= 0:
         raise ValueError("tolerance_m must be finite and greater than zero")
     return tolerance
-
-
-def _point_key(point: Vec3, tolerance_m: float) -> tuple[int, int, int]:
-    return tuple(round(value / tolerance_m) for value in point)  # type: ignore[return-value]
 
 
 def _canonical_vertex_keys(
@@ -460,22 +458,36 @@ def build_elevation_document(
     title: str = "Alzado",
     tolerance_m: float = DEFAULT_TOLERANCE_M,
 ) -> DrawingDocument:
-    """Return orthographic silhouette edges, not hidden-line-removed drawings.
+    """Project silhouette edges and clip portions behind the mesh surfaces.
 
-    view_direction points from the model toward the observer. This algorithm
-    classifies connected mesh edges by adjacent face orientation; it does not
-    solve occlusion between separate elements or generate hidden dashed lines.
+    The view direction points toward the observer. The candidates remain
+    silhouette and boundary edges of the triangulated input.
     """
     tolerance = _validate_tolerance(tolerance_m)
     direction = _normalize(_finite_vec3(view_direction, "view direction"), "view direction")
-    frame = ViewFrame.from_plane(Plane.from_origin_normal(origin, direction))
+    plane = Plane.from_origin_normal(origin, direction)
+    frame = ViewFrame.from_plane(plane)
+    meshes = sorted(elements, key=lambda element: (element.ifc_type, element.global_id, element.element_id))
     projected: list[DrawingSegment] = []
 
-    for mesh in sorted(elements, key=lambda element: (element.ifc_type, element.global_id, element.element_id)):
-        edges: dict[
-            tuple[tuple[int, int, int], tuple[int, int, int]],
-            dict[str, object],
-        ] = {}
+    def with_depth(point: Vec3) -> Vec3:
+        return (*frame.project(point), plane.signed_distance(point))
+
+    projected_meshes = [
+        (mesh, {vertex: with_depth(vertex) for vertex in mesh.vertices})
+        for mesh in meshes
+    ]
+    occlusion = OcclusionIndex.build(
+        (
+            (vertices[mesh.vertices[a]], vertices[mesh.vertices[b]], vertices[mesh.vertices[c]])
+            for mesh, vertices in projected_meshes
+            for a, b, c in mesh.triangles
+        ),
+        tolerance,
+    )
+    for mesh, vertices in projected_meshes:
+        vertex_keys = _canonical_vertex_keys(mesh.vertices, tolerance)
+        edges: dict[tuple[Vec3, Vec3], list[float]] = {}
         for triangle in mesh.triangles:
             a, b, c = (mesh.vertices[index] for index in triangle)
             normal = _cross(_sub(b, a), _sub(c, a))
@@ -483,34 +495,32 @@ def build_elevation_document(
             if normal_length <= 0:
                 continue
             facing = _dot(normal, direction) / normal_length
-            vertices = (a, b, c)
             for edge_index in range(3):
-                first = vertices[edge_index]
-                second = vertices[(edge_index + 1) % 3]
-                first_key = _point_key(first, tolerance)
-                second_key = _point_key(second, tolerance)
-                if second_key < first_key:
-                    first_key, second_key = second_key, first_key
+                first = vertex_keys[triangle[edge_index]]
+                second = vertex_keys[triangle[(edge_index + 1) % 3]]
+                if second < first:
                     first, second = second, first
-                key = (first_key, second_key)
-                record = edges.setdefault(key, {"points": (first, second), "facings": []})
-                facings = record["facings"]
-                assert isinstance(facings, list)
-                facings.append(facing)
+                edges.setdefault((first, second), []).append(facing)
 
-        for record in edges.values():
-            facings = record["facings"]
-            points = record["points"]
-            assert isinstance(facings, list) and isinstance(points, tuple)
+        for (first, second), facings in edges.items():
             toward = any(value > _DIRECTION_EPSILON for value in facings)
             away = any(value < -_DIRECTION_EPSILON for value in facings)
             edge_on = any(abs(value) <= _DIRECTION_EPSILON for value in facings)
             boundary = len(facings) == 1
             is_silhouette = (boundary and toward) or (toward and (away or edge_on))
             if is_silhouette:
-                segment = _project_segment(points[0], points[1], frame, mesh, tolerance)
-                if segment is not None:
-                    projected.append(segment)
+                start, end = vertices[first], vertices[second]
+                dx, dy = end[0] - start[0], end[1] - start[1]
+                length = math.hypot(dx, dy)
+                if not math.isfinite(length) or length <= tolerance:
+                    continue
+                intervals = occlusion.visible_intervals(start, end, tolerance) if occlusion else ((0.0, 1.0),)
+                for low, high in intervals:
+                    a = start[:2] if low == 0.0 else (start[0] + dx * low, start[1] + dy * low)
+                    b = end[:2] if high == 1.0 else (start[0] + dx * high, start[1] + dy * high)
+                    if b < a:
+                        a, b = b, a
+                    projected.append(DrawingSegment(a, b, mesh.ifc_type, mesh.element_id, mesh.global_id))
 
     segments = _deduplicate_segments(projected, tolerance)
     return DrawingDocument(
@@ -523,8 +533,8 @@ def build_elevation_document(
             "view_direction": direction,
             "view_origin_m": frame.origin,
             "tolerance_m": tolerance,
-            "visibility_mode": "silhouette_without_hidden_line_removal",
+            "visibility_mode": "occlusion_clipped_mesh_silhouette",
             "engine": "megalodon-vector-drawing",
-            "engine_version": "0.1.0",
+            "engine_version": "0.2.0",
         },
     )
