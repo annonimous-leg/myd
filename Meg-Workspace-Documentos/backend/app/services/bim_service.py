@@ -27,8 +27,9 @@ from typing import BinaryIO, List, Optional, Dict, Any, TYPE_CHECKING
 from uuid import UUID, uuid4
 from types import SimpleNamespace
 
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
+from sqlalchemy.orm import defer
 
 from app.models.presupuesto import Presupuesto, Partida
 from app.models.bim import ModeloBIM, ElementoBIM
@@ -292,6 +293,8 @@ class BIMService:
             query = query.where(ElementoBIM.tipo == tipo)
         if nivel:
             query = query.where(ElementoBIM.nivel == nivel)
+        if not incluir_malla:
+            query = query.options(defer(ElementoBIM.malla_vertices), defer(ElementoBIM.malla_caras))
         query = query.order_by(ElementoBIM.tipo, ElementoBIM.id).limit(limit).offset(offset)
         result = await self.db.execute(query)
         elementos = list(result.scalars().all())
@@ -375,6 +378,7 @@ class BIMService:
 
         result = await self.db.execute(
             select(ElementoBIM)
+            .options(defer(ElementoBIM.malla_vertices), defer(ElementoBIM.malla_caras))
             .join(ModeloBIM, ModeloBIM.id == ElementoBIM.modelo_id)
             .where(
                 ElementoBIM.modelo_id == modelo_id,
@@ -604,6 +608,17 @@ class BIMService:
 
         await self.db.commit()
         return presupuesto
+
+    async def asignar_zona_por_nivel(
+        self, modelo_id: UUID, expediente_id: UUID, zona: str, nivel: Optional[str],
+    ) -> int:
+        await self._validar_modelo_en_expediente(modelo_id, expediente_id, bloquear=True)
+        query = update(ElementoBIM).where(ElementoBIM.modelo_id == modelo_id)
+        if nivel is not None:
+            query = query.where(func.coalesce(func.nullif(ElementoBIM.nivel, ""), "Sin nivel") == nivel)
+        result = await self.db.execute(query.values(zona_4d=zona).execution_options(synchronize_session=False))
+        await self.db.commit()
+        return result.rowcount
 
     async def asignar_zonas_4d(
         self,

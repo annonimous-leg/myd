@@ -322,3 +322,37 @@ async def test_clash_state_requires_the_owning_project(async_client, db_session,
     assert accepted.status_code == 200, accepted.text
     await db_session.refresh(clash)
     assert clash.estado == "RESUELTO"
+
+
+@pytest.mark.asyncio
+async def test_zone_by_level_updates_beyond_one_viewer_page(async_client, db_session, tenant_a_user):
+    from tests.conftest import _login
+
+    tenant, user = tenant_a_user
+    expediente, bim_model = await model(db_session, tenant, user)
+    _, other_model = await model(db_session, tenant, user)
+    db_session.add_all([
+        ElementoBIM(modelo_id=bim_model.id, global_id=uuid4().hex, express_id=i,
+                    tipo="IfcWall", nivel="PB")
+        for i in range(501)
+    ])
+    db_session.add_all([
+        ElementoBIM(modelo_id=bim_model.id, global_id=uuid4().hex, express_id=501,
+                    tipo="IfcWall", nivel="PA"),
+        ElementoBIM(modelo_id=other_model.id, global_id=uuid4().hex, express_id=1,
+                    tipo="IfcWall", nivel="PB"),
+    ])
+    await db_session.commit()
+
+    response = await async_client.post(
+        f"/api/v1/bim/{expediente.id}/modelos/{bim_model.id}/zonas-4d",
+        json={"zona_4d": "Frente A", "nivel": "PB"},
+        headers=await _login(async_client, user.email),
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["elementos_actualizados"] == 501
+    zoned = (await db_session.scalars(
+        select(ElementoBIM).where(ElementoBIM.zona_4d == "Frente A")
+    )).all()
+    assert len(zoned) == 501
+    assert all(element.modelo_id == bim_model.id and element.nivel == "PB" for element in zoned)

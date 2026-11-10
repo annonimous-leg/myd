@@ -178,6 +178,7 @@ function IFCPanel() {
     if (!expedienteActivo) return;
     const current = ++requestId.current;
     setProcesando(true); setError(''); setModelo(selected); setElementos([]);
+    setAsignandoZona(false); setMensajeZona('');
     setSeleccionado(null); setNivelFiltro('__todos__'); setGeneracion4D(null);
     setHiddenTypes(new Set()); setViewColors({}); setViewRotation(0);
     setMapeoCatalogo({}); setMapeoCatalogoElementos({});
@@ -198,9 +199,9 @@ function IFCPanel() {
           { incluirMalla:true, limit:500, offset:all.length });
         if (current !== requestId.current) return;
         all.push(...page);
+        if (page.length > 0) setElementos(previous => [...previous, ...page]);
         if (page.length < 500) break;
       }
-      setElementos(all);
       if (ready.num_elementos > all.length) setError(`Se muestran ${all.length} de ${ready.num_elementos} elementos. El presupuesto utiliza el modelo completo.`);
       setProcesando(false);
       const history = await megalodonClient.bim.listarGeneraciones(expedienteActivo.id, ready.id);
@@ -407,18 +408,26 @@ function IFCPanel() {
   // --- 4D: asignar zona de trabajo a los elementos del nivel filtrado ---
   const handleAsignarZona = async () => {
     if (!expedienteActivo || !modelo || !zonaInput.trim()) return;
+    const current = requestId.current;
+    const nivel = nivelFiltro === '__todos__' ? null : nivelFiltro;
+    const zona = zonaInput.trim();
     setAsignandoZona(true);
     setMensajeZona('');
     try {
-      const objetivo = nivelFiltro === '__todos__' ? elementos : elementos.filter((el) => (el.nivel || 'Sin nivel') === nivelFiltro);
-      const asignaciones = objetivo.map((el) => ({ elemento_id: el.id, zona_4d: zonaInput.trim() }));
-      const { elementos_actualizados } = await megalodonClient.bim.asignarZonas4d(expedienteActivo.id, modelo.id, asignaciones);
-      setElementos((prev) => prev.map((el) => (objetivo.some((o) => o.id === el.id) ? { ...el, zona_4d: zonaInput.trim() } : el)));
-      setMensajeZona(`Zona "${zonaInput.trim()}" asignada a ${elementos_actualizados} elemento(s).`);
+      const { elementos_actualizados } = await megalodonClient.bim.asignarZonas4d(
+        expedienteActivo.id, modelo.id, { nivel, zona_4d: zona },
+      );
+      if (current !== requestId.current) return;
+      setElementos(prev => prev.map(el => (
+        nivel === null || (el.nivel || 'Sin nivel') === nivel ? { ...el, zona_4d: zona } : el
+      )));
+      setMensajeZona(`Zona "${zona}" asignada a ${elementos_actualizados} elemento(s).`);
     } catch (e) {
-      setMensajeZona(e instanceof Error ? e.message : 'No se pudo asignar la zona');
+      if (current === requestId.current) {
+        setMensajeZona(e instanceof Error ? e.message : 'No se pudo asignar la zona');
+      }
     } finally {
-      setAsignandoZona(false);
+      if (current === requestId.current) setAsignandoZona(false);
     }
   };
 
@@ -591,6 +600,11 @@ function IFCPanel() {
 
       {modelo && elementos.length > 0 && (
         <div className="bim-studio-model min-h-0 flex-1 flex flex-col overflow-hidden">
+          {procesando && (
+            <p role="status" className="px-3 py-1 text-xs text-(--text-secondary)">
+              Cargando geometría · {elementos.length} de {modelo.num_elementos} elementos
+            </p>
+          )}
           {/* Barra de controles del visor */}
           <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--surface)' }}>
             {modelo.niveles && modelo.niveles.length > 0 && (
@@ -1176,7 +1190,7 @@ function IFCPanel() {
                       />
                       <button
                         onClick={handleAsignarZona}
-                        disabled={!canWrite || asignandoZona || !zonaInput.trim()}
+                        disabled={!canWrite || procesando || asignandoZona || !zonaInput.trim()}
                         className="px-2 rounded text-[10px]"
                         style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
                       >

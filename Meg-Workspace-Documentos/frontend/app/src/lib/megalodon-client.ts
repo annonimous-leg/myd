@@ -1810,7 +1810,7 @@ export class MegalodonClient {
     asignarZonas4d: async (
       expedienteId: string,
       modeloId: string,
-      asignaciones: Array<{ elemento_id: string; zona_4d: string }>,
+      asignaciones: Array<{ elemento_id: string; zona_4d: string }> | { zona_4d: string; nivel: string | null },
     ): Promise<{ elementos_actualizados: number }> => {
       return this.request("POST", `/bim/${expedienteId}/modelos/${modeloId}/zonas-4d`, asignaciones);
     },

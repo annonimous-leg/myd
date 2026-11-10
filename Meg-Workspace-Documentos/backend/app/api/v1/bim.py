@@ -115,6 +115,11 @@ class AsignarZona4D(BaseModel):
     zona_4d: str
 
 
+class AsignarZonaPorNivel4D(BaseModel):
+    zona_4d: str = Field(min_length=1, max_length=255, pattern=r"\S")
+    nivel: Optional[str] = None
+
+
 class GenerarActividades4DRequest(BaseModel):
     fecha_inicio: datetime
     # Duración base configurable; la estimación final la ajusta el
@@ -369,7 +374,7 @@ async def generar_presupuesto_desde_bim(
 async def asignar_zonas_4d(
     expediente_id: UUID,
     modelo_id: UUID,
-    asignaciones: List[AsignarZona4D],
+    asignaciones: List[AsignarZona4D] | AsignarZonaPorNivel4D,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user), _rate_limit: bool = Depends(rate_limit_strict),
 ):
@@ -377,10 +382,15 @@ async def asignar_zonas_4d(
     editable para el cronograma 4D, independiente de `nivel` (ver
     ElementoBIM.zona_4d). Sin esto, generar-4d5d agrupa por `nivel`."""
     service = BIMService(db, tenant_id=current_user.tenant_id)
-    count = await service.asignar_zonas_4d(
-        modelo_id, expediente_id=expediente_id,
-        asignaciones=[a.model_dump() for a in asignaciones],
-    )
+    if isinstance(asignaciones, AsignarZonaPorNivel4D):
+        count = await service.asignar_zona_por_nivel(
+            modelo_id, expediente_id, asignaciones.zona_4d.strip(), asignaciones.nivel,
+        )
+    else:
+        count = await service.asignar_zonas_4d(
+            modelo_id, expediente_id=expediente_id,
+            asignaciones=[a.model_dump() for a in asignaciones],
+        )
     return {"elementos_actualizados": count}
 
 
