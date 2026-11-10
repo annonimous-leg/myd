@@ -42,7 +42,7 @@ export default function CatalogoPartidaPicker({ expedienteId, presupuestoId, par
     <select aria-label={`Concepto para partida ${partida.numero}`} value={selected} onChange={e => setSelected(e.target.value)}
       disabled={busy || loading} className="w-full rounded p-1 bg-(--surface-elevated)">
       <option value="">{loading ? 'Buscando…' : 'Selecciona un concepto revisado'}</option>
-      {items.map(item => <option key={item.id} value={item.id}>{item.clave} · {item.descripcion} · {item.precio_unitario} / {item.unidad} · {item.fuente_visible || 'Investigación de mercado Megalodon'} · {item.vigencia_inicio || 'Vigencia sin registrar'}</option>)}
+      {items.map(item => <option key={item.id} value={item.id}>{item.clave} · {item.descripcion} · {item.precio_unitario} / {item.unidad} · {item.fuente === 'CI_SYNTHETIC_NOT_MARKET_PRICE' ? 'Prueba aislada de CI · no es precio de mercado' : (item.fuente_visible || item.fuente)} · {item.vigencia_inicio || 'Vigencia sin registrar'}</option>)}
     </select>
     {!loading && !items.length && <p>No hay conceptos compatibles en estos resultados. Afina la búsqueda o importa tu catálogo.</p>}
     <button disabled={busy || !selected || loading} onClick={() => void save()} className="rounded border p-1 disabled:opacity-40">
