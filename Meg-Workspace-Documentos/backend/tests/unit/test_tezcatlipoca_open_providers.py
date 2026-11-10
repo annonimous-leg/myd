@@ -11,6 +11,7 @@ from services.weather.noaa_nws import NOAAWeatherClient
 from services.sar.copernicus_scihub import CopernicusSciHubClient
 from services.data_fetcher import DataFetcherEngine
 from routers.geo import get_geo_context
+from routers.transport import router as transport_router
 
 
 @pytest.mark.asyncio
@@ -87,6 +88,31 @@ async def test_osrm_self_hosted_converts_seconds_and_rejects_invalid_profiles():
         assert (await client.get_route(19.4, -99.1, 19.5, -99.2, "foot"))["status"] == "unsupported_profile"
         assert len(urls) == 1
         assert (await OSRMClient(base_url="", http=http).get_route(19.4, -99.1, 19.5, -99.2))["status"] == "config_required"
+
+
+@pytest.mark.asyncio
+async def test_transport_keeps_osrm_available_and_blocks_hosted_isochrones():
+    from app.main import create_app
+
+    async def get_route(*args):
+        return {"source": "osrm_self_hosted"}
+
+    app = create_app()
+    app.state.tezcatlipoca_ready = True
+    app.state.osrm_routes = SimpleNamespace(base_url="http://osrm:5000", get_route=get_route)
+    app.state.graphhopper = None
+    route_path = "/api/tezcatlipoca/transport/route"
+    route = next(route for route in transport_router.routes if route.path == "/route")
+    for dependency in route.dependant.dependencies:
+        app.dependency_overrides[dependency.call] = lambda: None
+
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as http:
+        response = await http.post(route_path, json={})
+        assert response.status_code == 200
+        assert response.json()["source"] == "osrm_self_hosted"
+        response = await http.post("/api/tezcatlipoca/transport/isochrone", json={})
+        assert response.status_code == 503
+        assert response.json()["error"] == "provider_disabled"
 
 
 @pytest.mark.asyncio

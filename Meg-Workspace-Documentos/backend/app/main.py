@@ -32,6 +32,21 @@ import structlog
 
 logger = structlog.get_logger()
 
+# Hosted providers that do not have an approved, no-fee commercial licence.
+# Reject at the API boundary without calling their clients. Keep local engines,
+# source code and historical records available for replacement adapters.
+_TEZCATLIPOCA_BLOCKED_ROUTES = (
+    "/api/tezcatlipoca/aviation/adsb/",  # ADS-B Exchange
+    "/api/tezcatlipoca/aviation/metar/",  # AVWX hosted (review tier)
+    "/api/tezcatlipoca/aviation/taf/",    # AVWX hosted (review tier)
+    "/api/tezcatlipoca/sar/gee/",        # Google Earth Engine
+    "/api/tezcatlipoca/transport/isochrone",
+    "/api/tezcatlipoca/cyber/shodan/",
+    "/api/tezcatlipoca/cyber/censys/",
+    "/api/tezcatlipoca/cyber/greynoise/",
+)
+
+
 # ═══════════════════════════════════════════════════════════════════
 # INTEGRACIÓN ZIP 4: TEZCATLIPOCA (geo / OSINT / cyber / aviación / SAR)
 # ═══════════════════════════════════════════════════════════════════
@@ -184,7 +199,7 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         await data_fetcher.start()
         await ais_connector.connect()
 
-        graphhopper = GraphHopperClient()
+        graphhopper = None  # Hosted Directions API blocked pending free commercial replacement
         parcial["clients_con_http_session"].append(graphhopper)
         db_trains = DBTrainClient()
         parcial["clients_con_http_session"].append(db_trains)
@@ -192,9 +207,9 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         parcial["clients_con_http_session"].append(gtfs_mobility)
         faa_notams = FAANOTAMClient()
         parcial["clients_con_http_session"].append(faa_notams)
-        avwx = AVWXClient()
+        avwx = None  # Hosted AVWX tier not approved for production
         parcial["clients_con_http_session"].append(avwx)
-        adsb_exchange = ADSBExchangeClient()
+        adsb_exchange = None  # Paid commercial ADS-B Exchange
         parcial["clients_con_http_session"].append(adsb_exchange)
         adsb_lol = ADSBLoLClient()
         parcial["clients_con_http_session"].append(adsb_lol)
@@ -204,7 +219,7 @@ async def _iniciar_tezcatlipoca(app: FastAPI) -> Optional[dict]:
         parcial["clients_con_http_session"].append(noaa_weather)
         nasa_earthdata = NASAEarthdataClient()
         parcial["clients_con_http_session"].append(nasa_earthdata)
-        gee = GoogleEarthEngineClient()
+        gee = None  # Commercial Google Earth Engine requires billing
         copernicus_scihub = CopernicusSciHubClient()
         parcial["clients_con_http_session"].append(copernicus_scihub)
         webodm = WebODMClient()
@@ -498,6 +513,16 @@ def create_app() -> FastAPI:
     # scraper vive en la red interna); si se expone fuera de esa red,
     # restringir por firewall/reverse-proxy, no aquí.
     app.add_api_route("/metrics", metrics_endpoint, methods=["GET"], include_in_schema=False)
+
+    @app.middleware("http")
+    async def block_unlicensed_tezcatlipoca_providers(request: Request, call_next):
+        path = request.scope["path"]
+        if any(path.startswith(prefix) for prefix in _TEZCATLIPOCA_BLOCKED_ROUTES):
+            return JSONResponse(
+                {"error": "provider_disabled", "reason": "No approved free commercial licence",
+                 "replacement_required": True}, status_code=503,
+            )
+        return await call_next(request)
 
     # API REST v1
     app.include_router(api_router, prefix="/api/v1")

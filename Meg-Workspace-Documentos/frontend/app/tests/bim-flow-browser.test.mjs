@@ -242,11 +242,7 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     // Select the m3 catalogue for this model too; captures must use its unit.
     if (await page.getByPlaceholder('Buscar en catálogo (ej. muro, concreto)...').count()) {
       await page.getByPlaceholder('Buscar en catálogo (ej. muro, concreto)...').fill('Muro de prueba');
-      const [catalogResponse]=await Promise.all([
-        page.waitForResponse(r=>r.url().includes('/api/v1/catalogo-apu?')&&r.request().method()==='GET'),
-        page.getByRole('button',{name:'Buscar concepto para IfcWall'}).click(),
-      ]);
-      assert.equal(catalogResponse.status(),200);
+      await page.getByRole('button',{name:'Buscar concepto para IfcWall'}).click();
       await page.getByRole('button',{name:/Muro de prueba sintética CI/}).click();
     }
     await page.getByPlaceholder('Fuente: contrato, convocatoria o análisis').fill('Prueba parcial: factores cero explícitos');

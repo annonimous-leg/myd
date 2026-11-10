@@ -56,9 +56,12 @@ class DataFetcherEngine:
         # These adapters are retained, but their hosted services are not used
         # automatically by a commercial Megalodon deployment. OpenAQ v2 is
         # also retired; do not schedule a broken legacy endpoint as a source.
-        restricted = {"fetch_opensky", "fetch_nws", "fetch_openaq"}
+        blocked = {"fetch_opensky", "fetch_nws"}
         allow_legacy = os.getenv("TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS", "").lower() in ("1", "true", "yes")
-        self.jobs = [job for job in self.JOBS if allow_legacy or job[0] not in restricted]
+        self.jobs = [
+            job for job in self.JOBS
+            if job[0] not in blocked and (allow_legacy or job[0] != "fetch_openaq")
+        ]
         self.scheduler = AsyncIOScheduler()
         self.cache = ObservableCache()
         self.http = httpx.AsyncClient(
