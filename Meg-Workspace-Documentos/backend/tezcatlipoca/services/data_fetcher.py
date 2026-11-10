@@ -40,10 +40,11 @@ class DataFetcherEngine:
     """Provider ingestion with explicit adapters, provenance and failure state."""
 
     JOBS = [
-        ("fetch_opensky", 60),
+        # OpenSky: commercial/operational API requires written licence.
         ("fetch_usgs", 60),
         ("fetch_openaq", 120),
-        ("fetch_nws", 120),
+        # Hosted Open-Meteo free tier is non-commercial. Preserve adapter
+        # for migration to a properly licensed or self-hosted source.
         ("fetch_gdelt", 300),
         ("fetch_malware_feeds", 300),
         ("fetch_cisa_kev", 300),
