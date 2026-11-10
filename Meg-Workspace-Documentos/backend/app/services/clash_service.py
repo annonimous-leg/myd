@@ -22,7 +22,7 @@ import time
 from typing import List, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import case, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.bim import (
@@ -214,19 +214,31 @@ class ClashService:
             query = query.where(ClashResult.severidad == severidad)
         if estado:
             query = query.where(ClashResult.estado == estado)
-        query = query.order_by(ClashResult.severidad, ClashResult.created_at).limit(limit).offset(offset)
+        prioridad = case((ClashResult.severidad == "DURO", 0), else_=1)
+        query = query.order_by(prioridad, ClashResult.created_at, ClashResult.id).limit(limit).offset(offset)
         result = await self.db.execute(query)
         return list(result.scalars().all())
 
-    async def actualizar_estado_resultado(self, resultado_id: UUID, nuevo_estado: str) -> ClashResult:
+    async def actualizar_estado_resultado(self, resultado_id: UUID, nuevo_estado: str, *, expediente_id: UUID
+    ) -> ClashResult:
         if nuevo_estado not in {e.value for e in EstadoClash}:
             raise MegalodonException(
                 ErrorCode.CLASH_DETECTION_ERROR,
                 f"Estado inválido: {nuevo_estado}. Válidos: {[e.value for e in EstadoClash]}",
             )
-        resultado = await self.db.scalar(select(ClashResult).join(AnalisisClash, AnalisisClash.id == ClashResult.analisis_id).where(ClashResult.id == resultado_id, AnalisisClash.tenant_id == self._require_tenant()))
+        resultado = await self.db.scalar(
+            select(ClashResult)
+            .join(AnalisisClash, AnalisisClash.id == ClashResult.analisis_id)
+            .join(ModeloBIM, ModeloBIM.id == AnalisisClash.modelo_id)
+            .where(
+                ClashResult.id == resultado_id,
+                AnalisisClash.tenant_id == self._require_tenant(),
+                ModeloBIM.tenant_id == self._require_tenant(),
+                ModeloBIM.expediente_id == expediente_id,
+            )
+        )
         if not resultado:
-            raise MegalodonException(ErrorCode.DOCUMENTO_NO_ENCONTRADO, f"Resultado de clash {resultado_id} no encontrado")
+            raise MegalodonException(ErrorCode.DOCUMENTO_NO_ENCONTRADO, f"Resultado de clash {resultado_id} no encontrado", status_code=404)
         resultado.estado = nuevo_estado
         await self.db.commit()
         await self.db.refresh(resultado)

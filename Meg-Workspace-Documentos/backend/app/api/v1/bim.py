@@ -304,8 +304,8 @@ async def listar_elementos_bim(
     tipo: Optional[str] = None,
     nivel: Optional[str] = None,
     incluir_malla: bool = False,
-    limit: int = 200,
-    offset: int = 0,
+    limit: int = Query(200, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user), _rate_limit: bool = Depends(rate_limit_standard),
 ):
@@ -481,8 +481,8 @@ async def listar_resultados_clash(
     analisis_id: UUID,
     severidad: Optional[str] = None,
     estado: Optional[str] = None,
-    limit: int = 200,
-    offset: int = 0,
+    limit: int = Query(200, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user), _rate_limit: bool = Depends(rate_limit_standard),
 ):
@@ -505,7 +505,7 @@ async def actualizar_estado_clash(
     """Marca un clash como revisado/resuelto/ignorado -- seguimiento de
     equipo, no vuelve a correr el análisis geométrico."""
     service = ClashService(db, current_user.tenant_id)
-    return await service.actualizar_estado_resultado(resultado_id, data.estado)
+    return await service.actualizar_estado_resultado(resultado_id, data.estado, expediente_id=expediente_id)
 
 
 

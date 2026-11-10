@@ -292,7 +292,7 @@ class BIMService:
             query = query.where(ElementoBIM.tipo == tipo)
         if nivel:
             query = query.where(ElementoBIM.nivel == nivel)
-        query = query.order_by(ElementoBIM.tipo).limit(limit).offset(offset)
+        query = query.order_by(ElementoBIM.tipo, ElementoBIM.id).limit(limit).offset(offset)
         result = await self.db.execute(query)
         elementos = list(result.scalars().all())
         # Serialize copies: suppressing mesh must never dirty persisted ORM rows.

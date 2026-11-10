@@ -202,6 +202,7 @@ function IFCPanel() {
       }
       setElementos(all);
       if (ready.num_elementos > all.length) setError(`Se muestran ${all.length} de ${ready.num_elementos} elementos. El presupuesto utiliza el modelo completo.`);
+      setProcesando(false);
       const history = await megalodonClient.bim.listarGeneraciones(expedienteActivo.id, ready.id);
       if (current !== requestId.current) return;
       const generation = history[0];
@@ -324,7 +325,9 @@ function IFCPanel() {
         expedienteActivo.id, resultadoId, estado
       );
       setClashes(prev => prev.map(c => c.id === resultadoId ? actualizado : c));
-    } catch { /* silencioso */ }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo guardar el estado de la interferencia');
+    }
   };
 
   // --- 5D: buscar en el catálogo real y mapear un tipo a un concepto ---
@@ -454,13 +457,27 @@ function IFCPanel() {
   useEffect(() => {
     if (!expedienteActivo || !modelo) return;
     let active = true;
-    const load = () => megalodonClient.bim.listarTrabajos(expedienteActivo.id, modelo.id)
-      .then(list => { if (active) setTrabajos(list); })
-      .catch(e => { if (active) setError(e instanceof Error ? e.message : 'No se pudo consultar el procesamiento'); });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const load = async () => {
+      try {
+        const list = await megalodonClient.bim.listarTrabajos(expedienteActivo.id, modelo.id);
+        if (!active) return;
+        setTrabajos(list);
+        if (!procesando && !['COMPLETADO', 'ERROR'].includes(modelo.estado_procesamiento)) {
+          const latest = await megalodonClient.bim.obtenerModelo(expedienteActivo.id, modelo.id);
+          if (active && ['COMPLETADO', 'ERROR'].includes(latest.estado_procesamiento)) {
+            void cargarModelo(latest);
+            return;
+          }
+        }
+      } catch (e) {
+        if (active) setError(e instanceof Error ? e.message : 'No se pudo consultar el procesamiento');
+      }
+      if (active) timer = setTimeout(load, 5000);
+    };
     void load();
-    const interval = setInterval(load, 5000);
-    return () => { active = false; clearInterval(interval); };
-  }, [expedienteActivo?.id, modelo?.id]);
+    return () => { active = false; clearTimeout(timer); };
+  }, [expedienteActivo?.id, modelo?.id, modelo?.estado_procesamiento, procesando]);
 
   const reintentar = async (id: string) => {
     if (!expedienteActivo || !modelo || !canWrite) return;
@@ -643,8 +660,14 @@ function IFCPanel() {
               <button type="button" disabled={downloadBusy} onClick={async () => {
                 setDownloadBusy(true);
                 try {
-                  const result = await megalodonClient.bim.descargarModeloUrl(expedienteActivo.id, modelo.id);
-                  const link = document.createElement('a'); link.href = result.url; link.download = `${modelo.nombre}.ifc`; link.rel = 'noopener'; link.click();
+                  const archivo = await megalodonClient.bim.descargarModeloOriginal(expedienteActivo.id, modelo.id);
+                  const blobUrl = archivo.blob ? URL.createObjectURL(archivo.blob) : undefined;
+                  const link = document.createElement('a');
+                  link.href = blobUrl ?? archivo.url!;
+                  link.download = `${modelo.nombre}.ifc`;
+                  link.rel = 'noopener';
+                  link.click();
+                  if (blobUrl) setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
                 } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo descargar el IFC'); }
                 finally { setDownloadBusy(false); }
               }}>{downloadBusy ? 'Preparando descarga…' : 'Descargar IFC original'}</button>

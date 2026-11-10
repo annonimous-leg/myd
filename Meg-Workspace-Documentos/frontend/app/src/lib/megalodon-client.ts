@@ -1863,6 +1863,18 @@ export class MegalodonClient {
       return this.request("GET", `/bim/${expedienteId}/modelos/${modeloId}/descarga`);
     },
 
+    descargarModeloOriginal: async (expedienteId: string, modeloId: string) => {
+      const result = await this.bim.descargarModeloUrl(expedienteId, modeloId);
+      if (result.expira_en_segundos !== 0) return { url: result.url };
+
+      const path = `/api/v1/bim/${encodeURIComponent(expedienteId)}/modelos/${encodeURIComponent(modeloId)}/archivo`;
+      const headers: Record<string, string> = {};
+      if (this.token) headers.Authorization = `Bearer ${this.token}`;
+      const response = await this.fetchWithSession(`${this.baseUrl}${path}`, { headers, credentials: "include" });
+      if (!response.ok) throw new Error(`No se pudo descargar el IFC (HTTP ${response.status})`);
+      return { blob: await response.blob() };
+    },
+
     /** Corre clash detection real entre todos los elementos del modelo.
      * tolerancia_m=0 solo marca traslape real ("duro"); >0 también
      * marca pares más cerca que esa distancia sin tocarse ("blando",
