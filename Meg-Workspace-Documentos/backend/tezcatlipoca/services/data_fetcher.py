@@ -53,6 +53,12 @@ class DataFetcherEngine:
     ]
 
     def __init__(self):
+        # These adapters are retained, but their hosted services are not used
+        # automatically by a commercial Megalodon deployment. OpenAQ v2 is
+        # also retired; do not schedule a broken legacy endpoint as a source.
+        restricted = {"fetch_opensky", "fetch_nws", "fetch_openaq"}
+        allow_legacy = os.getenv("TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS", "").lower() in ("1", "true", "yes")
+        self.jobs = [job for job in self.JOBS if allow_legacy or job[0] not in restricted]
         self.scheduler = AsyncIOScheduler()
         self.cache = ObservableCache()
         self.http = httpx.AsyncClient(
@@ -64,6 +70,12 @@ class DataFetcherEngine:
         self.metrics = defaultdict(lambda: {"success": 0, "fail": 0, "latency_ms": []})
         self.last_fetch: dict[str, float] = {}
         self.source_status: dict[str, dict[str, Any]] = {}
+        for name, _ in self.JOBS:
+            if name not in {job[0] for job in self.jobs}:
+                self.source_status[name.removeprefix("fetch_")] = {
+                    "status": "disabled_by_default", "last_success": None,
+                    "reason": "Hosted/legacy provider requires separate license or API modernization",
+                }
         self.ws_manager = None
         self.malware_aggregator = None
         self.opensky_user = os.getenv("OPENSKY_USER")
@@ -287,7 +299,7 @@ class DataFetcherEngine:
     async def start(self):
         if self.scheduler.running:
             return
-        for name, seconds in self.JOBS:
+        for name, seconds in self.jobs:
             key = name.removeprefix("fetch_")
             if not callable(getattr(self, f"_fetch_{key}", None)):
                 self.source_status[key] = {"status": "not_implemented", "last_success": None}
@@ -296,8 +308,8 @@ class DataFetcherEngine:
         self.scheduler.start()
 
     async def refresh_all(self):
-        results = await asyncio.gather(*(getattr(self, name)() for name, _ in self.JOBS), return_exceptions=True)
-        return {name: result for (name, _), result in zip(self.JOBS, results)}
+        results = await asyncio.gather(*(getattr(self, name)() for name, _ in self.jobs), return_exceptions=True)
+        return {name: result for (name, _), result in zip(self.jobs, results)}
 
     async def get_live_batch(self) -> Dict[str, Any]:
         malware = self.cache.get("malware", {})
@@ -328,7 +340,7 @@ class DataFetcherEngine:
 
     async def get_summary(self) -> Dict[str, Any]:
         return {
-            "sources": sum(callable(getattr(self, "_fetch_" + name.removeprefix("fetch_"), None)) for name, _ in self.JOBS),
+            "sources": sum(callable(getattr(self, "_fetch_" + name.removeprefix("fetch_"), None)) for name, _ in self.jobs),
             "source_status": self.source_status,
             "cache_keys": list(self.cache.keys()),
             "metrics": {k: {"success": v["success"], "fail": v["fail"], "samples": len(v["latency_ms"])} for k, v in self.metrics.items()},

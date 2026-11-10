@@ -100,7 +100,8 @@ async def test_empty_result_is_success_but_missing_adapter_is_not():
 
 
 @pytest.mark.asyncio
-async def test_opensky_normalization_supplies_fallback_with_explicit_units():
+async def test_opensky_normalization_supplies_fallback_with_explicit_units(monkeypatch):
+    monkeypatch.setenv("TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS", "1")
     row = ["abc123", "TEST123 ", "Fixture", 1, datetime.now(timezone.utc).timestamp(),
            -99.1, 19.4, 2000, False, 100, 90, 0]
     engine = await mock_fetcher(lambda req: httpx.Response(200, json={"states": [row]}))
@@ -139,6 +140,7 @@ class ProviderSession:
 
 @pytest.mark.asyncio
 async def test_adsb_client_contract_is_consumed_by_both_routes(monkeypatch):
+    monkeypatch.setenv("TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS", "1")
     monkeypatch.setenv("ADSBEXCHANGE_API_KEY", "synthetic-fixture")
     adsb = ADSBExchangeClient()
     await adsb.http.close()
@@ -174,7 +176,7 @@ async def test_missing_key_disconnected_ais_and_expired_cache_not_available():
         ais = SimpleNamespace(connected=False, get_ships_in_bbox=lambda *_: [])
         result = await context(request(engine, adsb, ais))
         assert not called
-        assert result["sources"]["adsb_exchange"]["status"] == "unavailable"
+        assert result["sources"]["adsb_exchange"]["status"] == "disabled_by_default"
         assert result["sources"]["ais"]["status"] == "unavailable"
         assert result["sources"]["usgs"]["status"] == "stale"
     finally:

@@ -15,6 +15,7 @@ from types import SimpleNamespace
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tezcatlipoca"))
 from services.data_fetcher import DataFetcherEngine
 from routers.geo import get_geo_context
+from services.weather.noaa_nws import NOAAWeatherClient
 
 
 async def main():
@@ -59,23 +60,18 @@ async def main():
             "provenance": context["sources"]["usgs"],
             "latest_observation": max(q["timestamp"] for q in engine.cache["quakes"]),
         })
-        await engine.fetch_nws()
-        if engine.source_status["nws"]["status"] != "available":
-            raise RuntimeError("Open-Meteo request failed")
-        weather = (await engine.get_live_batch())["weather"]
-        current = weather.get("current", {})
-        if not all(key in current for key in ("time", "temperature_2m", "wind_speed_10m")):
-            raise RuntimeError("Weather normalization did not reach live batch")
-        observed = datetime.fromisoformat(current["time"]).replace(tzinfo=timezone.utc)
-        age = (datetime.now(timezone.utc) - observed).total_seconds()
-        if not -3600 <= age <= 10800:
-            raise RuntimeError("Weather provider observation is outside the freshness window")
+        # NOAA/NWS is public for commercial reuse. The test point is in the US,
+        # not a forecast for the actual Megalodon project site.
+        noaa = NOAAWeatherClient(http=engine.http)
+        weather = await noaa.forecast(38.8894, -77.0352)
+        if weather.get("status") != "available" or not weather.get("periods"):
+            raise RuntimeError("NOAA/NWS request or forecast normalization failed")
         report["checks"].append({
-            "provider": "Open-Meteo", "result": "passed",
-            "scope": "configured Mexico City reference point, not site-specific weather",
-            "observation_time": current["time"], "age_seconds": age,
-            "coordinates": [weather["latitude"], weather["longitude"]],
-            "units": weather.get("current_units", {}),
+            "provider": "NOAA/NWS", "result": "passed",
+            "scope": "Washington DC reference point, not global coverage or site weather",
+            "periods": len(weather["periods"]),
+            "received_at": weather["received_at"],
+            "coverage": weather["coverage"],
         })
     except Exception as exc:
         failed = True

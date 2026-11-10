@@ -1,4 +1,5 @@
 """Transport Router - Rutas, trenes, GTFS."""
+import os
 from core.rate_limit import rate_limit_standard, rate_limit_strict
 from fastapi import APIRouter, Request, Query, Depends
 from typing import Dict, Any, List
@@ -11,6 +12,14 @@ router = APIRouter(dependencies=[Depends(requiere_plan_minimo(PlanTipo.PRO))])
 
 @router.post("/route")
 async def get_route(request: Dict[str, Any], req: Request, current_user: User = Depends(require_role(["full", "admin"])), _rate_limit: bool = Depends(rate_limit_strict)):
+    osrm = getattr(req.app.state, "osrm_routes", None)
+    if osrm and osrm.base_url:
+        return await osrm.get_route(
+            request.get("from_lat"), request.get("from_lon"),
+            request.get("to_lat"), request.get("to_lon"), request.get("vehicle", "car")
+        )
+    if os.getenv("TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS", "").lower() not in ("1", "true", "yes"):
+        return {"status": "config_required", "error": "Set TEZCATLIPOCA_OSRM_URL for local OSRM routing"}
     gh = req.app.state.graphhopper
     if not gh:
         return {"error": "GraphHopper not initialized"}
@@ -24,6 +33,9 @@ async def get_route(request: Dict[str, Any], req: Request, current_user: User = 
 
 @router.post("/isochrone")
 async def get_isochrone(request: Dict[str, Any], req: Request, current_user: User = Depends(require_role(["full", "admin"])), _rate_limit: bool = Depends(rate_limit_strict)):
+    # OSRM Route does not implement isochrones. Never invent an isochrone.
+    if os.getenv("TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS", "").lower() not in ("1", "true", "yes"):
+        return {"status": "not_implemented", "error": "Open-source isochrone engine not yet integrated"}
     gh = req.app.state.graphhopper
     if not gh:
         return {"error": "GraphHopper not initialized"}
