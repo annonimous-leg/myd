@@ -1276,7 +1276,7 @@ export interface WebSocketMessage {
 export type SolicitudPlanoBIM = { titulo: string } & (
   | { tipo: "PLAN"; parametros: { elevacion_m: number } }
   | { tipo: "SECTION"; parametros: { origen_m: [number, number, number]; normal: [number, number, number] } }
-  | { tipo: "ELEVATION"; parametros: { direccion_vista: [number, number, number] } }
+  | { tipo: "ELEVATION"; parametros: { direccion_vista: [number, number, number]; mostrar_ocultas?: boolean } }
 );
 
 export class MegalodonClient {

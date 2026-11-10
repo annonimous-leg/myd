@@ -241,6 +241,7 @@ class DrawingSegment:
     layer: str
     element_id: str
     global_id: str
+    hidden: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -298,11 +299,11 @@ def _deduplicate_segments(
         start_key = _point2_key(segment.start, tolerance_m)
         end_key = _point2_key(segment.end, tolerance_m)
         first, second = sorted((start_key, end_key))
-        key = (segment.layer, segment.element_id, first, second)
+        key = (segment.layer, segment.element_id, first, second, segment.hidden)
         unique.setdefault(key, segment)
     return tuple(
         unique[key]
-        for key in sorted(unique, key=lambda value: (str(value[0]), str(value[1]), value[2], value[3]))
+        for key in sorted(unique, key=lambda value: (str(value[0]), str(value[1]), value[2], value[3], value[4]))
     )
 
 
@@ -459,6 +460,7 @@ def build_elevation_document(
     origin: Sequence[float] = (0.0, 0.0, 0.0),
     title: str = "Alzado",
     tolerance_m: float = DEFAULT_TOLERANCE_M,
+    include_hidden: bool = False,
 ) -> DrawingDocument:
     """Project contours and front-facing creases, then clip occluded portions.
 
@@ -521,13 +523,15 @@ def build_elevation_document(
                 length = math.hypot(dx, dy)
                 if not math.isfinite(length) or length <= tolerance:
                     continue
-                intervals = occlusion.visible_intervals(start, end, tolerance) if occlusion else ((0.0, 1.0),)
-                for low, high in intervals:
+                intervals = occlusion.classified_intervals(start, end, tolerance) if occlusion else ((0.0, 1.0, False),)
+                for low, high, hidden in intervals:
+                    if hidden and not include_hidden:
+                        continue
                     a = start[:2] if low == 0.0 else (start[0] + dx * low, start[1] + dy * low)
                     b = end[:2] if high == 1.0 else (start[0] + dx * high, start[1] + dy * high)
                     if b < a:
                         a, b = b, a
-                    projected.append(DrawingSegment(a, b, mesh.ifc_type, mesh.element_id, mesh.global_id))
+                    projected.append(DrawingSegment(a, b, mesh.ifc_type, mesh.element_id, mesh.global_id, hidden=hidden))
 
     segments = _deduplicate_segments(projected, tolerance)
     return DrawingDocument(
@@ -540,9 +544,9 @@ def build_elevation_document(
             "view_direction": direction,
             "view_origin_m": frame.origin,
             "tolerance_m": tolerance,
-            "visibility_mode": "occlusion_clipped_mesh_edges",
+            "visibility_mode": "mesh_edges_with_hidden_lines" if include_hidden else "occlusion_clipped_mesh_edges",
             "crease_angle_degrees": _ELEVATION_CREASE_ANGLE_DEG,
             "engine": "megalodon-vector-drawing",
-            "engine_version": "0.3.0",
+            "engine_version": "0.4.0",
         },
     )

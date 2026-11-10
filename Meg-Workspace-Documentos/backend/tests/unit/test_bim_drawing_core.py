@@ -217,3 +217,17 @@ def test_elevation_clips_a_crease_behind_another_element():
         if line.element_id == "folded" and line.start[0] == line.end[0] == 1
     ]
     assert crease == [((1, 0), (1, 0.5)), ((1, 1.5), (1, 2))]
+
+
+def test_elevation_classifies_hidden_intervals_when_requested():
+    rear = _elevation_panel("rear", 0, 6, 0, 3, 1)
+    left = _elevation_panel("left", 2, 3.5, -1, 2, 0)
+    right = _elevation_panel("right", 3, 4, -1, 2, 0)
+    document = build_elevation_document([rear, left, right], view_direction=(0, -1, 0), include_hidden=True)
+    rear_floor = [
+        (line.start, line.end, line.hidden) for line in document.segments
+        if line.element_id == "rear" and line.start[1] == line.end[1] == 0
+    ]
+
+    assert document.metadata["visibility_mode"] == "mesh_edges_with_hidden_lines"
+    assert rear_floor == [((0, 0), (2, 0), False), ((2, 0), (4, 0), True), ((4, 0), (6, 0), False)]

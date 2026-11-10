@@ -54,6 +54,7 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
   const [eje, setEje] = useState<'X' | 'Y'>('X');
   const [coordenada, setCoordenada] = useState('');
   const [direccion, setDireccion] = useState<keyof typeof direcciones>('y-');
+  const [mostrarOcultas, setMostrarOcultas] = useState(false);
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState('');
   const [actualizacion, setActualizacion] = useState(0);
@@ -101,7 +102,10 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
         },
       };
     } else {
-      solicitud = { tipo, titulo: nombre, parametros: { direccion_vista: direcciones[direccion] } };
+      solicitud = {
+        tipo, titulo: nombre,
+        parametros: { direccion_vista: direcciones[direccion], mostrar_ocultas: mostrarOcultas },
+      };
     }
     setOcupado(true);
     setError('');
@@ -134,25 +138,29 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
     <summary className="cursor-pointer">Planos PDF A3</summary>
     {canWrite && <form onSubmit={generar} className="flex flex-wrap gap-2 items-end">
       <label>Título <input required maxLength={300} value={titulo} onChange={event => setTitulo(event.target.value)} /></label>
-      <label>Tipo de plano <select value={tipo} onChange={event => setTipo(event.target.value as typeof tipo)}>
+      <label>Tipo de plano <select aria-label="Tipo de plano" value={tipo} onChange={event => setTipo(event.target.value as typeof tipo)}>
         {Object.entries(nombres).map(([valor, nombre]) => <option key={valor} value={valor}>{nombre}</option>)}
       </select></label>
       {tipo === 'PLAN' && <label>Elevación de corte (m)
         <input required type="number" step="any" value={elevacion} onChange={event => setElevacion(event.target.value)} />
       </label>}
       {tipo === 'SECTION' && <>
-        <label>Eje de corte <select value={eje} onChange={event => setEje(event.target.value as typeof eje)}>
+        <label>Eje de corte <select aria-label="Eje de corte" value={eje} onChange={event => setEje(event.target.value as typeof eje)}>
           <option value="X">X constante</option><option value="Y">Y constante</option>
         </select></label>
         <label>Coordenada de corte (m)
           <input required type="number" step="any" value={coordenada} onChange={event => setCoordenada(event.target.value)} />
         </label>
       </>}
-      {tipo === 'ELEVATION' && <label>Lado de observación <select value={direccion}
-        onChange={event => setDireccion(event.target.value as typeof direccion)}>
-        <option value="x+">Desde +X</option><option value="x-">Desde −X</option>
-        <option value="y+">Desde +Y</option><option value="y-">Desde −Y</option>
-      </select></label>}
+      {tipo === 'ELEVATION' && <>
+        <label>Lado de observación <select aria-label="Lado de observación" value={direccion}
+          onChange={event => setDireccion(event.target.value as typeof direccion)}>
+          <option value="x+">Desde +X</option><option value="x-">Desde −X</option>
+          <option value="y+">Desde +Y</option><option value="y-">Desde −Y</option>
+        </select></label>
+        <label><input type="checkbox" checked={mostrarOcultas}
+          onChange={event => setMostrarOcultas(event.target.checked)} /> Mostrar líneas ocultas</label>
+      </>}
       <button type="submit" disabled={ocupado}>Generar {nombres[tipo].toLowerCase()} A3</button>
     </form>}
     <button type="button" onClick={() => { setError(''); setActualizacion(value => value + 1); }}>Actualizar planos</button>
@@ -167,6 +175,7 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
         </small>
         {plano.metadatos?.visibility_mode === 'occlusion_clipped_mesh_silhouette' && <small className="block">Alzado de siluetas. Los tramos ocultos se omiten.</small>}
         {plano.metadatos?.visibility_mode === 'occlusion_clipped_mesh_edges' && <small className="block">Alzado de contornos y pliegues. Los tramos ocultos se omiten.</small>}
+        {plano.metadatos?.visibility_mode === 'mesh_edges_with_hidden_lines' && <small className="block">Los tramos ocultos se muestran con línea discontinua.</small>}
         {plano.estado === 'COMPLETADO' && <div className="space-x-2">
           {plano.formatos.includes('SVG') && <button type="button" aria-expanded={vistaId === plano.id}
             onClick={() => setVistaId(vistaId === plano.id ? '' : plano.id)}>

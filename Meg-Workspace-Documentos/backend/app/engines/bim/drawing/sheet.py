@@ -368,6 +368,7 @@ def compose_a3_sheet(
                 x2=mx(segment.end[0]),
                 y2=my(segment.end[1]),
                 weight=_stroke_for(bucket),
+                dash=segment.hidden,
                 rgb=(0.1, 0.1, 0.1),
             )
         )

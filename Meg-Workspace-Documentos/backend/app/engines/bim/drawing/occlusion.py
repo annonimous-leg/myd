@@ -101,21 +101,34 @@ class OcclusionIndex:
         for child in self.children:
             yield from child._candidates(bounds, depth)
 
-    def visible_intervals(
+    def classified_intervals(
         self, start: Point, end: Point, tolerance: float
-    ) -> Iterable[tuple[float, float]]:
+    ) -> Iterable[tuple[float, float, bool]]:
         hidden = []
         for triangle in self._candidates(_bounds((start, end)), min(start[2], end[2]) + tolerance):
             interval = triangle.hidden_interval(start, end, tolerance)
+            if interval == (0.0, 1.0):
+                yield 0.0, 1.0, True
+                return
             if interval is not None:
                 hidden.append(interval)
-                if interval == (0.0, 1.0):
-                    return
-        cursor = 0.0
+
+        # Merge overlapping occluders before emitting their visible complement.
+        merged: list[tuple[float, float]] = []
         parameter_tolerance = tolerance / hypot(end[0] - start[0], end[1] - start[1])
         for low, high in sorted(hidden):
+            if merged and low <= merged[-1][1] + parameter_tolerance:
+                previous_low, previous_high = merged[-1]
+                merged[-1] = (previous_low, max(previous_high, high))
+            else:
+                merged.append((low, high))
+
+        cursor = 0.0
+        for low, high in merged:
             if low > cursor + parameter_tolerance:
-                yield cursor, low
-            cursor = max(cursor, high)
+                yield cursor, low, False
+            if high > low + parameter_tolerance:
+                yield low, high, True
+            cursor = high
         if 1.0 > cursor + parameter_tolerance:
-            yield cursor, 1.0
+            yield cursor, 1.0, False

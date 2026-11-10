@@ -79,6 +79,11 @@ def _canonical_parameters(kind: str, parameters: dict) -> dict:
             plane = Plane.from_origin_normal(origin, direction)
         except ValueError as exc:
             raise MegalodonException(ErrorCode.BIM_ERROR, str(exc)) from exc
+        hidden = parameters.get("mostrar_ocultas", False)
+        if not isinstance(hidden, bool):
+            raise MegalodonException(ErrorCode.BIM_ERROR, "mostrar_ocultas debe ser booleano")
+        if hidden:
+            result["mostrar_ocultas"] = True
         result["direccion_vista"] = list(plane.normal)
         result["origen_m"] = list(plane.origin)
     else:
@@ -286,6 +291,7 @@ class BIMDrawingService:
                 origin=parameters["origen_m"],
                 title=drawing.titulo,
                 tolerance_m=tolerance,
+                include_hidden=parameters.get("mostrar_ocultas", False),
             )
 
         metadata = {
@@ -304,7 +310,9 @@ class BIMDrawingService:
         }
         if drawing.tipo == "ELEVATION":
             metadata["drawing_limitations"] = [
-                "Contornos y aristas de pliegue de la malla con recorte por oclusión; los tramos ocultos se omiten",
+                "Visibilidad calculada sobre contornos y pliegues candidatos de la malla triangulada",
+                "Los tramos ocultos se dibujan discontinuos" if parameters.get("mostrar_ocultas")
+                else "Los tramos ocultos se omiten",
                 "No sustituye la revisión profesional de documentación constructiva",
             ]
 

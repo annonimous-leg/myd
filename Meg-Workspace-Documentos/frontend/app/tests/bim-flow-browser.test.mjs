@@ -124,8 +124,11 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
         configure:() => page.getByLabel('Elevación de corte (m)',{exact:true}).fill('1.5') },
       { type:'SECTION', title:'Sección del IFC de aceptación', name:'sección', mode:'cut_geometry_only',
         configure:() => page.getByLabel('Coordenada de corte (m)',{exact:true}).fill('1') },
-      { type:'ELEVATION', title:'Alzado del IFC de aceptación', name:'alzado', mode:'occlusion_clipped_mesh_edges',
-        configure:() => page.getByLabel('Lado de observación',{exact:true}).selectOption('y-') },
+      { type:'ELEVATION', title:'Alzado del IFC de aceptación', name:'alzado', mode:'mesh_edges_with_hidden_lines',
+        configure:async () => {
+          await page.getByLabel('Lado de observación',{exact:true}).selectOption('y-');
+          await page.getByLabel('Mostrar líneas ocultas',{exact:true}).check();
+        } },
     ];
     for (const spec of drawings) {
       await page.getByLabel('Tipo de plano',{exact:true}).selectOption(spec.type);
