@@ -16,6 +16,7 @@ from .photogrammetry import router as photogrammetry_router
 from .scm import router as scm_router
 from .settings import router as settings_router
 from .wormhole import router as wormhole_router
+from .weather import router as weather_router
 from .geo import router as geo_router
 from .geo_threats import router as geo_threats_router
 from .auth import router as auth_router

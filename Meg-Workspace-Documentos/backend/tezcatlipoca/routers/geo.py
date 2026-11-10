@@ -1,6 +1,7 @@
 """Authenticated geographic context with provider provenance and freshness."""
 from datetime import datetime, timedelta, timezone
 import math
+import os
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from core.rate_limit import rate_limit_standard
 from db.models import User
@@ -51,8 +52,26 @@ async def _aircraft(state, lat_min, lat_max, lon_min, lon_max, limit):
     adsb = getattr(state, "adsb_exchange", None)
     df = getattr(state, "data_fetcher", None)
     rows = []
-    provider = {"status": "unavailable", "last_success": None}
-    if adsb and getattr(adsb, "api_key", None):
+    open_client = getattr(state, "adsb_lol", None)
+    if open_client:
+        try:
+            aircraft = await open_client.get_aircraft_in_bbox(lat_min, lat_max, lon_min, lon_max)
+            for ac in aircraft:
+                y, x = ac.get("latitude"), ac.get("longitude")
+                if not _inside(y, x, lat_min, lat_max, lon_min, lon_max):
+                    continue
+                rows.append({
+                    "hex": ac.get("hex", ""), "callsign": ac.get("flight", ""),
+                    "lat": y, "lon": x, "altitude": ac.get("altitude"),
+                    "track": ac.get("heading"), "speed": ac.get("speed"),
+                    "type": ac.get("type"), "timestamp": ac.get("timestamp"),
+                    "source": "adsb_lol", "altitude_unit": "ft", "speed_unit": "kn",
+                })
+        except Exception:
+            open_client.last_request_status = "unavailable"
+    allow_restricted = os.getenv("TEZCATLIPOCA_ALLOW_RESTRICTED_PROVIDERS", "").lower() in ("1", "true", "yes")
+    provider = {"status": "unavailable" if allow_restricted else "disabled_by_default", "last_success": None}
+    if not rows and allow_restricted and adsb and getattr(adsb, "api_key", None):
         try:
             raw = await adsb.get_aircraft_in_bbox(lat_min, lat_max, lon_min, lon_max)
             provider = {
@@ -73,7 +92,7 @@ async def _aircraft(state, lat_min, lat_max, lon_min, lon_max, limit):
                 })
         except Exception:
             provider["status"] = "unavailable"
-    if not rows and df:
+    if not rows and allow_restricted and df:
         for ac in df.cache.get("flights", []):
             lat, lon = ac.get("lat"), ac.get("lon")
             if _inside(lat, lon, lat_min, lat_max, lon_min, lon_max):
@@ -85,6 +104,15 @@ async def _aircraft(state, lat_min, lat_max, lon_min, lon_max, limit):
                     "altitude_unit": "m", "speed_unit": "m/s",
                 })
     return rows[:limit], provider
+
+
+def _open_aircraft_state(state):
+    client = getattr(state, "adsb_lol", None)
+    if client is None:
+        return {"status": "not_initialized", "last_success": None}
+    return {"status": client.last_request_status, "last_success": client.last_success,
+            "coverage": client.coverage, "license": client.license,
+            "attribution": "ADSB.lol contributors (ODbL 1.0)"}
 
 
 def _ships(state, lat_min, lat_max, lon_min, lon_max, limit):
@@ -145,7 +173,8 @@ async def get_geo_flights(
     return {
         "type": "flights", "count": len(rows), "bbox": [lat_min, lon_min, lat_max, lon_max],
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "sources": {"adsb_exchange": provider, "opensky": _provider_state(getattr(req.app.state, "data_fetcher", None), "opensky")},
+        "sources": {"adsb_lol": _open_aircraft_state(req.app.state), "adsb_exchange": provider,
+                    "opensky": _provider_state(getattr(req.app.state, "data_fetcher", None), "opensky")},
         "ac": [{"icao": r["hex"], "hex": r["hex"], "lat": r["lat"], "lon": r["lon"],
                 "alt": r["altitude"], "track": r["track"], "spd": r["speed"], "flight": r["callsign"],
                 "type": r["type"], "source": r["source"], "timestamp": r["timestamp"],
@@ -216,6 +245,7 @@ async def get_geo_context(
         "bbox": [lat_min, lon_min, lat_max, lon_max],
         "sources": {
             "gnss": {"status": "not_streamed_by_tezcatlipoca_context"},
+            "adsb_lol": _open_aircraft_state(req.app.state),
             "adsb_exchange": adsb_status, "opensky": _provider_state(df, "opensky"),
             "ais": ais_status, "usgs": _provider_state(df, "usgs"),
             "telemetry": {"status": "running" if df else "offline",

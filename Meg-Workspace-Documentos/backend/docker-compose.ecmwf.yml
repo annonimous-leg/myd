@@ -1,0 +1,8 @@
+# Optional readonly data mount for an operator-managed real ECMWF IFS GRIB pipeline.
+# Does not download or synthesize forecasts; no GRIB is stored in git.
+services:
+  api:
+    environment:
+      TEZCATLIPOCA_ECMWF_STORE: /run/megalodon/ecmwf
+    volumes:
+      - ./data/ecmwf:/run/megalodon/ecmwf:ro
