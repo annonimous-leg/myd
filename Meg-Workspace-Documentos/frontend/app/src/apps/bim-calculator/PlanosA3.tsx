@@ -1,7 +1,38 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { megalodonClient } from '@/lib/api-client';
 
+const formatos = ['PDF', 'SVG', 'DXF'] as const;
+
 type Plano = Awaited<ReturnType<typeof megalodonClient.bim.listarPlanos>>[number];
+
+function VistaPlano({ expedienteId, modeloId, plano }: {
+  expedienteId: string; modeloId: string; plano: Plano;
+}) {
+  const [src, setSrc] = useState('');
+  const [error, setError] = useState('');
+  useEffect(() => {
+    let activo = true;
+    let blobUrl: string | undefined;
+    megalodonClient.bim.descargarPlano(expedienteId, modeloId, plano.id, 'SVG')
+      .then(archivo => {
+        if (!activo) return;
+        if (archivo.blob) blobUrl = URL.createObjectURL(archivo.blob);
+        setSrc(blobUrl ?? archivo.url ?? '');
+      })
+      .catch(err => {
+        if (activo) setError(err instanceof Error ? err.message : String(err));
+      });
+    return () => {
+      activo = false;
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+  }, [expedienteId, modeloId, plano.id]);
+  if (error) return <p role="alert">{error}</p>;
+  if (!src) return <p role="status">Cargando vista previa…</p>;
+  return <img src={src} alt={`Vista previa de ${plano.titulo}`}
+    onError={() => setError('No se pudo mostrar la vista previa del plano.')}
+    className="block max-h-80 max-w-full bg-white" />;
+}
 
 export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
   expedienteId: string;
@@ -10,6 +41,7 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
 }) {
   const [abierto, setAbierto] = useState(false);
   const [planos, setPlanos] = useState<Plano[]>([]);
+  const [vistaId, setVistaId] = useState('');
   const [titulo, setTitulo] = useState('');
   const [elevacion, setElevacion] = useState('');
   const [ocupado, setOcupado] = useState(false);
@@ -55,14 +87,14 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
     }
   }
 
-  async function descargar(plano: Plano) {
+  async function descargar(plano: Plano, formato: typeof formatos[number]) {
     try {
-      const archivo = await megalodonClient.bim.descargarPlanoPDF(expedienteId, modeloId, plano.id);
+      const archivo = await megalodonClient.bim.descargarPlano(expedienteId, modeloId, plano.id, formato);
       const link = document.createElement('a');
       link.href = archivo.blob ? URL.createObjectURL(archivo.blob) : archivo.url!;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
-      link.download = `plano-${plano.id}.pdf`;
+      link.download = `plano-${plano.id}.${formato.toLowerCase()}`;
       link.click();
       if (archivo.blob) setTimeout(() => URL.revokeObjectURL(link.href), 1000);
     } catch (err) {
@@ -83,7 +115,20 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
       {planos.map(plano => <li key={plano.id}>
         {plano.titulo} · {plano.estado}
         {plano.error && <span> · {plano.error}</span>}
-        {plano.estado === 'COMPLETADO' && <button type="button" onClick={() => void descargar(plano)}>Descargar PDF</button>}
+        <small className="block">
+          Revisión IFC: <time dateTime={plano.source_model_updated_at}>{plano.source_model_updated_at}</time>
+          {plano.obsoleto && ' · El modelo tiene una revisión posterior'}
+        </small>
+        {plano.estado === 'COMPLETADO' && <div className="space-x-2">
+          {plano.formatos.includes('SVG') && <button type="button" aria-expanded={vistaId === plano.id}
+            onClick={() => setVistaId(vistaId === plano.id ? '' : plano.id)}>
+            {vistaId === plano.id ? 'Cerrar vista previa' : 'Ver plano'}
+          </button>}
+          {formatos.filter(formato => plano.formatos.includes(formato)).map(formato =>
+            <button type="button" key={formato} onClick={() => void descargar(plano, formato)}>Descargar {formato}</button>
+          )}
+          {abierto && vistaId === plano.id && <VistaPlano expedienteId={expedienteId} modeloId={modeloId} plano={plano} />}
+        </div>}
       </li>)}
     </ul>
   </details>;

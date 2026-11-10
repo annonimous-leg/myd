@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { before, after, test } from 'node:test';
 import { spawn, execFileSync } from 'node:child_process';
 import { once } from 'node:events';
+import { createHash } from 'node:crypto';
 import { createWriteStream } from 'node:fs';
 import { readFile, mkdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
@@ -115,6 +116,48 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     assert.equal(apiModel.status(),200);
     const elements=await apiModel.json(); assert.equal(elements.length,1);
     assert.equal(elements[0].volumen,2.4); assert.ok(elements[0].malla_vertices.length>0);
+    const drawingPath = `/api/v1/bim/${model.expediente_id}/modelos/${model.id}/dibujos`;
+    await page.getByText('Planos PDF A3',{exact:true}).click();
+    const drawingTitle = 'Planta del IFC de aceptación';
+    await page.getByLabel('Título',{exact:true}).fill(drawingTitle);
+    await page.getByLabel('Elevación de corte (m)',{exact:true}).fill('1.5');
+    const [drawingResponse] = await Promise.all([
+      page.waitForResponse(r => r.request().method()==='POST' && new URL(r.url()).pathname===drawingPath),
+      page.getByRole('button',{name:'Generar planta A3'}).click(),
+    ]);
+    assert.equal(drawingResponse.status(),202);
+    const requestedDrawing = await drawingResponse.json();
+    const drawingRow = page.getByRole('list',{name:'Planos generados'}).getByRole('listitem').filter({hasText:drawingTitle});
+    await drawingRow.getByRole('button',{name:'Ver plano'}).waitFor({timeout:60000});
+    const drawingResult = await page.request.get(`${apiOrigin}${drawingPath}/${requestedDrawing.id}`);
+    assert.equal(drawingResult.status(),200);
+    const drawing = await drawingResult.json();
+    assert.equal(drawing.modelo_id,model.id);
+    assert.equal(drawing.obsoleto,false);
+    assert.match(drawing.metadatos.source_geometry_sha256,/^[a-f0-9]{64}$/);
+    assert.equal(await drawingRow.locator('time').getAttribute('datetime'),drawing.source_model_updated_at);
+    await drawingRow.getByRole('button',{name:'Ver plano'}).click();
+    const preview = drawingRow.getByRole('img',{name:`Vista previa de ${drawingTitle}`});
+    await preview.waitFor();
+    await page.waitForFunction(img => img.complete && img.naturalWidth > 0,await preview.elementHandle());
+    const previewBytes = await preview.evaluate(async img => Array.from(new Uint8Array(await (await fetch(img.src)).arrayBuffer())));
+    assert.equal(createHash('sha256').update(Buffer.from(previewBytes)).digest('hex'),drawing.sha256_svg);
+    await page.screenshot({path:join(evidence,'01b-plano-ifc.png'),fullPage:true});
+    for (const format of ['PDF','SVG','DXF']) {
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        drawingRow.getByRole('button',{name:`Descargar ${format}`}).click(),
+      ]);
+      const ext = format.toLowerCase();
+      const destination = join(evidence,`planta-ifc.${ext}`);
+      await download.saveAs(destination);
+      const bytes = await readFile(destination);
+      assert.equal(createHash('sha256').update(bytes).digest('hex'),drawing[`sha256_${ext}`]);
+    }
+    await page.reload();
+    await page.getByText('Planos PDF A3',{exact:true}).click({timeout:60000});
+    await drawingRow.getByRole('button',{name:'Ver plano'}).waitFor({timeout:60000});
+    await page.getByText('Planos PDF A3',{exact:true}).click();
     await page.getByRole('button',{name:'2. Preparar presupuesto'}).click();
     await page.getByPlaceholder('Buscar en catálogo (ej. muro, concreto)...').fill('Muro de prueba');
     const [catalogResponse]=await Promise.all([
