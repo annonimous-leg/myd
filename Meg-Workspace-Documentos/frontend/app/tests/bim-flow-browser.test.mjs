@@ -334,7 +334,9 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.getByRole('button',{name:'Actualizar material',exact:true}).click();
     await page.getByText('Catálogos en la base conectada',{exact:true}).click();
     // CI-only source must remain visibly identified as a test fixture, not a commercial source.
-    await page.getByText('CI sintético: catálogo de aceptación',{exact:false}).waitFor();
+    const fixtureInventoryRow = page.getByRole('row').filter({hasText:'CI sintético: catálogo de aceptación'});
+    await fixtureInventoryRow.waitFor();
+    assert.equal(await fixtureInventoryRow.getByText('Investigación de mercado Megalodon · enero 2020',{exact:false}).count(),0);
     await page.getByLabel('Material revisado',{exact:true}).selectOption(credentials.indexed_material);
     await page.getByLabel('Fecha de corte de publicaciones',{exact:true}).fill('2020-09-10');
     await page.getByRole('button',{name:'Usar última publicación disponible',exact:true}).click();
@@ -342,19 +344,28 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     await page.getByText('Original: $100.0000 MXN · Estimado: $115.00 MXN/kg sin IVA.',{exact:true}).waitFor();
     await page.screenshot({path:join(evidence,'08-catalogos-indices.png'),fullPage:true});
     // Synthetic source ZIP crosses the real import API and migrated schema.
-    // The private authentic CMIC/Varela packages are exercised separately.
+    // Real CMIC/Varela prices must be accepted against their own original PDFs;
+    // no CI fixture authorizes or replaces that independent acceptance.
     await page.getByRole('button',{name:'Investigación de mercado Megalodon',exact:true}).click();
     await page.getByText('Ediciones importadas y revisiones pendientes',{exact:true}).click();
     const [previewed] = await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/catalogo-apu/importaciones/verificar'),
       page.getByLabel('Importar paquete de catálogo ZIP').setInputFiles(credentials.catalog_package)]);
     assert.equal(previewed.status(),200);
+    const inspectedSources = (await previewed.json()).fuentes;
+    assert.equal(inspectedSources.length,1);
+    assert.equal(inspectedSources[0].fuente_id,'SYNTHETIC');
+    assert.equal(inspectedSources[0].titulo,'Synthetic test source');
+    await page.getByText('Prueba aislada de CI · Synthetic test source · ID SYNTHETIC',{exact:false}).waitFor();
     const [imported] = await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/catalogo-apu/importaciones'),
       page.getByRole('button',{name:'Importar fuentes seleccionadas',exact:true}).click()]);
     assert.equal(imported.status(),200);
     const edition = await imported.json();
     assert.equal(edition.resumen.proyecciones_costeo,1);
+    assert.deepEqual(edition.fuentes,['SYNTHETIC']);
+    await page.getByLabel('Edición para consultar',{exact:true}).locator('option')
+      .filter({hasText:'Prueba aislada de CI · SYNTHETIC'}).waitFor({state:'attached'});
     await page.getByLabel('Modelo paramétrico',{exact:true}).selectOption({label:'MODEL-TEST · Synthetic parametric model · $4029.74/m2'});
     await page.getByLabel('Localidad de la obra',{exact:true}).selectOption({label:'Synthetic city · FIC 0.897'});
     await page.getByLabel('Cantidad m2',{exact:true}).fill('36');
@@ -368,6 +379,7 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
     assert.equal(estimate.evidencia.apto_aprobacion_contractual,false);
     await page.getByLabel('Buscar en catálogos importados',{exact:true}).fill('TEST-EXC');
     await page.getByLabel('Concepto importado',{exact:true}).selectOption({label:'TEST-EXC · Synthetic excavation with six-decimal consumption · 152.43 / m3 · 2026-01-01'});
+    await page.getByText('Prueba aislada de CI · Synthetic test source · página(s)',{exact:false}).waitFor();
     await page.getByLabel('Cantidad medida m3',{exact:true}).fill('2.4');
     await page.getByRole('button',{name:'Agregar concepto al presupuesto',exact:true}).click();
     await page.getByLabel('Cantidad medida m3',{exact:true}).fill('0.0420');
