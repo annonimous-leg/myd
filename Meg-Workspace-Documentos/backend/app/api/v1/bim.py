@@ -880,7 +880,7 @@ class IncorporarTiposBIM(BaseModel):
     tipos: List[Literal['IfcMember', 'IfcPlate', 'IfcCurtainWall', 'IfcRamp', 'IfcRampFlight', 'IfcStairFlight']] = Field(min_length=1, max_length=6)
 
 
-@router.post('/{expediente_id}/modelos/{modelo_id}/incorporar-tipos')
+@router.post('/{expediente_id}/modelos/{modelo_id}/incorporar-tipos', response_model=ModeloBIMOut)
 async def incorporar_tipos_bim(expediente_id: UUID, modelo_id: UUID, data: IncorporarTiposBIM,
     db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user),
     _rate_limit: bool = Depends(rate_limit_strict)):

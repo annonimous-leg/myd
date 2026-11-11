@@ -1292,7 +1292,7 @@ export interface CoberturaProductoBIM {
 }
 export interface CoberturaRevisionBIM {
   revision_id: string; actual: boolean; modelo_estado: string; fuente_sha256: string;
-  tipos_admitidos: string[]; incorporables: string[]; resumen: Record<string,number>;
+  tipos_admitidos: string[]; incorporables: string[]; tipos_pendientes: Record<string,number>; resumen: Record<string,number>;
   total: number; items: CoberturaProductoBIM[];
 }
 export interface LineaDecisionBIM {

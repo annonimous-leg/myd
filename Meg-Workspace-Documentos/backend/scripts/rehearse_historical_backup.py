@@ -43,6 +43,7 @@ ADDITIVE_EMPTY_TABLES = frozenset({
     "catalogo_registros",
     "estimaciones_parametricas",
     "dibujos_bim",
+    "bim_revisiones", "bim_decisiones_medicion",
 })
 
 

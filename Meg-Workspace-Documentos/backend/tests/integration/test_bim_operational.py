@@ -61,20 +61,37 @@ async def test_confirmed_measurement_creates_budget_and_changes_invalidate_witho
     revision = await db_session.get(RevisionBIM, obj.revision_actual_id)
     apu = CatalogoAPU(tenant_id=tenant.id, clave=uuid4().hex, descripcion='Contrato sintético, muro',
         tipo='CONCEPTO', unidad='m3', precio_unitario=125, fuente='TEST_SYNTHETIC')
+    steel = CatalogoAPU(tenant_id=tenant.id, clave=uuid4().hex, descripcion='Concepto separado sintético',
+        tipo='CONCEPTO', unidad='kg', precio_unitario=5, fuente='TEST_SYNTHETIC')
     document = Documento(expediente_id=exp.id, identificador=uuid4().hex, nombre='Contrato sintético',
         tipo_documental='CONTRATO', formato='pdf', storage_path='synthetic.pdf', storage_bucket='test',
         size_bytes=100, hash_sha256='a'*64)
-    db_session.add_all([apu, document]); await db_session.commit()
+    db_session.add_all([apu, steel, document]); await db_session.commit()
     ops = BIMOperationalService(db_session, tenant.id)
     payload = {'revision_id': revision.id, 'familia_global_id': revision.cobertura[0]['global_id'],
         'criterio': 'PADRE', 'confirmar': True, 'documento_id': document.id,
         'referencia_contractual': 'Cláusula 3 de medición y pago del contrato sintético',
         'lineas': [{'global_id': revision.cobertura[0]['global_id'], 'catalogo_apu_id': apu.id,
-            'cantidad': '2.4', 'referencia_medicion': '2 × 0.4 × 3 metros', 'alcance': 'Muro completo de la prueba'}]}
+                'cantidad': '2.4', 'referencia_medicion': '2 × 0.4 × 3 metros', 'alcance': 'Volumen de concreto'},
+            {'global_id': revision.cobertura[0]['global_id'], 'catalogo_apu_id': steel.id,
+                'cantidad': '10', 'referencia_medicion': 'Lista de acero sintética', 'alcance': 'Acero medido por separado'}]}
     decision = await ops.guardar_decision(obj.id, exp.id, user.id, payload)
     budget = await ops.crear_presupuesto(obj.id, exp.id, user.id, [decision.id], PARAMS)
-    assert budget.monto_total == Decimal('300.00')
+    assert budget.monto_total == Decimal('350.00')
     assert budget.metadatos['bim_cobertura']['completa'] is True
+    assert not await ops.presupuesto_obsoleto(budget)
+    from datetime import datetime, timezone
+    from sqlalchemy import select
+    from app.models.programacion import ActividadPrograma
+    program = await BIMService(db_session, tenant.id).generar_actividades_4d(
+        modelo_id=obj.id, expediente_id=exp.id, fecha_inicio=datetime(2026,11,11,tzinfo=timezone.utc),
+        creado_por_id=user.id, tenant_id=tenant.id)
+    activities = (await db_session.scalars(select(ActividadPrograma).where(ActividadPrograma.programa_id==program.id))).all()
+    assert sum(a.costo_presupuestado for a in activities) == Decimal('350.00')
+    await ops.guardar_decision(obj.id,exp.id,user.id,{
+        'revision_id':revision.id,'familia_global_id':decision.familia_global_id,
+        'criterio':'PADRE','confirmar':False,'lineas':[]})
+    assert (await ops.estado_decision(decision))['estado'] == 'VIGENTE'
     assert not await ops.presupuesto_obsoleto(budget)
     original = decision.datos.copy()
     apu.precio_unitario = 140
@@ -93,6 +110,21 @@ async def test_confirmed_measurement_creates_budget_and_changes_invalidate_witho
     historical = await ops.cobertura(obj.id, exp.id, revision.id)
     assert historical['actual'] is False
     assert len(historical['items']) == 1
+
+
+@pytest.mark.asyncio
+async def test_postgres_rejects_rewriting_coverage_history(db_session, tenant_a_user):
+    if db_session.bind.dialect.name != 'postgresql':
+        pytest.skip('Immutable snapshot trigger requires PostgreSQL')
+    from sqlalchemy import update
+    from sqlalchemy.exc import DBAPIError
+    tenant, user = tenant_a_user
+    exp, obj = await model(db_session, tenant, user)
+    content = (Path(__file__).parents[1] / 'fixtures/ifc/wall_millimetres.ifc').read_bytes()
+    await BIMService(db_session, tenant.id).procesar_ifc(modelo_id=obj.id,file_content=content)
+    with pytest.raises(DBAPIError, match='immutable'):
+        async with db_session.begin_nested():
+            await db_session.execute(update(RevisionBIM).where(RevisionBIM.id==obj.revision_actual_id).values(cobertura=[]))
 
 
 @pytest.mark.asyncio

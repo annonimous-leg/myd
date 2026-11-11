@@ -287,6 +287,32 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await budgetReview.getByText(/Mediciones completas: 2 de 2 elementos medidos/).waitFor();
     await budgetReview.getByText('$500.00',{exact:true}).first().waitFor();
     await page.screenshot({path:join(evidence,'07-mediciones-completadas.png'),fullPage:true});
+    // Operational coverage uses a real synthetic IFC with an aggregate and two pending types.
+    const [coverageUpload]=await Promise.all([
+      page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname.endsWith('/modelos')),
+      page.getByLabel('Subir archivo IFC').setInputFiles(join(backend,'tests/fixtures/ifc/coverage_assemblies.ifc')),
+    ]);
+    assert.equal(coverageUpload.status(),200);
+    const coverageModel=await coverageUpload.json();
+    await page.getByText('2 de 2 elementos visibles',{exact:true}).waitFor({timeout:60000});
+    await page.getByText('Cobertura y decisiones por revisión',{exact:true}).click();
+    const coverageRegion=page.getByRole('region',{name:'Cobertura IFC por revisión'});
+    await coverageRegion.getByRole('button',{name:'Incorporar IfcMember e IfcPlate',exact:true}).waitFor();
+    const oldCoverage=await (await page.request.get(`${apiOrigin}/api/v1/bim/${model.expediente_id}/modelos/${coverageModel.id}/cobertura`)).json();
+    const familyRow=coverageRegion.getByRole('list',{name:'Productos de la revisión'}).getByRole('listitem').filter({hasText:'Conjunto sintético de cobertura'});
+    await familyRow.getByRole('button',{name:'Revisar medición de esta familia',exact:true}).click();
+    await coverageRegion.getByRole('button',{name:'Guardar propuesta',exact:true}).click();
+    await coverageRegion.getByText(/Propuesta guardada/).waitFor();
+    assert.equal(await coverageRegion.getByRole('button',{name:'Confirmar decisión con sustento',exact:true}).isDisabled(),true);
+    await coverageRegion.getByRole('button',{name:'Incorporar IfcMember e IfcPlate',exact:true}).click();
+    await page.getByText('4 de 4 elementos visibles',{exact:true}).waitFor({timeout:60000});
+    await page.reload();
+    await page.getByText('Cobertura y decisiones por revisión',{exact:true}).click({timeout:60000});
+    await coverageRegion.getByLabel('Revisión del modelo',{exact:true}).selectOption(oldCoverage.revision_id);
+    await coverageRegion.getByText(/Revisión histórica/).waitFor();
+    await coverageRegion.getByText(/Cambió la revisión del modelo/).waitFor();
+    assert.equal(await coverageRegion.getByRole('button',{name:'Crear versión del presupuesto con decisiones',exact:true}).isDisabled(),true);
+    await page.screenshot({path:join(evidence,'08-cobertura-historica-propuesta-obsoleta.png'),fullPage:true});
     const readerContext=await browser.newContext({viewport:{width:1440,height:1000}});
     try {
       const readerPage=await readerContext.newPage();

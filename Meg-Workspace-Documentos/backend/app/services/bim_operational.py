@@ -94,6 +94,7 @@ class BIMOperationalService:
             'modelo_estado': model.estado_procesamiento, 'fuente_sha256': revision.fuente_sha256,
             'geometria_sha256':revision.geometria_sha256,
             'tipos_admitidos': revision.tipos_admitidos, 'incorporables': INCORPORABLES,
+            'tipos_pendientes':dict(Counter(r['tipo'] for r in rows if not r['admitido'])),
             'resumen': dict(Counter(r['estado_cobertura'] for r in rows)),
             'total': len(filtered), 'items': filtered[skip:skip+limit]}
 
@@ -112,10 +113,13 @@ class BIMOperationalService:
             reasons.append('CAMBIO_REVISION_MODELO')
         if model.estado_procesamiento != 'COMPLETADO':
             reasons.append('MODELO_EN_PROCESAMIENTO_O_ERROR')
-        latest = await self.db.scalar(select(func.max(DecisionMedicionBIM.version)).where(
+        latest_query = select(func.max(DecisionMedicionBIM.version)).where(
             DecisionMedicionBIM.revision_id == decision.revision_id,
             DecisionMedicionBIM.familia_global_id == decision.familia_global_id,
-            DecisionMedicionBIM.tenant_id == self.tenant_id))
+            DecisionMedicionBIM.tenant_id == self.tenant_id)
+        if decision.confirmada:
+            latest_query = latest_query.where(DecisionMedicionBIM.confirmada.is_(True))
+        latest = await self.db.scalar(latest_query)
         if latest != decision.version:
             reasons.append('DECISION_SUSTITUIDA')
         for line in decision.datos.get('lineas', []):
