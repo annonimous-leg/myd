@@ -125,6 +125,43 @@ class MotorBIM:
                 raise
             return ifcopenshell.geom.create_shape(self._settings, entidad, bodies[0])
 
+    def _malla_descompuesta(self, entidad) -> tuple[MallaElemento, list[str]]:
+        """Resolve an aggregate from world-space child shapes without adding Qto."""
+        vertices: list[float] = []
+        faces: list[int] = []
+        components: list[str] = []
+        visited: set[int] = set()
+
+        def append_part(part, ancestors: frozenset[int]) -> None:
+            identity = part.id()
+            if identity in ancestors:
+                raise ValueError("Descomposición IFC cíclica")
+            if identity in visited:
+                return
+            visited.add(identity)
+            if getattr(part, "Representation", None) is not None:
+                shape = self._crear_geometria(part)
+                geometry = shape.geometry
+                if not geometry.verts or not geometry.faces:
+                    raise ValueError(f"Componente IFC {part.GlobalId} sin geometría sólida")
+                offset = len(vertices) // 3
+                vertices.extend(geometry.verts)
+                faces.extend(index + offset for index in geometry.faces)
+                components.append(part.GlobalId)
+                return
+            children = {
+                child.id(): child
+                for relation in getattr(part, "IsDecomposedBy", ())
+                for child in relation.RelatedObjects
+            }
+            if not children:
+                raise ValueError(f"Componente IFC {part.GlobalId} sin representación ni descomposición")
+            for child in sorted(children.values(), key=lambda child: child.id()):
+                append_part(child, ancestors | {identity})
+
+        append_part(entidad, frozenset())
+        return MallaElemento(vertices=vertices, caras=faces), components
+
     def cuantificar(
         self,
         tipos_elementos: Optional[List[str]] = None,
@@ -322,6 +359,21 @@ class MotorBIM:
                     )
             except Exception as e:
                 propiedades["_error_geometria"] = str(e)
+
+        elif getattr(entidad, "IsDecomposedBy", ()):
+            try:
+                aggregate, components = self._malla_descompuesta(entidad)
+                if extraer_malla:
+                    malla = aggregate
+                verts = aggregate.vertices
+                xs, ys, zs = verts[0::3], verts[1::3], verts[2::3]
+                bbox = [min(xs), min(ys), min(zs), max(xs), max(ys), max(zs)]
+                propiedades["_origen_geometria"] = "DESCOMPOSICION_IFC"
+                propiedades["_componentes_geometria"] = components
+                # Display geometry must not become a second economic quantity.
+                # Preserve the parent's authored Qto and its original provenance.
+            except (RuntimeError, ValueError) as exc:
+                propiedades["_error_geometria"] = str(exc)
 
         nivel = self._obtener_nivel(entidad)
 

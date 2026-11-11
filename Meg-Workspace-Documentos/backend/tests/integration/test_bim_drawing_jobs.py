@@ -823,3 +823,24 @@ async def test_dispatcher_reconciles_artifacts_after_worker_disappears(
     assert original_job.estado == "ERROR"
     assert drawing.estado == "ERROR"
     assert storage.objects == {}
+
+
+@pytest.mark.asyncio
+async def test_missing_geometry_keeps_recoverable_diagnostic_on_drawing_and_job(
+    db_session, tenant_a_user, monkeypatch
+):
+    from app.services import bim_drawing_service
+
+    tenant, user = tenant_a_user
+    expediente, model, missing = await completed_model(db_session, tenant, user, with_mesh=False)
+    drawing, job = await create_plan_drawing(db_session, tenant, user, expediente, model)
+    storage = MemoryStorage()
+    monkeypatch.setattr(bim_drawing_service, "storage_bim", lambda: storage)
+
+    assert await ejecutar_trabajo(job.id, engine_test) == "ERROR"
+    await db_session.refresh(job)
+    await db_session.refresh(drawing)
+    assert missing.global_id in job.error
+    assert "Reprocesa el modelo" in job.error
+    assert drawing.error == job.error
+    assert not storage.uploads

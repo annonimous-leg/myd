@@ -299,7 +299,9 @@ class BIMDrawingService:
         if without_mesh and not drawing.permitir_geometria_parcial:
             raise MegalodonException(
                 ErrorCode.BIM_ERROR,
-                f"El modelo contiene {len(without_mesh)} elementos sin malla; no se generó un dibujo incompleto",
+                f"Falta geometría para {len(without_mesh)} elementos IFC "
+                f"({', '.join(without_mesh[:8])}). Reprocesa el modelo para recuperar los conjuntos "
+                "y revisa los componentes que sigan pendientes.",
             )
         if not meshes:
             raise MegalodonException(ErrorCode.BIM_ERROR, "El modelo no contiene mallas geométricas para dibujar")

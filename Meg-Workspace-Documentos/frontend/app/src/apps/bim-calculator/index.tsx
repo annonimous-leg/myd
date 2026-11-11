@@ -580,7 +580,7 @@ function IFCPanel() {
           </button>}
         {!canWrite && <p>Tu cuenta permite consultar esta obra. Un técnico puede cargar o modificar el modelo.</p>}
         {trabajos.filter(j => j.estado !== 'COMPLETADO').map(j => <div key={j.id} className="flex gap-2 items-center" role="status">
-          <span>{j.tipo === 'BIM_IFC' ? 'Modelo' : j.tipo === 'BIM_4D' ? 'Cronograma' : 'Interferencias'}: {j.estado === 'ERROR' ? 'Requiere atención' : 'En preparación'}. {j.mensaje || 'Continuará automáticamente.'}</span>
+          <span>{j.tipo === 'BIM_IFC' ? 'Modelo' : j.tipo === 'BIM_4D' ? 'Cronograma' : j.tipo === 'BIM_DRAWING' ? 'Plano' : j.tipo === 'BIM_DRAWING_CLEANUP' ? 'Limpieza de plano' : 'Interferencias'}: {j.estado === 'ERROR' ? 'Requiere atención' : 'En preparación'}. {j.mensaje || 'Continuará automáticamente.'}</span>
           {j.estado === 'ERROR' && canWrite && <button className="p-2 border rounded border-(--border-subtle)" onClick={() => void reintentar(j.id)}>Reintentar trabajo</button>}
         </div>)}
       </div>

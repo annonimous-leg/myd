@@ -540,11 +540,12 @@ async def ejecutar_trabajo(trabajo_id, db_engine=engine):
                 )
                 final = deterministic or job.intentos >= MAX_INTENTOS
                 target_state = 'ERROR' if final else 'PENDIENTE'
-                job.error = (
-                    'No se pudo completar. Revisa los datos y vuelve a intentar.'
-                    if final else
-                    'Se interrumpió el procesamiento; se reintentará automáticamente.'
-                )
+                if deterministic and job.tipo == 'BIM_DRAWING' and exc.code == ErrorCode.BIM_ERROR:
+                    job.error = str(exc)[:2000]
+                elif final:
+                    job.error = 'No se pudo completar. Revisa los datos y vuelve a intentar.'
+                else:
+                    job.error = 'Se interrumpió el procesamiento; se reintentará automáticamente.'
                 job.proxima_publicacion = (
                     datetime.now(timezone.utc) + timedelta(seconds=15 * job.intentos)
                 )
