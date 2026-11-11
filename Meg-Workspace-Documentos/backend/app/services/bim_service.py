@@ -241,6 +241,8 @@ class BIMService:
             for obsolete in existing.values():
                 await self.db.delete(obsolete)
 
+            from app.services.bim_operational import registrar_revision
+            await registrar_revision(self.db, modelo, ifc_file, resultado, file_content, tipos_elementos)
             modelo.num_elementos = len(resultado.elementos)
             modelo.niveles = resultado.niveles
             # Si TODOS los elementos fallaron, es un error real; si solo
@@ -354,7 +356,7 @@ class BIMService:
         juntos; un APU distinto crea otra partida. Los elementos sin APU
         siguen como cuantificación pendiente de costeo. Toda referencia a
         elemento/APU se valida dentro del modelo, expediente y tenant."""
-        await self._validar_modelo_en_expediente(modelo_id, expediente_id, bloquear=True)
+        source_model = await self._validar_modelo_en_expediente(modelo_id, expediente_id, bloquear=True)
         from app.services.presupuesto_service import PresupuestoService
         from app.models.catalogo_apu import CatalogoAPU
 
@@ -516,6 +518,8 @@ class BIMService:
                 original_value = value
                 geometric = field == "volumen" and element.fuente_volumen == "GEOMETRIA_CALCULADA"
                 valid = value is not None and math.isfinite(float(value)) and float(value) > 0 and not geometric
+                if element.tipo == "IfcBuildingElementProxy":
+                    valid = False
                 capture = captures.get(str(element.id))
                 if capture:
                     if valid or capture["unidad"].lower().strip() != unit:
@@ -536,7 +540,7 @@ class BIMService:
                         "fuente_original": element.fuente_volumen if field == "volumen" else "OTRA_MEDICION",
                         "cantidad_original": float(original_value) if original_value is not None else None,
                     })
-                if element.global_id in conflict_guids:
+                if element.global_id in conflict_guids or element.tipo == "IfcBuildingElementProxy":
                     valid = False
                 if geometric and not capture:
                     geometric_pending.append(str(element.id))
@@ -586,6 +590,7 @@ class BIMService:
             )
         coverage = {
             "modelo_id": str(modelo_id),
+            "revision_id": str(source_model.revision_actual_id) if source_model.revision_actual_id else None,
             "area_requiere_revision": True,
             "completa": not pending_ids,
             "elementos_totales": len(elementos),
@@ -794,6 +799,25 @@ class BIMService:
                 for capture in cobertura.get('mediciones_economicas', cobertura.get('capturas', [])):
                     capturas_por_elemento[(budget.id,capture['elemento_id'],capture['unidad'])] = float(capture['cantidad'])
 
+        # Decision budgets may have multiple payment concepts for one element.
+        # Use the latest explicit policy version and its persisted line amounts.
+        policy_budget = await self.db.scalar(select(Presupuesto).where(
+            Presupuesto.tenant_id == self.tenant_id, Presupuesto.expediente_id == expediente_id,
+            Presupuesto.metadatos["bim_cobertura"]["modelo_id"].as_string() == str(modelo_id),
+            Presupuesto.metadatos["bim_cobertura"]["decisiones_ids"].as_string().is_not(None),
+        ).order_by(Presupuesto.created_at.desc()).limit(1))
+        policy_costs = None
+        if policy_budget is not None and (policy_budget.metadatos or {}).get('bim_cobertura', {}).get('decisiones_ids'):
+            from app.services.bim_operational import BIMOperationalService
+            if await BIMOperationalService(self.db, self.tenant_id).presupuesto_obsoleto(policy_budget):
+                raise MegalodonException(ErrorCode.BIM_ERROR, 'Revisa el presupuesto por decisiones antes de generar 4D', status_code=409)
+            parts = (await self.db.scalars(select(Partida).where(Partida.presupuesto_id == policy_budget.id,
+                Partida.tenant_id == self.tenant_id).order_by(Partida.numero))).all()
+            lines = policy_budget.metadatos['bim_cobertura']['mediciones_decisiones']
+            policy_costs = {}
+            for line, part in zip(lines, parts, strict=True):
+                policy_costs[line['global_id']] = policy_costs.get(line['global_id'], 0.0) + float(part.importe)
+
         # `dias_por_defecto` funciona como base configurable. La duración
         # final se ajusta por tamaño del grupo y por la magnitud geométrica
         # real del bloque BIM para que la secuencia 4D no herede siempre el
@@ -815,6 +839,9 @@ class BIMService:
         for idx, ((zona, tipo), elems) in enumerate(sorted(grupos.items(), key=lambda kv: (kv[0][0], kv[0][1])), 1):
             costo = 0.0
             for e in elems:
+                if policy_costs is not None:
+                    costo += policy_costs.get(e.global_id, 0.0)
+                    continue
                 if e.partida_id and e.partida_id in precios_por_partida:
                     precio_unit, unidad = precios_por_partida[e.partida_id]
                     captura = capturas_por_elemento.get((presupuesto_por_partida[e.partida_id],str(e.id),unidad))

@@ -66,6 +66,8 @@ def inventario_cobertura(modelo, extraidos):
             'global_id': gid, 'express_id': entity.id(), 'tipo': entity.is_a(),
             'nombre': entity.Name, 'admitido': gid in selected,
             'representacion_propia': representation, 'estado_cobertura': state,
+            'malla_disponible': bool(gid in selected and selected[gid].malla and selected[gid].malla.vertices and selected[gid].malla.caras),
+            'causa': selected[gid].propiedades.get('_error_geometria') if gid in selected else state,
             'cubierto_por': sorted(covered_by.get(gid, [])),
             'ancestros_admitidos': sorted(set(lineage['ancestros']) & selected.keys()),
             **lineage,

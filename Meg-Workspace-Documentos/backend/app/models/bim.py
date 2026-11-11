@@ -62,6 +62,8 @@ class ModeloBIM(Base, UUIDMixin, TenantMixin, AuditMixin):
         String(20), default=EstadoProceso.PENDIENTE.value, nullable=False, index=True
     )
     error_procesamiento: Mapped[Optional[str]] = mapped_column(String(2000), nullable=True)
+    revision_actual_id: Mapped[Optional[UUID]] = mapped_column(
+        PGUUID(as_uuid=True), nullable=True)
     unidades_ifc: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)  # ej. "METRE", "MILLIMETRE"
     # created_at/updated_at ya vienen de Base -- antes se redeclaraban
     # aquí de forma redundante (mismo default, mismo tipo).
@@ -72,6 +74,8 @@ class ModeloBIM(Base, UUIDMixin, TenantMixin, AuditMixin):
 
     __table_args__ = (
         UniqueConstraint("expediente_id", "identificador", name="uq_modelobim_expediente_identificador"),
+        UniqueConstraint("id", "tenant_id", name="uq_modelobim_id_tenant"),
+        ForeignKeyConstraint(["revision_actual_id", "tenant_id"], ["bim_revisiones.id", "bim_revisiones.tenant_id"], use_alter=True, name="fk_bim_revision_actual"),
         ForeignKeyConstraint(["tenant_id", "expediente_id"],
             ["expedientes_obra.tenant_id", "expedientes_obra.id"], name="fk_modelobim_tenant_expediente"),
     )

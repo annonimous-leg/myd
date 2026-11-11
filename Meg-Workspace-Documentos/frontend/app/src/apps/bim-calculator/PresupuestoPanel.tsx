@@ -30,7 +30,7 @@ export default function PresupuestoPanel({ expedienteId, nuevoId }: { expediente
   const topografia = budget?.metadatos?.topografia_cobertura;
   const pending = budget?.partidas.filter(p => !(p.cantidad > 0 && p.precio_unitario > 0 && p.importe > 0)) || [];
   const topografiaSinEvidencia = !!budget && (!!topografia || budget.partidas.some(p => p.metadatos?.topografia != null)) && !budget.metadatos?.topografia_evidencia;
-  const complete = !topografiaSinEvidencia && coverage?.completa !== false && topografia?.completa !== false && !!budget?.partidas.length && pending.length === 0 && budget.monto_total > 0;
+  const complete = !budget?.fuentes_bim_obsoletas && !topografiaSinEvidencia && coverage?.completa !== false && topografia?.completa !== false && !!budget?.partidas.length && pending.length === 0 && budget.monto_total > 0;
   async function change(state: 'CALCULADO' | 'VALIDADO' | 'APROBADO') {
     if (!budget || busy) return;
     setBusy(true); setError('');
@@ -65,6 +65,7 @@ export default function PresupuestoPanel({ expedienteId, nuevoId }: { expediente
       </label>
       {budget && <>
         <div className="flex justify-between text-sm"><span role="status">Estado: {budget.estado}</span><strong>{money(budget.monto_total)}</strong></div>
+        {budget.fuentes_bim_obsoletas && <p role="alert" className="text-xs text-(--danger)">Cambió el modelo, la decisión o su sustento económico. Este resultado requiere una nueva revisión antes de aprobar o descargar.</p>}
         {coverage && <p role="status" className="text-xs">{coverage.completa ? 'Mediciones completas' : 'Presupuesto PARCIAL'}: {coverage.elementos_medidos} de {coverage.elementos_totales} elementos medidos. {coverage.capturas.length} capturas con referencia.</p>}
         {topografia && <p role="status" className="text-xs">{topografia.completa ? 'Cobertura topográfica completa' : 'Presupuesto PARCIAL: cobertura topográfica pendiente'}. Área común: {topografia.area_comun_m2.toLocaleString('es-MX')} m². Pendiente: {topografia.area_existente_pendiente_m2.toLocaleString('es-MX')} m² en terreno y {topografia.area_proyecto_pendiente_m2.toLocaleString('es-MX')} m² en proyecto.</p>}
         {topografiaSinEvidencia && <p role="alert" className="text-xs text-(--danger)">Falta la evidencia del terreno. Genera una nueva versión antes de aprobar o exportar.</p>}
