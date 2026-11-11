@@ -295,7 +295,8 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     assert.equal(coverageUpload.status(),200);
     const coverageModel=await coverageUpload.json();
     await page.getByText('2 de 2 elementos visibles',{exact:true}).waitFor({timeout:60000});
-    await page.getByText('Cobertura y decisiones por revisión',{exact:true}).click();
+    assert.equal(await page.locator('details.bim-coverage').count(),1,'Changing the model must not leave duplicate coverage panels');
+    await page.locator('summary:visible').filter({hasText:/^Cobertura y decisiones por revisión$/}).click();
     const coverageRegion=page.getByRole('region',{name:'Cobertura IFC por revisión'});
     await coverageRegion.getByRole('button',{name:'Incorporar IfcMember e IfcPlate',exact:true}).waitFor();
     const oldCoverage=await (await page.request.get(`${apiOrigin}/api/v1/bim/${model.expediente_id}/modelos/${coverageModel.id}/cobertura`)).json();
@@ -307,7 +308,7 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await coverageRegion.getByRole('button',{name:'Incorporar IfcMember e IfcPlate',exact:true}).click();
     await page.getByText('4 de 4 elementos visibles',{exact:true}).waitFor({timeout:60000});
     await page.reload();
-    await page.getByText('Cobertura y decisiones por revisión',{exact:true}).click({timeout:60000});
+    await page.locator('summary:visible').filter({hasText:/^Cobertura y decisiones por revisión$/}).click({timeout:60000});
     await coverageRegion.getByLabel('Revisión del modelo',{exact:true}).selectOption(oldCoverage.revision_id);
     await coverageRegion.getByText(/Revisión histórica/).waitFor();
     await coverageRegion.getByText(/Cambió la revisión del modelo/).waitFor();

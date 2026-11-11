@@ -148,7 +148,12 @@ class BIMOperationalService:
         decisions = (await self.db.scalars(select(DecisionMedicionBIM).where(
             DecisionMedicionBIM.revision_id == revision.id, DecisionMedicionBIM.tenant_id == self.tenant_id)
             .order_by(DecisionMedicionBIM.created_at.desc(), DecisionMedicionBIM.version.desc()))).all()
+        from app.models.user import User
+        actors = (await self.db.scalars(select(User).where(User.id.in_({d.creado_por_id for d in decisions}), User.tenant_id == self.tenant_id))).all()
+        names = {a.id: a.full_name or a.email for a in actors}
+        families = {r['global_id']: r.get('nombre') or r['tipo'] for r in revision.cobertura}
         return [{'id': str(d.id), 'revision_id': str(d.revision_id), 'familia_global_id': d.familia_global_id,
+            'familia_nombre': families.get(d.familia_global_id, d.familia_global_id), 'usuario_nombre': names.get(d.creado_por_id, 'Responsable no disponible'),
             'version': d.version, 'criterio': d.criterio, 'datos': d.datos,
             'usuario_id': str(d.creado_por_id), 'creado_en': d.created_at.isoformat(),
             **await self.estado_decision(d, model)} for d in decisions]

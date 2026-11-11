@@ -603,14 +603,14 @@ function IFCPanel() {
           <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'presupuesto5d'} disabled={!elementos.length} onClick={() => setTabDerecho('presupuesto5d')}>2. Preparar presupuesto</button>
           <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'cronograma4d'} disabled={!elementos.length} onClick={() => setTabDerecho('cronograma4d')}>3. Crear cronograma</button>
         </nav>
-        {modelo && <CoberturaBIM key={modelo.id} expedienteId={expedienteActivo.id} modelo={modelo} canWrite={canWrite}
+        {modelo && <CoberturaBIM key={`coverage:${modelo.id}`} expedienteId={expedienteActivo.id} modelo={modelo} canWrite={canWrite}
           onProcessed={next=>void cargarModelo(next)}
           onBudget={budget=>{setNuevoPresupuestoId(budget.id);setPresupuestosDisponibles(previous=>[budget,...previous]);setTabDerecho('presupuesto5d');}}
           parametros={reference=>({factor_indirecto:factorIndirecto,factor_financiamiento:factorFinanciamiento,
             factor_utilidad:factorUtilidad,factor_cargos_adicionales:factorCargosAdicionales,
             factor_impuesto:factorImpuesto,factor_riesgo:0,fuente:'CAPTURA_USUARIO',referencia:reference})} />}
         {modelo?.estado_procesamiento === 'COMPLETADO' &&
-          <PlanosA3 key={modelo.id} expedienteId={expedienteActivo.id} modeloId={modelo.id} canWrite={canWrite} />}
+          <PlanosA3 key={`drawings:${modelo.id}`} expedienteId={expedienteActivo.id} modeloId={modelo.id} canWrite={canWrite} />}
         {procesando && <p role="status">Preparando el modelo… Puedes salir y volver: el trabajo seguirá guardado.</p>}
         {modelo?.estado_procesamiento === 'ERROR' && canWrite && !trabajos.some(j => j.tipo === 'BIM_IFC') &&
           <button className="p-2 border rounded border-(--border-subtle)" onClick={() =>

@@ -1105,6 +1105,7 @@ export interface Presupuesto {
     topografia_cobertura?: CoberturaTopografia;
     topografia_evidencia?: EvidenciaTopografia;
     bim_cobertura?: { completa: boolean; elementos_totales: number; elementos_medidos: number;
+      decisiones_ids?: string[];
       volumenes_geometricos_pendientes?: string[];
       conflictos_conjuntos?: Array<{ padre_global_id: string; componente_global_id: string }>;
       elementos_pendientes: string[]; capturas: Array<{ elemento_id: string; unidad: string;
@@ -1291,7 +1292,7 @@ export interface CoberturaProductoBIM {
   componentes: string[]; descendientes: string[]; regla_candidata: string; tratamiento_adicional: string;
 }
 export interface CoberturaRevisionBIM {
-  revision_id: string; actual: boolean; modelo_estado: string; fuente_sha256: string;
+  revision_id: string; actual: boolean; modelo_estado: string; fuente_sha256: string; geometria_sha256: string;
   tipos_admitidos: string[]; incorporables: string[]; tipos_pendientes: Record<string,number>; resumen: Record<string,number>;
   total: number; items: CoberturaProductoBIM[];
 }
@@ -1300,7 +1301,7 @@ export interface LineaDecisionBIM {
 }
 export interface DecisionMedicionBIM {
   id: string; revision_id: string; familia_global_id: string; version: number; criterio: 'PADRE'|'COMPONENTES';
-  estado: 'BORRADOR'|'VIGENTE'|'OBSOLETA'; causas: string[]; usuario_id: string; creado_en: string;
+  estado: 'BORRADOR'|'VIGENTE'|'OBSOLETA'; causas: string[]; usuario_id: string; usuario_nombre?: string; familia_nombre?: string; creado_en: string;
   datos: { lineas: LineaDecisionBIM[]; exclusiones: Record<string,string>; referencia_contractual: string;
     documento: {id:string} | null };
 }

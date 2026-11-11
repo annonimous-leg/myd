@@ -128,6 +128,22 @@ async def test_postgres_rejects_rewriting_coverage_history(db_session, tenant_a_
 
 
 @pytest.mark.asyncio
+async def test_proxy_cannot_bypass_classification_through_existing_mapping_route(db_session, tenant_a_user):
+    from app.models.bim import ElementoBIM
+    from app.services.presupuesto_service import PresupuestoService
+    tenant, user = tenant_a_user
+    exp, obj = await model(db_session, tenant, user)
+    proxy = ElementoBIM(modelo_id=obj.id, global_id=uuid4().hex, express_id=1, tipo='IfcBuildingElementProxy')
+    db_session.add(proxy); await db_session.commit()
+    budget = await PresupuestoService(db_session,tenant.id).crear_desde_costeo(
+        expediente_id=exp.id,nombre='Referencia sintética',parametros_costeo=PARAMS,
+        partidas_data=[{'descripcion':'Concepto sintético','unidad':'pza','cantidad':1,'precio_unitario':10}],
+        creado_por_id=user.id)
+    with pytest.raises(MegalodonException,match='clasificación funcional'):
+        await BIMService(db_session,tenant.id).mapear_a_partidas(obj.id,exp.id,[{'elemento_id':proxy.id,'partida_id':budget.partidas[0].id}])
+
+
+@pytest.mark.asyncio
 async def test_incremental_types_preserve_coverage_and_component_policy_cannot_pay_ancestors(db_session, tenant_a_user):
     import ifcopenshell
     from app.engines.bim.motor_bim import TIPOS_DEFAULT

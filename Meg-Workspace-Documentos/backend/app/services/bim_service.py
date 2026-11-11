@@ -325,6 +325,9 @@ class BIMService:
             if elem is None or partida is None:
                 raise MegalodonException(ErrorCode.DOCUMENTO_NO_ENCONTRADO,
                     "Elemento o partida no encontrado en este expediente")
+            if elem.tipo == 'IfcBuildingElementProxy':
+                raise MegalodonException(ErrorCode.BIM_ERROR,
+                    'El Proxy requiere clasificación funcional antes del mapeo económico', status_code=409)
             validated.append((elem, partida.id))
         for elem, partida_id in validated:
             elem.partida_id = partida_id

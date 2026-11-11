@@ -352,7 +352,7 @@ async def test_zone_by_level_updates_beyond_one_viewer_page(async_client, db_ses
     assert response.status_code == 200, response.text
     assert response.json()["elementos_actualizados"] == 501
     zoned = (await db_session.scalars(
-        select(ElementoBIM).where(ElementoBIM.zona_4d == "Frente A")
+        select(ElementoBIM).where(ElementoBIM.zona_4d == "Frente A", ElementoBIM.modelo_id == bim_model.id)
     )).all()
     assert len(zoned) == 501
     assert all(element.modelo_id == bim_model.id and element.nivel == "PB" for element in zoned)

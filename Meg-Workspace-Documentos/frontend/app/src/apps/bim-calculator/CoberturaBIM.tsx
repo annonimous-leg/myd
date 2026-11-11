@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { megalodonClient } from '@/lib/api-client';
 import type { CoberturaProductoBIM, CoberturaRevisionBIM, DecisionMedicionBIM, LineaDecisionBIM, ModeloBIM, ParametrosCosteoInput, Presupuesto, CatalogoAPUOut } from '@/lib/megalodon-client';
 
@@ -15,6 +15,7 @@ export default function CoberturaBIM({expedienteId,modelo,canWrite,onProcessed,o
   expedienteId:string; modelo:ModeloBIM; canWrite:boolean; onProcessed:(m:ModeloBIM)=>void;
   onBudget:(p:Presupuesto)=>void; parametros:(reference:string)=>ParametrosCosteoInput;
 }) {
+  const revisionSelectId=useId();
   const [open,setOpen]=useState(false);
   const [revisions,setRevisions]=useState<Array<{id:string;actual:boolean;creado_en:string;fuente_sha256:string}>>([]);
   const [revision,setRevision]=useState('');
@@ -74,17 +75,17 @@ export default function CoberturaBIM({expedienteId,modelo,canWrite,onProcessed,o
       {!revisions.length&&!error&&<p>Este modelo necesita reprocesarse para registrar su cobertura.
         {canWrite&&<button className={button} disabled={busy} onClick={()=>void action(async()=>onProcessed(await megalodonClient.bim.reprocesarModelo(expedienteId,modelo.id)))}>Registrar cobertura del modelo</button>}</p>}
       {!!revisions.length&&<>
-        <label>Revisión del modelo<select className={field} value={revision} onChange={e=>{setRevision(e.target.value);setSkip(0);setFamily([]);setFamilyId('');setLines([]);setSelected([]);}}>
+        <label htmlFor={revisionSelectId}>Revisión del modelo</label><select id={revisionSelectId} className={field} value={revision} onChange={e=>{setRevision(e.target.value);setSkip(0);setFamily([]);setFamilyId('');setLines([]);setSelected([]);}}>
           {revisions.map((r,i)=><option key={r.id} value={r.id}>{r.actual?'Actual':'Histórica'} · {new Date(r.creado_en).toLocaleString('es-MX')} · {i+1}</option>)}
-        </select></label>
+        </select>
         {loading&&<p role="status">Consultando cobertura y vigencia…</p>}
         {coverage&&<>
-          <p className="break-all text-(--text-muted)">Fuente IFC SHA-256: {coverage.fuente_sha256}</p>
+          <details><summary>Identidad y fuentes de la revisión</summary><p className="break-all text-(--text-muted)">Archivo IFC SHA-256: {coverage.fuente_sha256}</p><p className="break-all text-(--text-muted)">Geometría SHA-256: {coverage.geometria_sha256}</p></details>
           {!coverage.actual&&<p role="status" className="text-(--warning)">Revisión histórica. Sus decisiones deben revisarse antes de usarlas en el modelo actual.</p>}
           <div className="grid grid-cols-2 gap-2">{Object.entries(coverage.resumen).map(([state,n])=><div key={state} className="rounded border border-(--border-subtle) p-2"><strong>{n}</strong><br/>{labels[state]||state}</div>)}</div>
           <p>La cobertura gráfica y la aprobación económica se revisan por separado. Los Proxy requieren clasificación funcional antes de su mapeo económico.</p>
           {coverage.actual&&canWrite&&<div className="flex flex-wrap gap-2">{coverage.tipos_pendientes.IfcMember&&coverage.tipos_pendientes.IfcPlate&&<button className={button} disabled={!editable} onClick={()=>void action(async()=>onProcessed(await megalodonClient.bim.incorporarTipos(expedienteId,modelo.id,revision,['IfcMember','IfcPlate'])))}>Incorporar IfcMember e IfcPlate</button>}{coverage.incorporables.filter(t=>!coverage.tipos_admitidos.includes(t)&&coverage.tipos_pendientes[t]).map(t=><button key={t} className={button} disabled={!editable} onClick={()=>void action(async()=>onProcessed(await megalodonClient.bim.incorporarTipos(expedienteId,modelo.id,revision,[t])))}>Incorporar {t}</button>)}</div>}
-          <label>Filtrar cobertura<select className={field} value={filter} onChange={e=>{setFilter(e.target.value);setSkip(0);}}><option value="">Todos los estados</option>{Object.entries(labels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
+          <label htmlFor={`${revisionSelectId}-filter`}>Filtrar cobertura</label><select id={`${revisionSelectId}-filter`} className={field} value={filter} onChange={e=>{setFilter(e.target.value);setSkip(0);}}><option value="">Todos los estados</option>{Object.entries(labels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select>
           <ul className="max-h-64 overflow-auto space-y-2" aria-label="Productos de la revisión">{coverage.items.map(row=><li key={row.global_id} className="rounded border border-(--border-subtle) p-2">
             <strong>{row.nombre||row.tipo}</strong> · {row.tipo}<br/>{labels[row.estado_cobertura]} · {row.malla_disponible?'Malla disponible':'Sin malla propia admitida'}
             <details><summary>Ver causa y procedencia</summary><p className="break-all">{row.global_id}</p><p>{row.causa||row.tratamiento_adicional}</p><p className="break-all">Cubierto por: {row.cubierto_por.join(', ')||'Sin conjunto de cobertura confirmado'}</p><p className="break-all">Padres: {row.padres.join(', ')||'Sin padre IFC'}</p><p>{row.regla_candidata}</p></details>
@@ -94,16 +95,16 @@ export default function CoberturaBIM({expedienteId,modelo,canWrite,onProcessed,o
         </>}
         {formRevision===revision&&!!family.length&&<fieldset disabled={!editable} className="rounded border border-(--border-subtle) p-3 space-y-3">
           <legend className="font-semibold">Decisión de medición · {family.find(r=>r.global_id===familyId)?.nombre||familyId}</legend>
-          <label>Criterio de pago<select className={field} value={criterion} onChange={e=>{setCriterion(e.target.value as 'PADRE'|'COMPONENTES');setLines([]);}}><option value="PADRE">Conjunto integral</option><option value="COMPONENTES">Conceptos por componentes</option></select></label>
+          <label htmlFor={`${revisionSelectId}-criterion`}>Criterio de pago</label><select id={`${revisionSelectId}-criterion`} className={field} value={criterion} onChange={e=>{setCriterion(e.target.value as 'PADRE'|'COMPONENTES');setLines([]);}}><option value="PADRE">Conjunto integral</option><option value="COMPONENTES">Conceptos por componentes</option></select>
           <p>Guarda una propuesta si falta sustento. Confirmar exige documento de esta obra, conceptos, mediciones y alcance. Se conserva una versión nueva y su responsable.</p>
-          <label>Documento contractual de esta obra<select className={field} value={document} onChange={e=>setDocument(e.target.value)}><option value="">Sin documento contractual vinculado</option>{docs.map(d=><option key={d.id} value={d.id}>{d.tipo} · {d.nombre}</option>)}</select></label>
+          <label htmlFor={`${revisionSelectId}-document`}>Documento contractual de esta obra</label><select id={`${revisionSelectId}-document`} className={field} value={document} onChange={e=>setDocument(e.target.value)}><option value="">Sin documento contractual vinculado</option>{docs.map(d=><option key={d.id} value={d.id}>{d.tipo} · {d.nombre}</option>)}</select>
           <label>Referencia contractual<input className={field} value={reference} maxLength={2000} onChange={e=>setReference(e.target.value)} placeholder="Concepto, cláusula de medición y pago, APU o aclaración"/></label>
           <label>Buscar concepto en el catálogo<input className={field} value={search} onChange={e=>setSearch(e.target.value)}/></label>
           <button className={button} disabled={!search.trim()||busy} onClick={()=>void action(async()=>{const result=await megalodonClient.catalogoAPU.listar({q:search,limit:30});setConcepts(result as CatalogoAPUOut[]);})}>Buscar conceptos para la decisión</button>
           <div className="space-y-3">{lines.map((line,i)=><fieldset key={i} className="rounded border border-(--border-subtle) p-2 space-y-2">
             <legend>Medición {i+1}</legend>
-            <label>Elemento medido<select className={field} value={line.global_id} onChange={e=>updateLine(i,{global_id:e.target.value})}>{eligible.map(r=><option key={r.global_id} value={r.global_id}>{r.tipo} · {r.nombre||r.global_id}</option>)}</select></label>
-            <label>Concepto vinculado<select className={field} value={line.catalogo_apu_id||''} onChange={e=>updateLine(i,{catalogo_apu_id:e.target.value||null})}><option value="">Pendiente de vincular</option>{concepts.map(c=><option key={c.id} value={c.id}>{c.clave} · {c.descripcion} · {c.unidad}</option>)}</select></label>
+            <label htmlFor={`${revisionSelectId}-element-${i}`}>Elemento medido</label><select id={`${revisionSelectId}-element-${i}`} className={field} value={line.global_id} onChange={e=>updateLine(i,{global_id:e.target.value})}>{eligible.map(r=><option key={r.global_id} value={r.global_id}>{r.tipo} · {r.nombre||r.global_id}</option>)}</select>
+            <label htmlFor={`${revisionSelectId}-concept-${i}`}>Concepto vinculado</label><select id={`${revisionSelectId}-concept-${i}`} className={field} value={line.catalogo_apu_id||''} onChange={e=>updateLine(i,{catalogo_apu_id:e.target.value||null})}><option value="">Pendiente de vincular</option>{concepts.map(c=><option key={c.id} value={c.id}>{c.clave} · {c.descripcion} · {c.unidad}</option>)}</select>
             <label>Cantidad revisada<input className={field} type="number" min="0" step="any" value={line.cantidad} onChange={e=>updateLine(i,{cantidad:e.target.value})}/></label>
             <label>Referencia de medición<input className={field} value={line.referencia_medicion} maxLength={1000} onChange={e=>updateLine(i,{referencia_medicion:e.target.value})}/></label>
             <label>Alcance e inclusiones del concepto<input className={field} value={line.alcance} maxLength={1000} onChange={e=>updateLine(i,{alcance:e.target.value})}/></label>
@@ -117,9 +118,9 @@ export default function CoberturaBIM({expedienteId,modelo,canWrite,onProcessed,o
           {!decisions.length&&<p>Sin decisiones registradas para esta revisión.</p>}
           {decisions.map(d=><article key={d.id} className="rounded border border-(--border-subtle) p-2 space-y-1">
             <label className="flex gap-2"><input type="checkbox" checked={d.estado==='VIGENTE'&&activeSelected.includes(d.id)} disabled={!editable||d.estado!=='VIGENTE'} onChange={e=>setSelected(previous=>e.target.checked?[...previous,d.id]:previous.filter(id=>id!==d.id))}/>{d.criterio==='PADRE'?'Conjunto':'Componentes'} · versión {d.version} · {d.estado}</label>
-            <p className="break-all">Familia: {d.familia_global_id}</p><p>{d.causas.map(c=>causeLabels[c]||c).join(' · ')}</p>
-            <p className="break-all">Responsable: {d.usuario_id} · {new Date(d.creado_en).toLocaleString('es-MX')}</p>
-            <details><summary>Ver mediciones y sustento registrado</summary><p>{d.datos.referencia_contractual||'Sustento contractual pendiente'}</p>{d.datos.lineas.map((l,i)=><p key={i} className="break-all">{l.global_id} · {l.cantidad} · {l.alcance} · {l.referencia_medicion}</p>)}</details>
+            <p className="break-all">Familia: {d.familia_nombre||d.familia_global_id}</p><p>{d.causas.map(c=>causeLabels[c]||c).join(' · ')}</p>
+            <p className="break-all">Responsable: {d.usuario_nombre||d.usuario_id} · {new Date(d.creado_en).toLocaleString('es-MX')}</p>
+            <details><summary>Ver mediciones y sustento registrado</summary><p className="break-all">Identidad de familia: {d.familia_global_id} · Responsable: {d.usuario_id}</p><p>{d.datos.referencia_contractual||'Sustento contractual pendiente'}</p>{d.datos.lineas.map((l,i)=><p key={i} className="break-all">{l.global_id} · {l.cantidad} · {l.alcance} · {l.referencia_medicion}</p>)}</details>
           </article>)}
           <label>Referencia de factores para esta versión<input className={field} value={budgetReference} maxLength={1000} onChange={e=>setBudgetReference(e.target.value)} placeholder="Se utilizarán los factores que hayas revisado en Preparar presupuesto"/></label>
           <button className={button} disabled={!editable||!activeSelected.length||budgetReference.trim().length<5} onClick={()=>void action(async()=>{const budget=await megalodonClient.bim.presupuestoDecisiones(expedienteId,modelo.id,activeSelected,parametros(budgetReference));onBudget(budget);setNotice('Nueva versión del presupuesto creada desde las decisiones vigentes.');})}>Crear versión del presupuesto con decisiones</button>
