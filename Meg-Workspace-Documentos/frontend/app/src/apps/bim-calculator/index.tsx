@@ -7,7 +7,7 @@ import { IFC_VIEW_ROTATION } from './bim-view';
  * without prior written permission.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import PresupuestoPanel from './PresupuestoPanel';
 import PlanosA3 from './PlanosA3';
 import CronogramaBim from './CronogramaBim';
@@ -16,8 +16,9 @@ import { abrirModulo } from '@/lib/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { permisosBim } from '@/lib/bim-permissions';
 import { Calculator, Upload, Loader2, AlertCircle, FolderKanban, Box, FileWarning, ShieldAlert, CheckCircle2, AlertTriangle, Layers, Search, Link2 } from 'lucide-react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Bounds } from '@react-three/drei';
+import { Canvas, useThree } from '@react-three/fiber';
+import { OrbitControls, Bounds, useBounds } from '@react-three/drei';
+import { PerspectiveCamera, Vector3 } from 'three';
 import { megalodonClient } from '@/lib/api-client';
 import { useExpedienteStore } from '@/stores/useExpedienteStore';
 import type { ModeloBIM, ElementoBIM, AnalisisClash, ClashResult, GeneracionBIM4D5D, CatalogoAPUOut, Presupuesto } from '@/lib/megalodon-client';
@@ -48,6 +49,37 @@ const COLOR_POR_TIPO: Record<string, string> = {
   IfcRailing: '#c98e6c',
 };
 const COLOR_DEFAULT = '#8899aa';
+
+function EnmarcarModelo({ revision, vista }: { revision: string; vista: '2d' | '3d' }) {
+  const bounds = useBounds();
+  const { camera, controls, size, invalidate } = useThree();
+  useLayoutEffect(() => {
+    if (!controls) return;
+    const { box, center, distance: defaultDistance } = bounds.refresh().getSize();
+    let distance = defaultDistance;
+    if (camera instanceof PerspectiveCamera) {
+      // Fit every corner inside the narrower field of view, even for small offset models.
+      const halfHeightFov = camera.getEffectiveFOV() * Math.PI / 360;
+      const halfWidthFov = Math.atan(Math.tan(halfHeightFov) * camera.aspect);
+      const radius = box.getSize(new Vector3()).length() / 2;
+      distance = radius / Math.sin(Math.min(halfHeightFov, halfWidthFov)) * 1.3;
+    }
+    if (box.isEmpty() || !Number.isFinite(distance) || distance <= 0) return;
+    // Start above the model, including when its IFC elevation is far from zero.
+    const direction = vista === '2d' ? new Vector3(0, 1, 0) : new Vector3(1, 1, 1).normalize();
+    camera.up.set(0, vista === '2d' ? 0 : 1, vista === '2d' ? -1 : 0);
+    camera.position.copy(center).addScaledVector(direction, distance);
+    camera.lookAt(center);
+    camera.updateMatrixWorld();
+    const orbit = controls as unknown as { target?: Vector3; update?: () => void } | undefined;
+    orbit?.target?.copy(center);
+    orbit?.update?.();
+    bounds.refresh().clip();
+    if (!(camera instanceof PerspectiveCamera)) bounds.fit();
+    invalidate();
+  }, [bounds, camera, controls, revision, vista, size.width, size.height, invalidate]);
+  return null;
+}
 
 function ElementoMesh({
   elemento, seleccionado, wireframe, onSelect, enClash = false, customColor,
@@ -696,7 +728,8 @@ function IFCPanel() {
               <Canvas key={vista} orthographic={vista === '2d'} camera={vista === '2d' ? { position: [0, 100, 0], zoom: 8 } : { position: [10, 10, 10], fov: 50 }}>
                 <ambientLight intensity={0.7} />
                 <directionalLight position={[10, 15, 10]} intensity={0.8} />
-                <Bounds fit clip observe margin={1.3}>
+                <Bounds margin={1.3} maxDuration={0}>
+                  <EnmarcarModelo vista={vista} revision={`${modelo.id}:${nivelFiltro}:${elementosEnVista.length}:${viewRotation}:${[...hiddenTypes].sort().join(',')}`} />
                   <group rotation={[0, viewRotation * Math.PI / 180, 0]}>
                   <group rotation={IFC_VIEW_ROTATION}>
                   {elementosEnVista.map((el) => (
@@ -713,7 +746,7 @@ function IFCPanel() {
                   </group>
                   </group>
                 </Bounds>
-                <OrbitControls enableRotate={vista === '3d'} />
+                <OrbitControls makeDefault enableRotate={vista === '3d'} />
                 {vista === '3d' && <gridHelper args={[50, 50]} />}
               </Canvas>
 

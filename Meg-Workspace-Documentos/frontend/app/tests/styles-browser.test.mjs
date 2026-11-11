@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 
@@ -116,6 +116,44 @@ test('compiled semantic colors, font and enter animations resolve in the browser
   await page.close();
 });
 
+// Inspect rendered pixels so an off-origin model cannot pass with an empty grid.
+async function assertModelFramed(page) {
+  const canvas = page.locator('.bim-studio-viewport canvas');
+  let consecutive = 0;
+  let last;
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const png = await canvas.screenshot();
+    if (attempt === 0 && process.env.STYLE_EVIDENCE_DIR) {
+      await mkdir(process.env.STYLE_EVIDENCE_DIR, { recursive: true });
+      await writeFile(join(process.env.STYLE_EVIDENCE_DIR, `frame-${page.viewportSize().width}-${Date.now()}.png`), png);
+    }
+    last = await page.evaluate(async bytes => {
+      const bitmap = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: 'image/png' }));
+      const surface = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const context = surface.getContext('2d');
+      context.drawImage(bitmap, 0, 0);
+      const { data, width, height } = context.getImageData(0, 0, bitmap.width, bitmap.height);
+      bitmap.close();
+      let count = 0, left = width, right = 0, top = height, bottom = 0;
+      // Exclude the two-pixel CSS border; geometry still needs a 3% inner margin.
+      for (let y = 2; y < height - 2; y++) for (let x = 2; x < width - 2; x++) {
+        const i = (y * width + x) * 4;
+        if (data[i + 2] > data[i] + 12 && data[i + 1] > data[i] + 2 && data[i + 2] > data[i + 1] + 5) {
+          count++; left = Math.min(left, x); right = Math.max(right, x);
+          top = Math.min(top, y); bottom = Math.max(bottom, y);
+        }
+      }
+      return { count, left, right, top, bottom, width, height };
+    }, [...png]);
+    const framed = last.count > 100 && last.left > last.width * 0.03 && last.right < last.width * 0.97
+      && last.top > last.height * 0.03 && last.bottom < last.height * 0.97;
+    consecutive = framed ? consecutive + 1 : 0;
+    if (consecutive === 3) return;
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+  assert.fail(`Model must remain visible and fit inside the viewport: ${JSON.stringify(last)}`);
+}
+
 // Layout fixtures exercise the compiled BIM UI, without authenticating to a
 // backend or claiming IFC geometry/quantity validation.
 test('BIM studio stays reachable on desktop and short mobile screens', async () => {
@@ -137,7 +175,9 @@ test('BIM studio stays reachable on desktop and short mobile screens', async () 
       if (path.endsWith('/elementos')) data = Array.from({ length: 40 }, (_, i) => ({
         id: `e${i}`, tipo: `IfcPrueba${i}`, nombre: `Elemento ${i}`, nivel: i % 2 ? 'Planta alta' : 'Planta baja',
         volumen: 3, area: 5, fuente_volumen: 'QTO_IFC', fuente_area: 'QTO_IFC',
-        malla_vertices: [0, 0, 0, 4, 0, 0, 0, 3, 0], malla_caras: [0, 1, 2],
+        // Coordinates deliberately far from the world origin, as in real IFC exports.
+        malla_vertices: [100, 200, 50, 104, 200, 50, 100, 203, 50, 100, 200, 53],
+        malla_caras: [0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2],
       }));
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) });
     });
@@ -148,6 +188,7 @@ test('BIM studio stays reachable on desktop and short mobile screens', async () 
       while (node) { if (getComputedStyle(node).opacity !== '1') return false; node = node.parentElement; }
       return true;
     });
+    await assertModelFramed(page);
     const studio = page.locator('.bim-studio');
     assert.equal(await studio.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
     await page.getByRole('button', { name: 'Activar modo oscuro', exact: true }).click();
@@ -193,6 +234,7 @@ test('BIM studio stays reachable on desktop and short mobile screens', async () 
     const plan = page.getByRole('button', { name: 'Planta (2D)', exact: true });
     await plan.click();
     assert.equal(await plan.getAttribute('aria-pressed'), 'true');
+    await assertModelFramed(page);
     const wire = page.getByRole('button', { name: 'Alambre', exact: true });
     await wire.focus(); await page.keyboard.press('Space');
     assert.equal(await wire.getAttribute('aria-pressed'), 'true');
