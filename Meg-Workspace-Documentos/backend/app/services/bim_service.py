@@ -36,6 +36,7 @@ from app.models.bim import ModeloBIM, ElementoBIM
 from app.models.base import EstadoProceso
 from app.models.expediente import ExpedienteObra
 from app.engines.bim.motor_bim import MotorBIM
+from app.engines.bim.coverage import conflictos_de_conjuntos
 from app.engines.bim.heuristics import estimar_duracion_4d, resumir_grupo_bim4d
 from app.integrations.supabase_storage import storage_bim
 from app.core.errors import MegalodonException, ErrorCode
@@ -454,6 +455,9 @@ class BIMService:
                     "origen_mapeo": "ELEMENTO" if explicit is not None else "TIPO_IFC",
                 })
 
+        conflicts = conflictos_de_conjuntos(elementos)
+        conflict_guids = {gid for pair in conflicts for gid in pair.values()}
+
         # A missing member never discards the measured cost of its siblings.
         captures = {}
         for item in cantidades_complementarias or []:
@@ -488,7 +492,7 @@ class BIMService:
                 )
 
         used = set()
-        pending_ids, snapshots = [], []
+        pending_ids, snapshots, measurements, geometric_pending = [], [], [], []
         partidas_data, grupos_partidas = [], []
         for (tipo, apu_id), elems in grupos.items():
             apu = catalogos_por_id.get(apu_id) if apu_id is not None else None
@@ -509,13 +513,15 @@ class BIMService:
                 # Non-geometric catalogue units (kg, t, etc.) need an explicit
                 # reviewed measurement; geometry alone cannot supply mass.
                 value = 1.0 if unit == "pza" else getattr(element, field) if field else None
-                valid = value is not None and math.isfinite(float(value)) and float(value) > 0
+                original_value = value
+                geometric = field == "volumen" and element.fuente_volumen == "GEOMETRIA_CALCULADA"
+                valid = value is not None and math.isfinite(float(value)) and float(value) > 0 and not geometric
                 capture = captures.get(str(element.id))
                 if capture:
                     if valid or capture["unidad"].lower().strip() != unit:
                         raise MegalodonException(
                             ErrorCode.BAD_REQUEST,
-                            "La captura solo completa cantidades faltantes en la unidad del concepto",
+                            "La captura completa faltantes o revisa estimaciones en la unidad del concepto",
                         )
                     used.add(str(element.id))
                     value, valid = capture["cantidad"], True
@@ -527,8 +533,19 @@ class BIMService:
                         "referencia": capture["referencia"],
                         "usuario_id": str(creado_por_id),
                         "capturado_en": datetime.now(timezone.utc).isoformat(),
+                        "fuente_original": element.fuente_volumen if field == "volumen" else "OTRA_MEDICION",
+                        "cantidad_original": float(original_value) if original_value is not None else None,
                     })
+                if element.global_id in conflict_guids:
+                    valid = False
+                if geometric and not capture:
+                    geometric_pending.append(str(element.id))
                 if valid:
+                    measurements.append({
+                        "elemento_id": str(element.id), "global_id": element.global_id,
+                        "unidad": unit, "cantidad": float(value),
+                        "fuente": "CAPTURA_REVISADA" if capture else element.fuente_volumen if field == "volumen" else "QTO_IFC" if field == "longitud" else "CONTEO",
+                    })
                     ready.append(element)
                     total += float(value)
                 else:
@@ -575,6 +592,14 @@ class BIMService:
             "elementos_medidos": len(elementos) - len(pending_ids),
             "elementos_pendientes": pending_ids,
             "capturas": snapshots,
+            "mediciones_economicas": measurements,
+            "volumenes_geometricos_pendientes": geometric_pending,
+            "conflictos_conjuntos": conflicts,
+            "reglas_candidatas_conjuntos": [{
+                **pair, "regla": "PADRE_SI_CONCEPTO_INTEGRAL_O_COMPONENTES_SI_DESGLOSADO",
+                "fuente": "JERARQUIA_IFC_Y_COMPONENTES_DE_MALLA",
+                "sustento_contractual": None, "estado": "PENDIENTE_DE_APROBACION_ECONOMICA",
+            } for pair in conflicts],
             "mapeo_apu_elementos": mapping_snapshot,
         }
 
@@ -748,6 +773,7 @@ class BIMService:
         capturas_por_elemento = {}
         presupuesto_por_partida = {}
         presupuestos_bim = set()
+        presupuestos_con_snapshot = set()
         if partida_ids:
             result_p = await self.db.execute(select(Partida).join(Presupuesto, Presupuesto.id == Partida.presupuesto_id).join(ExpedienteObra, ExpedienteObra.id == Presupuesto.expediente_id).where(Partida.id.in_(partida_ids), ExpedienteObra.tenant_id == self.tenant_id))
             linked_parts = result_p.scalars().all()
@@ -763,7 +789,9 @@ class BIMService:
                 if not cobertura:
                     continue
                 presupuestos_bim.add(budget.id)
-                for capture in cobertura.get('capturas', []):
+                if 'mediciones_economicas' in cobertura:
+                    presupuestos_con_snapshot.add(budget.id)
+                for capture in cobertura.get('mediciones_economicas', cobertura.get('capturas', [])):
                     capturas_por_elemento[(budget.id,capture['elemento_id'],capture['unidad'])] = float(capture['cantidad'])
 
         # `dias_por_defecto` funciona como base configurable. La duración
@@ -792,9 +820,11 @@ class BIMService:
                     captura = capturas_por_elemento.get((presupuesto_por_partida[e.partida_id],str(e.id),unidad))
                     if captura is not None:
                         costo += precio_unit * captura
+                    elif presupuesto_por_partida[e.partida_id] in presupuestos_con_snapshot:
+                        continue  # A pending measurement cannot reappear as 4D money.
                     elif unidad == "m2" and presupuesto_por_partida[e.partida_id] not in presupuestos_bim:
                         costo += precio_unit * float(e.area or 0)
-                    elif unidad == "m3":
+                    elif unidad == "m3" and e.fuente_volumen != "GEOMETRIA_CALCULADA":
                         costo += precio_unit * float(e.volumen or 0)
                     elif unidad in ("ml", "m"):
                         costo += precio_unit * float(e.longitud or 0)

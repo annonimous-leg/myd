@@ -33,6 +33,7 @@ import ifcopenshell.util.shape
 import ifcopenshell.util.unit
 
 from app.core.errors import MegalodonException, ErrorCode
+from app.engines.bim.coverage import jerarquia_ifc
 
 TIPOS_DEFAULT = [
     "IfcWall", "IfcSlab", "IfcColumn", "IfcBeam", "IfcDoor", "IfcWindow",
@@ -92,6 +93,7 @@ class MotorBIM:
     def __init__(self):
         self.modelo: Optional[ifcopenshell.file] = None
         self._escala_longitud: float = 1.0
+        self._jerarquia: dict = {}
         self._settings = ifcopenshell.geom.settings()
         self._settings.set("use-world-coords", True)
 
@@ -110,6 +112,7 @@ class MotorBIM:
         if not math.isfinite(self._escala_longitud) or self._escala_longitud <= 0:
             raise MegalodonException(ErrorCode.IFC_INVALIDO, "Unidad de longitud IFC inválida")
 
+        self._jerarquia = jerarquia_ifc(self.modelo)
         return self.modelo
 
     def _crear_geometria(self, entidad):
@@ -283,6 +286,8 @@ class MotorBIM:
         self, entidad, tipo: str, extraer_malla: bool
     ) -> ElementoBIMExtraido:
         propiedades: Dict[str, Any] = {}
+        if entidad.GlobalId in self._jerarquia:
+            propiedades["_jerarquia_ifc"] = self._jerarquia[entidad.GlobalId]
         volumen_qto = area_qto = longitud_qto = None
 
         # 1) Propiedades y cantidades declaradas en el IFC.

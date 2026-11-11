@@ -15,3 +15,15 @@ test('IFC vertical walls remain vertical in the viewer and preserve distances', 
   assert.ok(Math.abs(corner.length() - originalDistance) < 1e-10);
   assert.equal(corner.x, 4);
 });
+
+import { faltantesDeMedicion } from '../src/apps/bim-calculator/mediciones-bim.ts';
+
+test('geometric volumes remain proposals even when positive', () => {
+  const proposed = { id: 'g', tipo: 'IfcBeam', volumen: 2, fuente_volumen: 'GEOMETRIA_CALCULADA' };
+  const authored = { id: 'q', tipo: 'IfcBeam', volumen: 3, fuente_volumen: 'QTO_IFC' };
+  const pending = faltantesDeMedicion([proposed, authored], { IfcBeam: 'm3' });
+  assert.deepEqual(pending.map(p => p.elemento.id), ['g']);
+  assert.equal(pending[0].requiereRevisionGeometrica, true);
+  assert.equal(proposed.volumen, 2, 'Review must preserve the source estimate');
+  assert.equal(faltantesDeMedicion([proposed], { IfcBeam: 'pza' }).length, 0);
+});

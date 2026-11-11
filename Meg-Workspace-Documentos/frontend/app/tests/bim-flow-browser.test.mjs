@@ -203,6 +203,15 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await page.getByRole('button',{name:/Muro de prueba sintética CI/}).click();
     await page.getByPlaceholder('Fuente: contrato, convocatoria o análisis').fill('Prueba sintética CI: factores cero explícitos');
     await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
+    const initialReview=page.getByRole('region',{name:'Revisión del presupuesto'});
+    await initialReview.getByText(/Presupuesto PARCIAL: 0 de 1 elementos medidos/).waitFor();
+    await initialReview.getByText('$0.00',{exact:true}).first().waitFor();
+    assert.equal(await initialReview.getByRole('button',{name:'Confirmar cálculo'}).isDisabled(),true);
+    const proposed=page.getByRole('region',{name:'Completar mediciones faltantes'});
+    await proposed.getByText(/Volumen geométrico propuesto/).waitFor();
+    await proposed.getByLabel('Cantidad revisada (m3)',{exact:true}).fill('2.4');
+    await proposed.getByLabel('Referencia de la medición',{exact:true}).fill('Comprobación analítica CI: 2 × 0.4 × 3 m = 2.4 m3');
+    await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
     await page.getByRole('button',{name:'Validar presupuesto'}).waitFor();
     await page.getByRole('button',{name:'Validar presupuesto'}).click();
     await page.getByRole('button',{name:'Aprobar presupuesto'}).click();
@@ -261,6 +270,9 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
       await page.getByRole('button',{name:'Buscar concepto para IfcWall'}).click();
       await page.getByRole('button',{name:/Muro de prueba sintética CI/}).click();
     }
+    await missing.getByLabel('Cantidad revisada (m3)',{exact:true}).fill('2.4');
+    await missing.locator('fieldset').filter({has:page.getByLabel('Cantidad revisada (m3)',{exact:true})})
+      .getByLabel('Referencia de la medición',{exact:true}).fill('Comprobación analítica CI: 2 × 0.4 × 3 m = 2.4 m3');
     await page.getByPlaceholder('Fuente: contrato, convocatoria o análisis').fill('Prueba parcial: factores cero explícitos');
     await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
     const budgetReview=page.getByRole('region',{name:'Revisión del presupuesto'});
@@ -269,7 +281,8 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     assert.equal(await budgetReview.getByRole('button',{name:'Confirmar cálculo'}).isDisabled(),true);
     await page.screenshot({path:join(evidence,'06-presupuesto-parcial.png'),fullPage:true});
     await missing.getByLabel('Cantidad faltante (m3)',{exact:true}).fill('1.6');
-    await missing.getByLabel('Referencia de la medición',{exact:true}).fill('Levantamiento de prueba revisado');
+    await missing.locator('fieldset').filter({has:page.getByLabel('Cantidad faltante (m3)',{exact:true})})
+      .getByLabel('Referencia de la medición',{exact:true}).fill('Levantamiento de prueba revisado');
     await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
     await budgetReview.getByText(/Mediciones completas: 2 de 2 elementos medidos/).waitFor();
     await budgetReview.getByText('$500.00',{exact:true}).first().waitFor();

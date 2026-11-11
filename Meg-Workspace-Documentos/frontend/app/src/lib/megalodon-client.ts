@@ -1103,6 +1103,8 @@ export interface Presupuesto {
     topografia_cobertura?: CoberturaTopografia;
     topografia_evidencia?: EvidenciaTopografia;
     bim_cobertura?: { completa: boolean; elementos_totales: number; elementos_medidos: number;
+      volumenes_geometricos_pendientes?: string[];
+      conflictos_conjuntos?: Array<{ padre_global_id: string; componente_global_id: string }>;
       elementos_pendientes: string[]; capturas: Array<{ elemento_id: string; unidad: string;
         cantidad: number; referencia: string; usuario_id: string; capturado_en: string }> };
     [key: string]: unknown;

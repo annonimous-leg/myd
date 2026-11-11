@@ -68,6 +68,12 @@ export default function PresupuestoPanel({ expedienteId, nuevoId }: { expediente
         {coverage && <p role="status" className="text-xs">{coverage.completa ? 'Mediciones completas' : 'Presupuesto PARCIAL'}: {coverage.elementos_medidos} de {coverage.elementos_totales} elementos medidos. {coverage.capturas.length} capturas con referencia.</p>}
         {topografia && <p role="status" className="text-xs">{topografia.completa ? 'Cobertura topográfica completa' : 'Presupuesto PARCIAL: cobertura topográfica pendiente'}. Área común: {topografia.area_comun_m2.toLocaleString('es-MX')} m². Pendiente: {topografia.area_existente_pendiente_m2.toLocaleString('es-MX')} m² en terreno y {topografia.area_proyecto_pendiente_m2.toLocaleString('es-MX')} m² en proyecto.</p>}
         {topografiaSinEvidencia && <p role="alert" className="text-xs text-(--danger)">Falta la evidencia del terreno. Genera una nueva versión antes de aprobar o exportar.</p>}
+        {!!coverage?.conflictos_conjuntos?.length && <details className="text-xs text-(--warning)">
+          <summary>Posible doble conteo: {coverage.conflictos_conjuntos.length} relaciones padre/componente pendientes</summary>
+          <p>Define con el concepto contratado, sus APU y las reglas de medición y pago si corresponde el conjunto o sus componentes. Estos casos no se costean hasta resolver el alcance.</p>
+          {coverage.conflictos_conjuntos.map(pair => <p key={`${pair.padre_global_id}:${pair.componente_global_id}`} className="break-all">{pair.padre_global_id} → {pair.componente_global_id}</p>)}
+        </details>}
+        {!!coverage?.volumenes_geometricos_pendientes?.length && <p className="text-xs text-(--warning)">{coverage.volumenes_geometricos_pendientes.length} volúmenes geométricos propuestos requieren revisión y referencia.</p>}
         {!!coverage?.capturas.length && <details className="text-xs space-y-2">
           <summary className="cursor-pointer">Ver fuentes de las cantidades capturadas</summary>
           {coverage.capturas.map(capture => <div key={capture.elemento_id} className="p-2 rounded bg-(--surface-elevated) break-words">
@@ -76,7 +82,7 @@ export default function PresupuestoPanel({ expedienteId, nuevoId }: { expediente
             <p className="text-(--text-muted) break-all">Usuario: {capture.usuario_id} · {new Date(capture.capturado_en).toLocaleString('es-MX')}</p>
           </div>)}
         </details>}
-        {!complete && <p className="text-xs text-(--warning)">Lo medido ya está costeado cuando tiene precio. {coverage && <>Quedan {coverage.elementos_pendientes.length} elementos sin medición. </>}{pending.length} partida(s) requieren cantidad o precio. Completa la cobertura y asigna los conceptos correspondientes. La aprobación está bloqueada.</p>}
+        {!complete && <p className="text-xs text-(--warning)">Lo medido ya está costeado cuando tiene precio. {coverage && <>Quedan {coverage.elementos_pendientes.length} elementos pendientes de medición o revisión. </>}{pending.length} partida(s) requieren cantidad o precio. Completa la cobertura y asigna los conceptos correspondientes. La aprobación está bloqueada.</p>}
         <div className="overflow-x-auto"><table className="w-full text-xs"><caption className="sr-only">Partidas del presupuesto</caption>
           <thead><tr><th className="text-left p-1">Concepto</th><th>Cantidad</th><th>Unidad</th><th>Precio</th><th>Importe</th></tr></thead>
           <tbody>{budget.partidas.map(p => <tr key={p.id} className="border-t border-(--border-subtle)">
