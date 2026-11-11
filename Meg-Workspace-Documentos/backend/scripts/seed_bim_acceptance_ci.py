@@ -10,8 +10,8 @@ from uuid import UUID, uuid4
 
 
 async def main():
-    if os.getenv('GITHUB_ACTIONS') != 'true' or os.getenv('ENVIRONMENT') != 'staging':
-        raise SystemExit('Seeding is confined to disposable GitHub CI staging.')
+    if (os.getenv('GITHUB_ACTIONS') != 'true' and os.getenv('BIM_LOCAL_ACCEPTANCE') != '1') or os.getenv('ENVIRONMENT') != 'staging':
+        raise SystemExit('Seeding requires CI or explicit BIM_LOCAL_ACCEPTANCE=1 in disposable staging.')
     from sqlalchemy.engine import make_url
     url = make_url(os.environ['DATABASE_URL'])
     if url.database != 'bim_acceptance' or url.host not in ('localhost','127.0.0.1'):

@@ -39,7 +39,7 @@ def presupuesto_completo(presupuesto) -> bool:
 def cobertura_completa(presupuesto) -> bool:
     from app.engines.topografia.evidencia import partidas_coinciden
     metadata = getattr(presupuesto, "metadatos", None) or {}
-    return (all(metadata.get(key, {}).get("completa", True) for key in ("bim_cobertura", "topografia_cobertura"))
+    return (not getattr(presupuesto, "fuentes_bim_obsoletas", False) and all(metadata.get(key, {}).get("completa", True) for key in ("bim_cobertura", "topografia_cobertura"))
             and partidas_coinciden(presupuesto))
 
 
@@ -156,7 +156,12 @@ class PresupuestoService(BaseService[Presupuesto]):
             .with_for_update(of=Presupuesto, read=True)
             .execution_options(populate_existing=True)
         )
-        return list(result.scalars().all())
+        items = list(result.scalars().all())
+        from app.services.bim_operational import BIMOperationalService
+        ops = BIMOperationalService(self.db, self.tenant_id)
+        for item in items:
+            item.fuentes_bim_obsoletas = await ops.presupuesto_obsoleto(item)
+        return items
 
     async def crear_desde_costeo(
         self,
@@ -477,6 +482,8 @@ class PresupuestoService(BaseService[Presupuesto]):
                 ErrorCode.DOCUMENTO_NO_ENCONTRADO,
                 f"Presupuesto {presupuesto_id} no encontrado en el expediente {expediente_id}",
             )
+        from app.services.bim_operational import BIMOperationalService
+        presupuesto.fuentes_bim_obsoletas = await BIMOperationalService(self.db, self.tenant_id).presupuesto_obsoleto(presupuesto, lock=bloquear)
         return presupuesto
 
     def _partidas_costeo_desde_orm(self, presupuesto: "Presupuesto") -> List[PartidaCosteo]:
@@ -757,6 +764,9 @@ class PresupuestoService(BaseService[Presupuesto]):
 
     @staticmethod
     def _validar_origen_topografia(presupuesto):
+        if getattr(presupuesto, "fuentes_bim_obsoletas", False):
+            raise MegalodonException(ErrorCode.PRESUPUESTO_ERROR,
+                'Cambió la revisión BIM o el sustento económico; genera una nueva versión del presupuesto', status_code=409)
         from app.engines.topografia.evidencia import partidas_coinciden
         if not partidas_coinciden(presupuesto):
             raise MegalodonException(ErrorCode.PRESUPUESTO_ERROR,

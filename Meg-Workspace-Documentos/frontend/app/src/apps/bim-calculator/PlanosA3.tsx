@@ -60,6 +60,7 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
   const [notaLamina, setNotaLamina] = useState('');
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState('');
+  const [errorConsulta, setErrorConsulta] = useState('');
   const [actualizacion, setActualizacion] = useState(0);
 
   useEffect(() => {
@@ -72,11 +73,15 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
           .filter(plano => plano.formatos.includes('PDF'));
         if (!activo) return;
         setPlanos(lista);
+        setErrorConsulta('');
         if (lista.some(plano => plano.estado === 'PENDIENTE' || plano.estado === 'EN_PROCESO')) {
           timer = setTimeout(() => void cargar(), 3000);
         }
       } catch (err) {
-        if (activo) setError(String(err instanceof Error ? err.message : err));
+        if (activo) {
+          setErrorConsulta(String(err instanceof Error ? err.message : err));
+          timer = setTimeout(() => void cargar(), 5000);
+        }
       }
     }
     void cargar();
@@ -179,6 +184,7 @@ export default function PlanosA3({ expedienteId, modeloId, canWrite }: {
       <button type="submit" disabled={ocupado}>Generar {nombres[tipo].toLowerCase()} A3</button>
     </form>}
     <button type="button" onClick={() => { setError(''); setActualizacion(value => value + 1); }}>Actualizar planos</button>
+    {errorConsulta && <p role="status">No se pudo consultar los planos. Se reintentará. {errorConsulta}</p>}
     {error && <p role="alert">{error}</p>}
     <ul aria-label="Planos generados">
       {planos.map(plano => <li key={plano.id}>

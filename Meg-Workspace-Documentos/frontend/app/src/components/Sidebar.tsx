@@ -54,7 +54,7 @@ export default function Sidebar({ activeId, onSelect }: SidebarProps) {
 
         <div className="h-px my-2.5 mx-1.5" style={{ background: 'var(--border-subtle)' }} />
 
-        {apps.map((app) => {
+        {apps.filter(app => !['licitaciones-obra', 'tezcatlipoca-hub', 'documentos-firma'].includes(app.id)).map((app) => {
           const Icon = resolveIcon(app.icon);
           return (
             <SidebarItem

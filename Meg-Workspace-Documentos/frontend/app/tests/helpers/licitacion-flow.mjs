@@ -49,8 +49,9 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     const apiOrigin = new URL(createdExpediente.url()).origin;
     assert.ok(expediente.id, "The real expediente endpoint must return a persisted ID.");
 
-    await page.getByRole("navigation").getByRole("button", { name: "Licitaciones de Obra", exact: true }).click();
-    await page.getByRole("heading", { name: "Automatización de proposición", exact: true }).waitFor();
+    await page.getByRole("button", { name: "Abrir bandeja de trabajo" }).click();
+    await page.getByRole("menuitem", { name: "Workspace", exact: true }).click();
+    await page.getByRole("heading", { name: "Preparación de la propuesta", exact: true }).waitFor();
     await page.getByText("Modo licitante", { exact: true }).waitFor();
     assert.equal(await page.getByRole("button", { name: "Emitir fallo oficial", exact: true }).count(), 0);
     assert.equal(await page.getByRole("button", { name: "Crear contrato oficial", exact: true }).count(), 0);
@@ -95,7 +96,7 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     assert.equal(tender.expediente_id, expediente.id);
     assert.equal(tender.jurisdiction_code, profileCode);
     // The bid stays on its evidence/review panel. Annex editing is a separate view.
-    await page.getByRole("heading", { name: "Automatización de proposición", exact: true }).waitFor();
+    await page.getByRole("heading", { name: "Preparación de la propuesta", exact: true }).waitFor();
     await page.getByRole("heading", { name: "1. Fuentes", exact: true }).waitFor();
 
     const sourceBuffer = Buffer.from(SOURCE_TEXT, "utf8");
@@ -223,6 +224,14 @@ export async function licitacionFlow({ browser, credentials, origin, evidence, l
     const humanText = "NOTA DE TRABAJO CI: revisar el programa, el presupuesto y los anexos antes de presentar.";
     await workspaceEditor.fill(humanText);
     await page.getByText("Cambios pendientes: guarda una nueva revisión antes de salir.", { exact: true }).waitFor();
+    // Leaving through the shared tray must not discard an unsaved document.
+    await page.getByRole('button', { name: 'Abrir bandeja de trabajo' }).click();
+    await page.getByRole('menuitem', { name: 'Tezcatlipoca', exact: true }).click();
+    const unsaved = page.getByRole('alertdialog', { name: 'Hay cambios sin guardar' });
+    await unsaved.waitFor();
+    await unsaved.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    assert.equal(await workspaceEditor.inputValue(), humanText);
+    assert.equal(new URL(page.url()).searchParams.get('app'), 'licitaciones-obra');
     const [workspaceUpdateResponse] = await Promise.all([
       page.waitForResponse((response) =>
         response.request().method() === "PUT" &&

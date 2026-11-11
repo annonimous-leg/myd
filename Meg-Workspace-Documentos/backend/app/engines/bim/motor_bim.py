@@ -33,6 +33,7 @@ import ifcopenshell.util.shape
 import ifcopenshell.util.unit
 
 from app.core.errors import MegalodonException, ErrorCode
+from app.engines.bim.coverage import jerarquia_ifc
 
 TIPOS_DEFAULT = [
     "IfcWall", "IfcSlab", "IfcColumn", "IfcBeam", "IfcDoor", "IfcWindow",
@@ -92,6 +93,7 @@ class MotorBIM:
     def __init__(self):
         self.modelo: Optional[ifcopenshell.file] = None
         self._escala_longitud: float = 1.0
+        self._jerarquia: dict = {}
         self._settings = ifcopenshell.geom.settings()
         self._settings.set("use-world-coords", True)
 
@@ -110,7 +112,58 @@ class MotorBIM:
         if not math.isfinite(self._escala_longitud) or self._escala_longitud <= 0:
             raise MegalodonException(ErrorCode.IFC_INVALIDO, "Unidad de longitud IFC inválida")
 
+        self._jerarquia = jerarquia_ifc(self.modelo)
         return self.modelo
+
+    def _crear_geometria(self, entidad):
+        try:
+            return ifcopenshell.geom.create_shape(self._settings, entidad)
+        except RuntimeError:
+            # Some Revit exports put a non-triangulable Axis before the solid.
+            bodies = [
+                rep for rep in entidad.Representation.Representations
+                if rep.RepresentationIdentifier == "Body"
+            ]
+            if len(bodies) != 1:
+                raise
+            return ifcopenshell.geom.create_shape(self._settings, entidad, bodies[0])
+
+    def _malla_descompuesta(self, entidad) -> tuple[MallaElemento, list[str]]:
+        """Resolve an aggregate from world-space child shapes without adding Qto."""
+        vertices: list[float] = []
+        faces: list[int] = []
+        components: list[str] = []
+        visited: set[int] = set()
+
+        def append_part(part, ancestors: frozenset[int]) -> None:
+            identity = part.id()
+            if identity in ancestors:
+                raise ValueError("Descomposición IFC cíclica")
+            if identity in visited:
+                return
+            visited.add(identity)
+            if getattr(part, "Representation", None) is not None:
+                shape = self._crear_geometria(part)
+                geometry = shape.geometry
+                if not geometry.verts or not geometry.faces:
+                    raise ValueError(f"Componente IFC {part.GlobalId} sin geometría sólida")
+                offset = len(vertices) // 3
+                vertices.extend(geometry.verts)
+                faces.extend(index + offset for index in geometry.faces)
+                components.append(part.GlobalId)
+                return
+            children = {
+                child.id(): child
+                for relation in getattr(part, "IsDecomposedBy", ())
+                for child in relation.RelatedObjects
+            }
+            if not children:
+                raise ValueError(f"Componente IFC {part.GlobalId} sin representación ni descomposición")
+            for child in sorted(children.values(), key=lambda child: child.id()):
+                append_part(child, ancestors | {identity})
+
+        append_part(entidad, frozenset())
+        return MallaElemento(vertices=vertices, caras=faces), components
 
     def cuantificar(
         self,
@@ -233,6 +286,8 @@ class MotorBIM:
         self, entidad, tipo: str, extraer_malla: bool
     ) -> ElementoBIMExtraido:
         propiedades: Dict[str, Any] = {}
+        if entidad.GlobalId in self._jerarquia:
+            propiedades["_jerarquia_ifc"] = self._jerarquia[entidad.GlobalId]
         volumen_qto = area_qto = longitud_qto = None
 
         # 1) Propiedades y cantidades declaradas en el IFC.
@@ -275,7 +330,7 @@ class MotorBIM:
         bbox = None
         if getattr(entidad, "Representation", None) is not None:
             try:
-                shape = ifcopenshell.geom.create_shape(self._settings, entidad)
+                shape = self._crear_geometria(entidad)
                 geometry = shape.geometry
                 verts_crudos = geometry.verts
                 caras = list(geometry.faces)
@@ -309,6 +364,21 @@ class MotorBIM:
                     )
             except Exception as e:
                 propiedades["_error_geometria"] = str(e)
+
+        elif getattr(entidad, "IsDecomposedBy", ()):
+            try:
+                aggregate, components = self._malla_descompuesta(entidad)
+                if extraer_malla:
+                    malla = aggregate
+                verts = aggregate.vertices
+                xs, ys, zs = verts[0::3], verts[1::3], verts[2::3]
+                bbox = [min(xs), min(ys), min(zs), max(xs), max(ys), max(zs)]
+                propiedades["_origen_geometria"] = "DESCOMPOSICION_IFC"
+                propiedades["_componentes_geometria"] = components
+                # Display geometry must not become a second economic quantity.
+                # Preserve the parent's authored Qto and its original provenance.
+            except (RuntimeError, ValueError) as exc:
+                propiedades["_error_geometria"] = str(exc)
 
         nivel = self._obtener_nivel(entidad)
 

@@ -15,6 +15,7 @@ const backend = resolve('../../backend');
 const evidence = resolve(process.env.BIM_EVIDENCE_DIR || 'bim-browser-evidence');
 const origin = 'http://127.0.0.1:4173';
 const apiOrigin = 'http://127.0.0.1:8000';
+const acceptanceIfc = process.env.BIM_ACCEPTANCE_IFC || join(backend, 'tests/fixtures/ifc/wall_millimetres.ifc');
 let browser, api, worker, dispatcher, preview, credentials;
 const processes = [];
 const env = { ...process.env, CORS_ALLOWED_ORIGINS: JSON.stringify([origin]),
@@ -96,10 +97,11 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/expedientes'),
       page.getByRole('button',{name:'Crear expediente',exact:true}).click()]);
     assert.equal(created.status(),200);
+    const createdObra=await created.json();
     await page.getByRole('button',{name:'Calculadora BIM',exact:true}).click();
     const [uploadResponse]=await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && /\/bim\/[^/]+\/modelos$/.test(new URL(r.url()).pathname)),
-      page.getByLabel('Subir archivo IFC').setInputFiles(join(backend,'tests/fixtures/ifc/wall_millimetres.ifc'))]);
+      page.getByLabel('Subir archivo IFC').setInputFiles(acceptanceIfc)]);
     assert.equal(uploadResponse.status(),200);
     const model=await uploadResponse.json();
     assert.equal(model.estado_procesamiento,'PENDIENTE');
@@ -116,6 +118,21 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     assert.equal(apiModel.status(),200);
     const elements=await apiModel.json(); assert.equal(elements.length,1);
     assert.equal(elements[0].volumen,2.4); assert.ok(elements[0].malla_vertices.length>0);
+    await page.getByText('Herramientas de vista', {exact:true}).click();
+    await page.getByLabel('Mostrar IfcWall', {exact:true}).uncheck();
+    await page.getByText('0 de 1 elementos visibles', {exact:true}).waitFor();
+    await page.getByRole('button', {name:'Restablecer vista',exact:true}).click();
+    await page.getByText('1 de 1 elementos visibles', {exact:true}).waitFor();
+    const [originalDownload] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('button', {name:'Descargar IFC original',exact:true}).click(),
+    ]);
+    const originalPath = join(evidence, 'original-descargado.ifc');
+    await originalDownload.saveAs(originalPath);
+    assert.deepEqual(await readFile(originalPath), await readFile(acceptanceIfc));
+    const unchangedElements = await page.request.get(`${apiOrigin}/api/v1/bim/${model.expediente_id}/modelos/${model.id}/elementos?incluir_malla=true`);
+    assert.deepEqual(await unchangedElements.json(), elements, 'View-only edits must not mutate server quantities or meshes');
+    await page.getByText('Herramientas de vista', {exact:true}).click();
     const drawingPath = `/api/v1/bim/${model.expediente_id}/modelos/${model.id}/dibujos`;
     await page.getByText('Planos PDF A3',{exact:true}).click();
     const drawingList = page.getByRole('list',{name:'Planos generados'});
@@ -187,6 +204,15 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await page.getByRole('button',{name:/Muro de prueba sintética CI/}).click();
     await page.getByPlaceholder('Fuente: contrato, convocatoria o análisis').fill('Prueba sintética CI: factores cero explícitos');
     await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
+    const initialReview=page.getByRole('region',{name:'Revisión del presupuesto'});
+    await initialReview.getByText(/Presupuesto PARCIAL: 0 de 1 elementos medidos/).waitFor();
+    await initialReview.getByText('$0.00',{exact:true}).first().waitFor();
+    assert.equal(await initialReview.getByRole('button',{name:'Confirmar cálculo'}).isDisabled(),true);
+    const proposed=page.getByRole('region',{name:'Completar mediciones faltantes'});
+    await proposed.getByText(/Volumen geométrico propuesto/).waitFor();
+    await proposed.getByLabel('Cantidad revisada (m3)',{exact:true}).fill('2.4');
+    await proposed.getByLabel('Referencia de la medición',{exact:true}).fill('Comprobación analítica CI: 2 × 0.4 × 3 m = 2.4 m3');
+    await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
     await page.getByRole('button',{name:'Validar presupuesto'}).waitFor();
     await page.getByRole('button',{name:'Validar presupuesto'}).click();
     await page.getByRole('button',{name:'Aprobar presupuesto'}).click();
@@ -245,6 +271,9 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
       await page.getByRole('button',{name:'Buscar concepto para IfcWall'}).click();
       await page.getByRole('button',{name:/Muro de prueba sintética CI/}).click();
     }
+    await missing.getByLabel('Cantidad revisada (m3)',{exact:true}).fill('2.4');
+    await missing.locator('fieldset').filter({has:page.getByLabel('Cantidad revisada (m3)',{exact:true})})
+      .getByLabel('Referencia de la medición',{exact:true}).fill('Comprobación analítica CI: 2 × 0.4 × 3 m = 2.4 m3');
     await page.getByPlaceholder('Fuente: contrato, convocatoria o análisis').fill('Prueba parcial: factores cero explícitos');
     await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
     const budgetReview=page.getByRole('region',{name:'Revisión del presupuesto'});
@@ -253,17 +282,47 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     assert.equal(await budgetReview.getByRole('button',{name:'Confirmar cálculo'}).isDisabled(),true);
     await page.screenshot({path:join(evidence,'06-presupuesto-parcial.png'),fullPage:true});
     await missing.getByLabel('Cantidad faltante (m3)',{exact:true}).fill('1.6');
-    await missing.getByLabel('Referencia de la medición',{exact:true}).fill('Levantamiento de prueba revisado');
+    await missing.locator('fieldset').filter({has:page.getByLabel('Cantidad faltante (m3)',{exact:true})})
+      .getByLabel('Referencia de la medición',{exact:true}).fill('Levantamiento de prueba revisado');
     await page.getByRole('button',{name:'Generar presupuesto',exact:true}).click();
     await budgetReview.getByText(/Mediciones completas: 2 de 2 elementos medidos/).waitFor();
     await budgetReview.getByText('$500.00',{exact:true}).first().waitFor();
     await page.screenshot({path:join(evidence,'07-mediciones-completadas.png'),fullPage:true});
+    // Operational coverage uses a real synthetic IFC with an aggregate and two pending types.
+    const [coverageUpload]=await Promise.all([
+      page.waitForResponse(r=>r.request().method()==='POST'&&new URL(r.url()).pathname.endsWith('/modelos')),
+      page.getByLabel('Subir archivo IFC').setInputFiles(join(backend,'tests/fixtures/ifc/coverage_assemblies.ifc')),
+    ]);
+    assert.equal(coverageUpload.status(),200);
+    const coverageModel=await coverageUpload.json();
+    await page.getByText('2 de 2 elementos visibles',{exact:true}).waitFor({timeout:60000});
+    assert.equal(await page.locator('details.bim-coverage').count(),1,'Changing the model must not leave duplicate coverage panels');
+    await page.locator('summary:visible').filter({hasText:/^Cobertura y decisiones por revisión$/}).click();
+    const coverageRegion=page.getByRole('region',{name:'Cobertura IFC por revisión'});
+    await coverageRegion.getByRole('button',{name:'Incorporar IfcMember e IfcPlate',exact:true}).waitFor();
+    const oldCoverage=await (await page.request.get(`${apiOrigin}/api/v1/bim/${model.expediente_id}/modelos/${coverageModel.id}/cobertura`)).json();
+    const familyRow=coverageRegion.getByRole('list',{name:'Productos de la revisión'}).getByRole('listitem').filter({hasText:'Conjunto sintético de cobertura'});
+    await familyRow.getByRole('button',{name:'Revisar medición de esta familia',exact:true}).click();
+    await coverageRegion.getByRole('button',{name:'Guardar propuesta',exact:true}).click();
+    await coverageRegion.getByText(/Propuesta guardada/).waitFor();
+    assert.equal(await coverageRegion.getByRole('button',{name:'Confirmar decisión con sustento',exact:true}).isDisabled(),true);
+    await coverageRegion.getByRole('button',{name:'Incorporar IfcMember e IfcPlate',exact:true}).click();
+    await page.getByText('4 de 4 elementos visibles',{exact:true}).waitFor({timeout:60000});
+    await page.reload();
+    await page.locator('summary:visible').filter({hasText:/^Cobertura y decisiones por revisión$/}).click({timeout:60000});
+    await coverageRegion.getByLabel('Revisión del modelo',{exact:true}).selectOption(oldCoverage.revision_id);
+    await coverageRegion.getByText(/Revisión histórica/).waitFor();
+    await coverageRegion.getByText(/Cambió la revisión del modelo/).waitFor();
+    assert.equal(await coverageRegion.getByRole('button',{name:'Crear versión del presupuesto con decisiones',exact:true}).isDisabled(),true);
+    await coverageRegion.getByText(/Cambió la revisión del modelo/).scrollIntoViewIfNeeded();
+    await page.screenshot({path:join(evidence,'08-cobertura-historica-propuesta-obsoleta.png'),fullPage:true});
     const readerContext=await browser.newContext({viewport:{width:1440,height:1000}});
     try {
       const readerPage=await readerContext.newPage();
       await login(readerPage,credentials.reader);
       await readerPage.getByRole('navigation').getByRole('button',{name:'Proyectos',exact:true}).click();
-      await readerPage.getByRole('button',{name:/Obra sintética de aceptación BIM/}).click();
+      // Repeated runs may leave other synthetic obras with the same title.
+      await readerPage.getByRole('button').filter({has:readerPage.getByText(createdObra.identificador,{exact:true})}).click();
       await readerPage.getByRole('button',{name:'Calculadora BIM',exact:true}).click();
       await readerPage.getByLabel('Subir archivo IFC').waitFor({state:'attached'});
       assert.equal(await readerPage.getByLabel('Subir archivo IFC').isDisabled(),true);

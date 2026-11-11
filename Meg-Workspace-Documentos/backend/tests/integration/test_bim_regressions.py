@@ -7,7 +7,7 @@ import pytest
 from sqlalchemy import select
 
 from app.core.errors import MegalodonException
-from app.models.bim import ModeloBIM, ElementoBIM
+from app.models.bim import AnalisisClash, ClashResult, ModeloBIM, ElementoBIM
 from app.models.presupuesto import Presupuesto, Partida
 from app.services.bim_service import BIMService
 from app.services.presupuesto_service import PresupuestoService
@@ -283,3 +283,76 @@ async def test_mapping_locks_budget_identity_until_commit_postgres(db_session, t
         with pytest.raises(IntegrityError, match='BIM: partida fuera'):
             await moving.execute(text('UPDATE presupuestos SET expediente_id=:other WHERE id=:budget'), ids)
         await moving.rollback()
+
+@pytest.mark.asyncio
+async def test_clash_state_requires_the_owning_project(async_client, db_session, tenant_a_user):
+    from tests.conftest import _login
+
+    tenant, user = tenant_a_user
+    other_project, _ = await model(db_session, tenant, user)
+    project, bim_model = await model(db_session, tenant, user)
+    walls = [
+        ElementoBIM(modelo_id=bim_model.id, global_id=uuid4().hex, express_id=i, tipo="IfcWall")
+        for i in (1, 2)
+    ]
+    analysis = AnalisisClash(tenant_id=tenant.id, modelo_id=bim_model.id)
+    db_session.add_all([analysis, *walls])
+    await db_session.flush()
+    clash = ClashResult(
+        analisis_id=analysis.id, modelo_id=bim_model.id,
+        elemento_a_id=walls[0].id, elemento_b_id=walls[1].id,
+        tipo_a="IfcWall", tipo_b="IfcWall", severidad="DURO", distancia_m=0,
+        punto_cercano_a=[0, 0, 0], punto_cercano_b=[0, 0, 0],
+    )
+    db_session.add(clash)
+    await db_session.commit()
+    headers = await _login(async_client, user.email)
+    suffix = f"/clash-resultados/{clash.id}/estado"
+
+    denied = await async_client.patch(
+        f"/api/v1/bim/{other_project.id}{suffix}", json={"estado": "RESUELTO"}, headers=headers,
+    )
+    assert denied.status_code == 404
+    await db_session.refresh(clash)
+    assert clash.estado == "NUEVO"
+
+    accepted = await async_client.patch(
+        f"/api/v1/bim/{project.id}{suffix}", json={"estado": "RESUELTO"}, headers=headers,
+    )
+    assert accepted.status_code == 200, accepted.text
+    await db_session.refresh(clash)
+    assert clash.estado == "RESUELTO"
+
+
+@pytest.mark.asyncio
+async def test_zone_by_level_updates_beyond_one_viewer_page(async_client, db_session, tenant_a_user):
+    from tests.conftest import _login
+
+    tenant, user = tenant_a_user
+    expediente, bim_model = await model(db_session, tenant, user)
+    _, other_model = await model(db_session, tenant, user)
+    db_session.add_all([
+        ElementoBIM(modelo_id=bim_model.id, global_id=uuid4().hex, express_id=i,
+                    tipo="IfcWall", nivel="PB")
+        for i in range(501)
+    ])
+    db_session.add_all([
+        ElementoBIM(modelo_id=bim_model.id, global_id=uuid4().hex, express_id=501,
+                    tipo="IfcWall", nivel="PA"),
+        ElementoBIM(modelo_id=other_model.id, global_id=uuid4().hex, express_id=1,
+                    tipo="IfcWall", nivel="PB"),
+    ])
+    await db_session.commit()
+
+    response = await async_client.post(
+        f"/api/v1/bim/{expediente.id}/modelos/{bim_model.id}/zonas-4d",
+        json={"zona_4d": "Frente A", "nivel": "PB"},
+        headers=await _login(async_client, user.email),
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["elementos_actualizados"] == 501
+    zoned = (await db_session.scalars(
+        select(ElementoBIM).where(ElementoBIM.zona_4d == "Frente A", ElementoBIM.modelo_id == bim_model.id)
+    )).all()
+    assert len(zoned) == 501
+    assert all(element.modelo_id == bim_model.id and element.nivel == "PB" for element in zoned)

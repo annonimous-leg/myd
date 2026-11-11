@@ -573,6 +573,7 @@ export interface ModeloBIM {
   niveles?: string[];
   version_ifc?: string;
   error_procesamiento?: string;
+  revision_actual_id?: string | null;
 }
 
 export interface ElementoBIM {
@@ -1098,11 +1099,15 @@ export interface Presupuesto {
   factor_cargos_adicionales: number;
   factor_impuesto: number;
   factor_riesgo?: number | null;
+  fuentes_bim_obsoletas?: boolean;
   metadatos?: {
     parametros_costeo?: ParametrosCosteoSnapshot;
     topografia_cobertura?: CoberturaTopografia;
     topografia_evidencia?: EvidenciaTopografia;
     bim_cobertura?: { completa: boolean; elementos_totales: number; elementos_medidos: number;
+      decisiones_ids?: string[];
+      volumenes_geometricos_pendientes?: string[];
+      conflictos_conjuntos?: Array<{ padre_global_id: string; componente_global_id: string }>;
       elementos_pendientes: string[]; capturas: Array<{ elemento_id: string; unidad: string;
         cantidad: number; referencia: string; usuario_id: string; capturado_en: string }> };
     [key: string]: unknown;
@@ -1281,6 +1286,25 @@ export type SolicitudPlanoBIM = { titulo: string } & (
   | { tipo: "ELEVATION"; parametros: OpcionesLaminaA3 & { direccion_vista: [number, number, number]; mostrar_ocultas?: boolean } }
 );
 
+export interface CoberturaProductoBIM {
+  global_id: string; tipo: string; nombre: string | null; admitido: boolean; malla_disponible: boolean;
+  estado_cobertura: string; causa: string | null; cubierto_por: string[]; padres: string[];
+  componentes: string[]; descendientes: string[]; regla_candidata: string; tratamiento_adicional: string;
+}
+export interface CoberturaRevisionBIM {
+  revision_id: string; actual: boolean; modelo_estado: string; fuente_sha256: string; geometria_sha256: string;
+  tipos_admitidos: string[]; incorporables: string[]; tipos_pendientes: Record<string,number>; resumen: Record<string,number>;
+  total: number; items: CoberturaProductoBIM[];
+}
+export interface LineaDecisionBIM {
+  global_id: string; catalogo_apu_id: string | null; cantidad: string; referencia_medicion: string; alcance: string;
+}
+export interface DecisionMedicionBIM {
+  id: string; revision_id: string; familia_global_id: string; version: number; criterio: 'PADRE'|'COMPONENTES';
+  estado: 'BORRADOR'|'VIGENTE'|'OBSOLETA'; causas: string[]; usuario_id: string; usuario_nombre?: string; familia_nombre?: string; creado_en: string;
+  datos: { lineas: LineaDecisionBIM[]; exclusiones: Record<string,string>; referencia_contractual: string;
+    documento: {id:string} | null };
+}
 export class MegalodonClient {
   private baseUrl: string;
   private token: string | null = null;
@@ -1664,6 +1688,22 @@ export class MegalodonClient {
   }
 
   bim = {
+    revisiones: (exp:string, model:string): Promise<Array<{id:string;actual:boolean;creado_en:string;fuente_sha256:string}>> =>
+      this.request('GET', `/bim/${exp}/modelos/${model}/revisiones`),
+    cobertura: (exp:string, model:string, revision:string, estado:string, skip:number): Promise<CoberturaRevisionBIM> =>
+      this.request('GET', `/bim/${exp}/modelos/${model}/cobertura?${new URLSearchParams({...(revision?{revision_id:revision}:{}),...(estado?{estado}:{}),skip:String(skip),limit:'50'})}`),
+    familia: (exp:string, model:string, gid:string, revision:string): Promise<CoberturaProductoBIM[]> =>
+      this.request('GET', `/bim/${exp}/modelos/${model}/familias/${encodeURIComponent(gid)}?revision_id=${revision}`),
+    referenciasContractuales: (exp:string, model:string): Promise<Array<{id:string;nombre:string;tipo:string}>> =>
+      this.request('GET', `/bim/${exp}/modelos/${model}/referencias-contractuales`),
+    decisionesMedicion: (exp:string, model:string, revision:string): Promise<DecisionMedicionBIM[]> =>
+      this.request('GET', `/bim/${exp}/modelos/${model}/decisiones-medicion?revision_id=${revision}`),
+    guardarDecision: (exp:string, model:string, data: {revision_id:string;familia_global_id:string;criterio:'PADRE'|'COMPONENTES';confirmar:boolean;lineas:LineaDecisionBIM[];referencia_contractual:string;documento_id:string|null;exclusiones:Record<string,string>}) =>
+      this.request('POST', `/bim/${exp}/modelos/${model}/decisiones-medicion`, data),
+    incorporarTipos: (exp:string, model:string, revision:string, tipos:string[]): Promise<ModeloBIM> =>
+      this.request('POST', `/bim/${exp}/modelos/${model}/incorporar-tipos`, {revision_id:revision,tipos}),
+    presupuestoDecisiones: (exp:string, model:string, ids:string[], parametros:ParametrosCosteoInput): Promise<Presupuesto> =>
+      this.request('POST', `/bim/${exp}/modelos/${model}/presupuesto-decisiones`, {decisiones_ids:ids,parametros_costeo:parametros}),
     listarPlanos: (expedienteId: string, modelId: string) =>
       this.request<{
         id: string; titulo: string; tipo: SolicitudPlanoBIM["tipo"]; estado: string;
@@ -1810,7 +1850,7 @@ export class MegalodonClient {
     asignarZonas4d: async (
       expedienteId: string,
       modeloId: string,
-      asignaciones: Array<{ elemento_id: string; zona_4d: string }>,
+      asignaciones: Array<{ elemento_id: string; zona_4d: string }> | { zona_4d: string; nivel: string | null },
     ): Promise<{ elementos_actualizados: number }> => {
       return this.request("POST", `/bim/${expedienteId}/modelos/${modeloId}/zonas-4d`, asignaciones);
     },
@@ -1861,6 +1901,18 @@ export class MegalodonClient {
       modeloId: string,
     ): Promise<{ url: string; expira_en_segundos: number }> => {
       return this.request("GET", `/bim/${expedienteId}/modelos/${modeloId}/descarga`);
+    },
+
+    descargarModeloOriginal: async (expedienteId: string, modeloId: string) => {
+      const result = await this.bim.descargarModeloUrl(expedienteId, modeloId);
+      if (result.expira_en_segundos !== 0) return { url: result.url };
+
+      const path = `/api/v1/bim/${encodeURIComponent(expedienteId)}/modelos/${encodeURIComponent(modeloId)}/archivo`;
+      const headers: Record<string, string> = {};
+      if (this.token) headers.Authorization = `Bearer ${this.token}`;
+      const response = await this.fetchWithSession(`${this.baseUrl}${path}`, { headers, credentials: "include" });
+      if (!response.ok) throw new Error(`No se pudo descargar el IFC (HTTP ${response.status})`);
+      return { blob: await response.blob() };
     },
 
     /** Corre clash detection real entre todos los elementos del modelo.

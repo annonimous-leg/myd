@@ -1,3 +1,5 @@
+import './bim-studio.css';
+import { IFC_VIEW_ROTATION } from './bim-view';
 /**
  * Copyright © 2026 Cristian Rodriguez
  * All rights reserved.
@@ -5,17 +7,19 @@
  * without prior written permission.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import PresupuestoPanel from './PresupuestoPanel';
 import PlanosA3 from './PlanosA3';
+import CoberturaBIM from './CoberturaBIM';
 import CronogramaBim from './CronogramaBim';
 import CantidadesComplementarias, { faltantesDeMedicion, type CapturaCantidad } from './CantidadesComplementarias';
 import { abrirModulo } from '@/lib/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { permisosBim } from '@/lib/bim-permissions';
 import { Calculator, Upload, Loader2, AlertCircle, FolderKanban, Box, FileWarning, ShieldAlert, CheckCircle2, AlertTriangle, Layers, Search, Link2 } from 'lucide-react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Bounds } from '@react-three/drei';
+import { Canvas, useThree } from '@react-three/fiber';
+import { OrbitControls, Bounds, useBounds } from '@react-three/drei';
+import { PerspectiveCamera, Vector3 } from 'three';
 import { megalodonClient } from '@/lib/api-client';
 import { useExpedienteStore } from '@/stores/useExpedienteStore';
 import type { ModeloBIM, ElementoBIM, AnalisisClash, ClashResult, GeneracionBIM4D5D, CatalogoAPUOut, Presupuesto } from '@/lib/megalodon-client';
@@ -47,21 +51,53 @@ const COLOR_POR_TIPO: Record<string, string> = {
 };
 const COLOR_DEFAULT = '#8899aa';
 
+function EnmarcarModelo({ revision, vista }: { revision: string; vista: '2d' | '3d' }) {
+  const bounds = useBounds();
+  const { camera, controls, size, invalidate } = useThree();
+  useLayoutEffect(() => {
+    if (!controls) return;
+    const { box, center, distance: defaultDistance } = bounds.refresh().getSize();
+    let distance = defaultDistance;
+    if (camera instanceof PerspectiveCamera) {
+      // Fit every corner inside the narrower field of view, even for small offset models.
+      const halfHeightFov = camera.getEffectiveFOV() * Math.PI / 360;
+      const halfWidthFov = Math.atan(Math.tan(halfHeightFov) * camera.aspect);
+      const radius = box.getSize(new Vector3()).length() / 2;
+      distance = radius / Math.sin(Math.min(halfHeightFov, halfWidthFov)) * 1.3;
+    }
+    if (box.isEmpty() || !Number.isFinite(distance) || distance <= 0) return;
+    // Start above the model, including when its IFC elevation is far from zero.
+    const direction = vista === '2d' ? new Vector3(0, 1, 0) : new Vector3(1, 1, 1).normalize();
+    camera.up.set(0, vista === '2d' ? 0 : 1, vista === '2d' ? -1 : 0);
+    camera.position.copy(center).addScaledVector(direction, distance);
+    camera.lookAt(center);
+    camera.updateMatrixWorld();
+    const orbit = controls as unknown as { target?: Vector3; update?: () => void } | undefined;
+    orbit?.target?.copy(center);
+    orbit?.update?.();
+    bounds.refresh().clip();
+    if (!(camera instanceof PerspectiveCamera)) bounds.fit();
+    invalidate();
+  }, [bounds, camera, controls, revision, vista, size.width, size.height, invalidate]);
+  return null;
+}
+
 function ElementoMesh({
-  elemento, seleccionado, wireframe, onSelect, enClash = false,
+  elemento, seleccionado, wireframe, onSelect, enClash = false, customColor,
 }: {
   elemento: ElementoBIM;
   seleccionado: boolean;
   wireframe: boolean;
   onSelect: (el: ElementoBIM) => void;
   enClash?: boolean;
+  customColor?: string;
 }) {
   if (!elemento.malla_vertices?.length || !elemento.malla_caras?.length) return null;
   const color = seleccionado
     ? '#ffd166'
     : enClash
       ? '#ef4444'
-      : (COLOR_POR_TIPO[elemento.tipo] || COLOR_DEFAULT);
+      : (customColor || COLOR_POR_TIPO[elemento.tipo] || COLOR_DEFAULT);
   return (
     <mesh
       onClick={(e) => { e.stopPropagation(); onSelect(elemento); }}
@@ -109,6 +145,10 @@ function IFCPanel() {
   const [nivelFiltro, setNivelFiltro] = useState<string>('__todos__');
   const [vista, setVista] = useState<'3d' | '2d'>('3d');
   const [wireframe, setWireframe] = useState(false);
+  const [hiddenTypes, setHiddenTypes] = useState<Set<string>>(new Set());
+  const [viewColors, setViewColors] = useState<Record<string, string>>({});
+  const [viewRotation, setViewRotation] = useState(0);
+  const [downloadBusy, setDownloadBusy] = useState(false);
   const [seleccionado, setSeleccionado] = useState<ElementoBIM | null>(null);
   // FIX P1 auditoría BIM 2026-09-14 (Caso 2 "mapear-partidas"): el backend
   // ya tenía POST /mapear-partidas y el cliente ya tenía
@@ -171,7 +211,9 @@ function IFCPanel() {
     if (!expedienteActivo) return;
     const current = ++requestId.current;
     setProcesando(true); setError(''); setModelo(selected); setElementos([]);
+    setAsignandoZona(false); setMensajeZona('');
     setSeleccionado(null); setNivelFiltro('__todos__'); setGeneracion4D(null);
+    setHiddenTypes(new Set()); setViewColors({}); setViewRotation(0);
     setMapeoCatalogo({}); setMapeoCatalogoElementos({});
     setResultadosCatalogo({}); setBusquedaCatalogo({}); setErroresCatalogo({});
     setAnalisis(null); setClashes([]); setClashesResaltados(new Set()); setTrabajos([]);
@@ -190,10 +232,11 @@ function IFCPanel() {
           { incluirMalla:true, limit:500, offset:all.length });
         if (current !== requestId.current) return;
         all.push(...page);
+        if (page.length > 0) setElementos(previous => [...previous, ...page]);
         if (page.length < 500) break;
       }
-      setElementos(all);
       if (ready.num_elementos > all.length) setError(`Se muestran ${all.length} de ${ready.num_elementos} elementos. El presupuesto utiliza el modelo completo.`);
+      setProcesando(false);
       const history = await megalodonClient.bim.listarGeneraciones(expedienteActivo.id, ready.id);
       if (current !== requestId.current) return;
       const generation = history[0];
@@ -316,7 +359,9 @@ function IFCPanel() {
         expedienteActivo.id, resultadoId, estado
       );
       setClashes(prev => prev.map(c => c.id === resultadoId ? actualizado : c));
-    } catch { /* silencioso */ }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo guardar el estado de la interferencia');
+    }
   };
 
   // --- 5D: buscar en el catálogo real y mapear un tipo a un concepto ---
@@ -396,18 +441,26 @@ function IFCPanel() {
   // --- 4D: asignar zona de trabajo a los elementos del nivel filtrado ---
   const handleAsignarZona = async () => {
     if (!expedienteActivo || !modelo || !zonaInput.trim()) return;
+    const current = requestId.current;
+    const nivel = nivelFiltro === '__todos__' ? null : nivelFiltro;
+    const zona = zonaInput.trim();
     setAsignandoZona(true);
     setMensajeZona('');
     try {
-      const objetivo = nivelFiltro === '__todos__' ? elementos : elementos.filter((el) => (el.nivel || 'Sin nivel') === nivelFiltro);
-      const asignaciones = objetivo.map((el) => ({ elemento_id: el.id, zona_4d: zonaInput.trim() }));
-      const { elementos_actualizados } = await megalodonClient.bim.asignarZonas4d(expedienteActivo.id, modelo.id, asignaciones);
-      setElementos((prev) => prev.map((el) => (objetivo.some((o) => o.id === el.id) ? { ...el, zona_4d: zonaInput.trim() } : el)));
-      setMensajeZona(`Zona "${zonaInput.trim()}" asignada a ${elementos_actualizados} elemento(s).`);
+      const { elementos_actualizados } = await megalodonClient.bim.asignarZonas4d(
+        expedienteActivo.id, modelo.id, { nivel, zona_4d: zona },
+      );
+      if (current !== requestId.current) return;
+      setElementos(prev => prev.map(el => (
+        nivel === null || (el.nivel || 'Sin nivel') === nivel ? { ...el, zona_4d: zona } : el
+      )));
+      setMensajeZona(`Zona "${zona}" asignada a ${elementos_actualizados} elemento(s).`);
     } catch (e) {
-      setMensajeZona(e instanceof Error ? e.message : 'No se pudo asignar la zona');
+      if (current === requestId.current) {
+        setMensajeZona(e instanceof Error ? e.message : 'No se pudo asignar la zona');
+      }
     } finally {
-      setAsignandoZona(false);
+      if (current === requestId.current) setAsignandoZona(false);
     }
   };
 
@@ -446,13 +499,27 @@ function IFCPanel() {
   useEffect(() => {
     if (!expedienteActivo || !modelo) return;
     let active = true;
-    const load = () => megalodonClient.bim.listarTrabajos(expedienteActivo.id, modelo.id)
-      .then(list => { if (active) setTrabajos(list); })
-      .catch(e => { if (active) setError(e instanceof Error ? e.message : 'No se pudo consultar el procesamiento'); });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const load = async () => {
+      try {
+        const list = await megalodonClient.bim.listarTrabajos(expedienteActivo.id, modelo.id);
+        if (!active) return;
+        setTrabajos(list);
+        if (!procesando && !['COMPLETADO', 'ERROR'].includes(modelo.estado_procesamiento)) {
+          const latest = await megalodonClient.bim.obtenerModelo(expedienteActivo.id, modelo.id);
+          if (active && ['COMPLETADO', 'ERROR'].includes(latest.estado_procesamiento)) {
+            void cargarModelo(latest);
+            return;
+          }
+        }
+      } catch (e) {
+        if (active) setError(e instanceof Error ? e.message : 'No se pudo consultar el procesamiento');
+      }
+      if (active) timer = setTimeout(load, 5000);
+    };
     void load();
-    const interval = setInterval(load, 5000);
-    return () => { active = false; clearInterval(interval); };
-  }, [expedienteActivo?.id, modelo?.id]);
+    return () => { active = false; clearTimeout(timer); };
+  }, [expedienteActivo?.id, modelo?.id, modelo?.estado_procesamiento, procesando]);
 
   const reintentar = async (id: string) => {
     if (!expedienteActivo || !modelo || !canWrite) return;
@@ -480,6 +547,8 @@ function IFCPanel() {
     ? elementos
     : elementos.filter((el) => (el.nivel || 'Sin nivel') === nivelFiltro);
 
+  const elementosEnVista = elementosVisibles.filter(el => !hiddenTypes.has(el.tipo));
+
   const resumenPorTipo = elementosVisibles.reduce<Record<string, { cantidad: number; volumen: number; area: number }>>((acc, el) => {
     const r = acc[el.tipo] || { cantidad: 0, volumen: 0, area: 0 };
     r.cantidad += 1;
@@ -496,13 +565,13 @@ function IFCPanel() {
   const selectedElementSearchKey = seleccionado ? 'elemento:' + seleccionado.id : null;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-3 py-2 gap-2" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+    <div className="bim-studio flex-1 flex flex-col overflow-hidden">
+      <div className="bim-studio-header flex items-center justify-between px-3 py-2 gap-2" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        <div className="min-w-0 flex items-center gap-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
           <FolderKanban size={12} style={{ color: 'var(--accent-gold)' }} />
-          Expediente activo: <span style={{ color: 'var(--text-primary)' }}>{expedienteActivo.titulo}</span>
+          <div className="bim-studio-title"><span className="bim-studio-eyebrow">MEGALODON / INGENIERÍA</span><h1>BIM + CostOS</h1><span>{expedienteActivo.titulo}</span></div>
         </div>
-        <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors"
+        <label className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium cursor-pointer transition-colors"
           style={{ background: 'var(--accent-gold)', color: 'var(--void)' }}>
           {procesando ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
           {procesando ? 'Procesando...' : 'Subir IFC'}
@@ -517,7 +586,7 @@ function IFCPanel() {
         </label>
       </div>
 
-      <div className="shrink-0 p-3 space-y-2 border-b border-(--border-subtle) text-xs">
+      <div className="bim-studio-workflow shrink-0 p-3 space-y-2 border-b border-(--border-subtle) text-xs">
         <p className="text-(--text-secondary)">Sube o abre un modelo, revisa sus cantidades y continúa con el presupuesto y el cronograma.</p>
         {!!modelos.length && <label className="flex items-center gap-2">Modelo de esta obra
           <select aria-label="Modelo de esta obra" value={modelo?.id || ''} disabled={procesando}
@@ -529,13 +598,19 @@ function IFCPanel() {
           <button className="p-2 border rounded border-(--border-subtle)" disabled={procesando || !modelo}
             onClick={() => modelo && void megalodonClient.bim.obtenerModelo(expedienteActivo.id, modelo.id).then(cargarModelo).catch(e => setError(e.message))}>Actualizar</button>
         </label>}
-        <nav aria-label="Pasos de trabajo BIM" className="flex flex-wrap gap-2">
-          <button className="p-2 rounded bg-(--surface-elevated)" disabled={!elementos.length} onClick={() => setTabDerecho('resumen')}>1. Revisar cantidades</button>
-          <button className="p-2 rounded bg-(--surface-elevated)" disabled={!elementos.length} onClick={() => setTabDerecho('presupuesto5d')}>2. Preparar presupuesto</button>
-          <button className="p-2 rounded bg-(--surface-elevated)" disabled={!elementos.length} onClick={() => setTabDerecho('cronograma4d')}>3. Crear cronograma</button>
+        <nav aria-label="Pasos de trabajo BIM" className="bim-studio-steps flex flex-wrap gap-2">
+          <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'resumen'} disabled={!elementos.length} onClick={() => setTabDerecho('resumen')}>1. Revisar cantidades</button>
+          <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'presupuesto5d'} disabled={!elementos.length} onClick={() => setTabDerecho('presupuesto5d')}>2. Preparar presupuesto</button>
+          <button className="p-2 rounded bg-(--surface-elevated)" aria-pressed={tabDerecho === 'cronograma4d'} disabled={!elementos.length} onClick={() => setTabDerecho('cronograma4d')}>3. Crear cronograma</button>
         </nav>
+        {modelo && <CoberturaBIM key={`coverage:${modelo.id}`} expedienteId={expedienteActivo.id} modelo={modelo} canWrite={canWrite}
+          onProcessed={next=>void cargarModelo(next)}
+          onBudget={budget=>{setNuevoPresupuestoId(budget.id);setPresupuestosDisponibles(previous=>[budget,...previous]);setTabDerecho('presupuesto5d');}}
+          parametros={reference=>({factor_indirecto:factorIndirecto,factor_financiamiento:factorFinanciamiento,
+            factor_utilidad:factorUtilidad,factor_cargos_adicionales:factorCargosAdicionales,
+            factor_impuesto:factorImpuesto,factor_riesgo:0,fuente:'CAPTURA_USUARIO',referencia:reference})} />}
         {modelo?.estado_procesamiento === 'COMPLETADO' &&
-          <PlanosA3 key={modelo.id} expedienteId={expedienteActivo.id} modeloId={modelo.id} canWrite={canWrite} />}
+          <PlanosA3 key={`drawings:${modelo.id}`} expedienteId={expedienteActivo.id} modeloId={modelo.id} canWrite={canWrite} />}
         {procesando && <p role="status">Preparando el modelo… Puedes salir y volver: el trabajo seguirá guardado.</p>}
         {modelo?.estado_procesamiento === 'ERROR' && canWrite && !trabajos.some(j => j.tipo === 'BIM_IFC') &&
           <button className="p-2 border rounded border-(--border-subtle)" onClick={() =>
@@ -544,7 +619,7 @@ function IFCPanel() {
           </button>}
         {!canWrite && <p>Tu cuenta permite consultar esta obra. Un técnico puede cargar o modificar el modelo.</p>}
         {trabajos.filter(j => j.estado !== 'COMPLETADO').map(j => <div key={j.id} className="flex gap-2 items-center" role="status">
-          <span>{j.tipo === 'BIM_IFC' ? 'Modelo' : j.tipo === 'BIM_4D' ? 'Cronograma' : 'Interferencias'}: {j.estado === 'ERROR' ? 'Requiere atención' : 'En preparación'}. {j.mensaje || 'Continuará automáticamente.'}</span>
+          <span>{j.tipo === 'BIM_IFC' ? 'Modelo' : j.tipo === 'BIM_4D' ? 'Cronograma' : j.tipo === 'BIM_DRAWING' ? 'Plano' : j.tipo === 'BIM_DRAWING_CLEANUP' ? 'Limpieza de plano' : 'Interferencias'}: {j.estado === 'ERROR' ? 'Requiere atención' : 'En preparación'}. {j.mensaje || 'Continuará automáticamente.'}</span>
           {j.estado === 'ERROR' && canWrite && <button className="p-2 border rounded border-(--border-subtle)" onClick={() => void reintentar(j.id)}>Reintentar trabajo</button>}
         </div>)}
       </div>
@@ -563,11 +638,17 @@ function IFCPanel() {
       )}
 
       {modelo && elementos.length > 0 && (
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="bim-studio-model min-h-0 flex-1 flex flex-col overflow-hidden">
+          {procesando && (
+            <p role="status" className="px-3 py-1 text-xs text-(--text-secondary)">
+              Cargando geometría · {elementos.length} de {modelo.num_elementos} elementos
+            </p>
+          )}
           {/* Barra de controles del visor */}
           <div className="flex items-center gap-2 px-3 py-1.5 flex-wrap" style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--surface)' }}>
             {modelo.niveles && modelo.niveles.length > 0 && (
               <select
+                aria-label="Filtrar por nivel"
                 value={nivelFiltro}
                 onChange={(e) => { setNivelFiltro(e.target.value); setSeleccionado(null); }}
                 className="text-[11px] rounded px-2 py-1"
@@ -582,6 +663,7 @@ function IFCPanel() {
               {(['3d', '2d'] as const).map((v) => (
                 <button
                   key={v}
+                  aria-pressed={vista === v}
                   onClick={() => setVista(v)}
                   className="px-2 py-1 text-[11px] font-medium transition-colors"
                   style={{
@@ -595,6 +677,7 @@ function IFCPanel() {
             </div>
 
             <button
+              aria-pressed={wireframe}
               onClick={() => setWireframe(!wireframe)}
               className="flex items-center gap-1 px-2 py-1 rounded text-[11px] transition-colors"
               style={{
@@ -607,40 +690,79 @@ function IFCPanel() {
             </button>
 
             <span className="text-[10px] ml-auto" style={{ color: 'var(--text-muted)' }}>
-              {elementosVisibles.length} de {elementos.length} elementos
+              {elementosEnVista.length} de {elementos.length} elementos visibles
             </span>
           </div>
 
-          <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
-            <div className="w-full lg:w-1/2 h-[340px] lg:h-full shrink-0 relative" style={{ background: '#05050a' }}>
+          <details className="bim-studio-view-tools shrink-0">
+            <summary>Herramientas de vista</summary>
+            <div>
+              <p>Oculta elementos o cambia su presentación para revisar el interior. Las cantidades y el IFC original se conservan.</p>
+              <div className="bim-studio-type-controls">
+                {tiposDelModelo.map(tipo => <div key={tipo}>
+                  <label><input type="checkbox" checked={!hiddenTypes.has(tipo)} onChange={e => {
+                    setHiddenTypes(previous => { const next = new Set(previous); if (e.target.checked) next.delete(tipo); else next.add(tipo); return next; });
+                    setSeleccionado(null);
+                  }} /> Mostrar {tipo}</label>
+                  <input type="color" aria-label={`Color de ${tipo}`} value={viewColors[tipo] || COLOR_POR_TIPO[tipo] || COLOR_DEFAULT}
+                    onChange={e => setViewColors(previous => ({ ...previous, [tipo]: e.target.value }))} />
+                </div>)}
+              </div>
+              <label>Giro del modelo <input type="range" aria-label="Giro del modelo" min="0" max="360" step="15" value={viewRotation} onChange={e => setViewRotation(Number(e.target.value))} /> {viewRotation}°</label>
+              <button type="button" onClick={() => { setHiddenTypes(new Set()); setViewColors({}); setViewRotation(0); setWireframe(false); }}>Restablecer vista</button>
+              <button type="button" disabled={downloadBusy} onClick={async () => {
+                setDownloadBusy(true);
+                try {
+                  const archivo = await megalodonClient.bim.descargarModeloOriginal(expedienteActivo.id, modelo.id);
+                  const blobUrl = archivo.blob ? URL.createObjectURL(archivo.blob) : undefined;
+                  const link = document.createElement('a');
+                  link.href = blobUrl ?? archivo.url!;
+                  link.download = `${modelo.nombre}.ifc`;
+                  link.rel = 'noopener';
+                  link.click();
+                  if (blobUrl) setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+                } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo descargar el IFC'); }
+                finally { setDownloadBusy(false); }
+              }}>{downloadBusy ? 'Preparando descarga…' : 'Descargar IFC original'}</button>
+            </div>
+          </details>
+
+          <div className="bim-studio-panels flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+            <div className="bim-studio-viewport w-full lg:w-1/2 h-[340px] lg:h-full shrink-0 relative">
               {/* key={vista} fuerza remount de Canvas al cambiar de
                   proyección -- cambiar de perspectiva a ortográfica en la
                   misma cámara da resultados raros con Bounds/fit. */}
               <Canvas key={vista} orthographic={vista === '2d'} camera={vista === '2d' ? { position: [0, 100, 0], zoom: 8 } : { position: [10, 10, 10], fov: 50 }}>
                 <ambientLight intensity={0.7} />
                 <directionalLight position={[10, 15, 10]} intensity={0.8} />
-                <Bounds fit clip observe margin={1.3}>
-                  {elementosVisibles.map((el) => (
+                <Bounds margin={1.3} maxDuration={0}>
+                  <EnmarcarModelo vista={vista} revision={`${modelo.id}:${nivelFiltro}:${elementosEnVista.length}:${viewRotation}:${[...hiddenTypes].sort().join(',')}`} />
+                  <group rotation={[0, viewRotation * Math.PI / 180, 0]}>
+                  <group rotation={IFC_VIEW_ROTATION}>
+                  {elementosEnVista.map((el) => (
                     <ElementoMesh
                       key={el.id}
                       elemento={el}
+                      customColor={viewColors[el.tipo]}
                       seleccionado={seleccionado?.id === el.id}
                       wireframe={wireframe}
                       onSelect={setSeleccionado}
                       enClash={clashesResaltados.has(el.id)}
                     />
                   ))}
+                  </group>
+                  </group>
                 </Bounds>
-                <OrbitControls enableRotate={vista === '3d'} />
+                <OrbitControls makeDefault enableRotate={vista === '3d'} />
                 {vista === '3d' && <gridHelper args={[50, 50]} />}
               </Canvas>
 
               {seleccionado && (
                 <div className="absolute bottom-2 left-2 right-2 rounded-md p-2 text-[11px]"
-                  style={{ background: 'rgba(10,10,15,0.9)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
+                  style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-semibold">{seleccionado.nombre || seleccionado.tipo}</span>
-                    <button onClick={() => setSeleccionado(null)} style={{ color: 'var(--text-muted)' }}>✕</button>
+                    <button aria-label="Cerrar detalle del elemento" onClick={() => setSeleccionado(null)} style={{ color: 'var(--text-muted)' }}>✕</button>
                   </div>
                   <div style={{ color: 'var(--text-muted)' }}>
                     {seleccionado.tipo}{seleccionado.nivel ? ` · ${seleccionado.nivel}` : ''}
@@ -707,12 +829,13 @@ function IFCPanel() {
               )}
             </div>
 
-            <div className="w-full lg:w-1/2 min-h-[400px] lg:min-h-0 lg:h-full flex flex-col overflow-hidden">
+            <div className="bim-studio-inspector w-full lg:w-1/2 min-h-[400px] lg:min-h-0 lg:h-full flex flex-col overflow-hidden">
               {/* Tabs panel derecho */}
               <div className="flex shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                 {(['resumen', 'clash', 'presupuesto5d', 'cronograma4d'] as const).map((t) => (
                   <button
                     key={t}
+                    aria-pressed={tabDerecho === t}
                     onClick={() => setTabDerecho(t)}
                     className="flex items-center gap-1 px-3 py-2 text-[11px] font-medium transition-colors"
                     style={{
@@ -745,7 +868,7 @@ function IFCPanel() {
                       Generar presupuesto
                     </button>
                   </div>
-                  <div className="grid grid-cols-2 lg:grid-cols-6 gap-1.5 mb-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                  <div className="bim-studio-cost-factors grid gap-1.5 mb-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
                     {[
                       ['Indirectos %', factorIndirecto, setFactorIndirecto],
                       ['Financiamiento %', factorFinanciamiento, setFactorFinanciamiento],
@@ -1107,7 +1230,7 @@ function IFCPanel() {
                       />
                       <button
                         onClick={handleAsignarZona}
-                        disabled={!canWrite || asignandoZona || !zonaInput.trim()}
+                        disabled={!canWrite || procesando || asignandoZona || !zonaInput.trim()}
                         className="px-2 rounded text-[10px]"
                         style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
                       >

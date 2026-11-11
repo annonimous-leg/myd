@@ -3,6 +3,7 @@ import ProgramacionObra from '../programacion-obra';
 import { FileText } from 'lucide-react';
 import { useExpedienteStore } from '@/stores/useExpedienteStore';
 import TenderAutomationPanel from './components/TenderAutomationPanel';
+import { abrirModulo } from '@/lib/navigation';
 
 export default function LicitacionesObraApp() {
   const [seccion, setSeccion] = useState(() => new URLSearchParams(window.location.search).get('seccion') === 'cronograma' ? 'cronograma' : 'documentos');
@@ -10,20 +11,24 @@ export default function LicitacionesObraApp() {
 
   if (!expediente) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="max-w-md rounded-2xl border border-zinc-700 bg-zinc-800/50 p-8 text-center">
-          <FileText className="mx-auto mb-4 h-16 w-16 text-zinc-500" />
-          <h2 className="mb-2 text-xl font-bold text-zinc-300">Sin expediente activo</h2>
-          <p className="text-zinc-500">
-            Selecciona un expediente en Proyectos para preparar la propuesta de esa obra.
-          </p>
+      <div className="workspace-surface h-full overflow-auto">
+        <div className="workspace-welcome">
+          <FileText size={28} aria-hidden style={{ color: 'var(--accent-gold)' }} />
+          <h1>Tu obra comienza en Workspace</h1>
+          <p>Reúne los documentos de la dependencia y prepara una propuesta con cantidades, precios y fuentes que puedas revisar.</p>
+          <ol>
+            <li><div><strong>Requisitos y plantillas</strong><p>Conserva los originales y adjunta la junta de aclaraciones si ya la tienes.</p></div></li>
+            <li><div><strong>Datos de la obra y catálogo</strong><p>Define la dependencia y el contexto de la propuesta. Vincula tus precios antes de revisar el presupuesto.</p></div></li>
+            <li><div><strong>Modelo y revisión técnica</strong><p>Carga tu IFC en BIM/CAD y continúa con cantidades, presupuesto y cronograma.</p></div></li>
+          </ol>
+          <button type="button" onClick={() => abrirModulo('proyectos')}>Elegir o crear obra</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full overflow-auto bg-[#0a0a0f] p-5 text-zinc-100">
+    <div className="workspace-surface h-full overflow-auto p-4 sm:p-6">
       <nav aria-label="Secciones de Workspace" className="mb-4 flex gap-3">
         <button type="button" aria-pressed={seccion === 'documentos'} onClick={() => setSeccion('documentos')}>Propuesta y documentos</button>
         <button type="button" aria-pressed={seccion === 'cronograma'} onClick={() => setSeccion('cronograma')}>Cronograma de obra</button>

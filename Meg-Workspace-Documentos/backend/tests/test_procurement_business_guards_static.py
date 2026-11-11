@@ -21,4 +21,4 @@ def test_frontend_idempotency_key_is_stable_per_revision():
 
 def test_frontend_surfaces_business_readiness_gates():
     assert '.procurement.readiness(' in FRONT
-    assert 'Gates de negocio pendientes' in FRONT
+    assert 'Antes de continuar' in FRONT

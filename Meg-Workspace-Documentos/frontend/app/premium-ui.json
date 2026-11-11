@@ -1,0 +1,12 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src"],
+  "locale": "es-MX",
+  "canonicalMap": "../../../UX-CONTRACT.md",
+  "requiredCapabilities": ["Select/Listbox", "Date", "Form", "Scrollbar", "CRUD"],
+  "ownership": { "Select/Listbox": "native", "Date": "native" },
+  "evidence": {
+    "crudFullFlow": "tests/bim-flow-browser.test.mjs",
+    "failurePaths": "tests/helpers/licitacion-flow.mjs"
+  }
+}

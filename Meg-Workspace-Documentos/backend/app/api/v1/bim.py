@@ -60,6 +60,7 @@ class ModeloBIMOut(BaseModel):
     num_elementos: int
     niveles: Optional[List[str]] = None
     version_ifc: Optional[str] = None
+    revision_actual_id: Optional[UUID] = None
     error_procesamiento: Optional[str] = None
 
     class Config:
@@ -113,6 +114,11 @@ class GenerarPresupuestoRequest(BaseModel):
 class AsignarZona4D(BaseModel):
     elemento_id: UUID
     zona_4d: str
+
+
+class AsignarZonaPorNivel4D(BaseModel):
+    zona_4d: str = Field(min_length=1, max_length=255, pattern=r"\S")
+    nivel: Optional[str] = None
 
 
 class GenerarActividades4DRequest(BaseModel):
@@ -304,8 +310,8 @@ async def listar_elementos_bim(
     tipo: Optional[str] = None,
     nivel: Optional[str] = None,
     incluir_malla: bool = False,
-    limit: int = 200,
-    offset: int = 0,
+    limit: int = Query(200, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user), _rate_limit: bool = Depends(rate_limit_standard),
 ):
@@ -369,7 +375,7 @@ async def generar_presupuesto_desde_bim(
 async def asignar_zonas_4d(
     expediente_id: UUID,
     modelo_id: UUID,
-    asignaciones: List[AsignarZona4D],
+    asignaciones: List[AsignarZona4D] | AsignarZonaPorNivel4D,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user), _rate_limit: bool = Depends(rate_limit_strict),
 ):
@@ -377,10 +383,15 @@ async def asignar_zonas_4d(
     editable para el cronograma 4D, independiente de `nivel` (ver
     ElementoBIM.zona_4d). Sin esto, generar-4d5d agrupa por `nivel`."""
     service = BIMService(db, tenant_id=current_user.tenant_id)
-    count = await service.asignar_zonas_4d(
-        modelo_id, expediente_id=expediente_id,
-        asignaciones=[a.model_dump() for a in asignaciones],
-    )
+    if isinstance(asignaciones, AsignarZonaPorNivel4D):
+        count = await service.asignar_zona_por_nivel(
+            modelo_id, expediente_id, asignaciones.zona_4d.strip(), asignaciones.nivel,
+        )
+    else:
+        count = await service.asignar_zonas_4d(
+            modelo_id, expediente_id=expediente_id,
+            asignaciones=[a.model_dump() for a in asignaciones],
+        )
     return {"elementos_actualizados": count}
 
 
@@ -481,8 +492,8 @@ async def listar_resultados_clash(
     analisis_id: UUID,
     severidad: Optional[str] = None,
     estado: Optional[str] = None,
-    limit: int = 200,
-    offset: int = 0,
+    limit: int = Query(200, ge=1, le=500),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user), _rate_limit: bool = Depends(rate_limit_standard),
 ):
@@ -505,7 +516,7 @@ async def actualizar_estado_clash(
     """Marca un clash como revisado/resuelto/ignorado -- seguimiento de
     equipo, no vuelve a correr el análisis geométrico."""
     service = ClashService(db, current_user.tenant_id)
-    return await service.actualizar_estado_resultado(resultado_id, data.estado)
+    return await service.actualizar_estado_resultado(resultado_id, data.estado, expediente_id=expediente_id)
 
 
 
@@ -788,6 +799,7 @@ async def descargar_ifc_local(expediente_id: UUID, modelo_id: UUID,
 class ReprocesarModeloRequest(BaseModel):
     tipos_elementos: Optional[List[str]] = None
     extraer_malla: bool = True
+    revision_esperada_id: Optional[UUID] = None
 
 
 @router.post('/{expediente_id}/modelos/{modelo_id}/reprocesar', response_model=ModeloBIMOut)
@@ -802,6 +814,8 @@ async def reprocesar_modelo(expediente_id: UUID, modelo_id: UUID, data: Reproces
     job = await db.scalar(query.with_for_update())
     model = await BIMService(db, current_user.tenant_id)._validar_modelo_en_expediente(
         modelo_id, expediente_id, bloquear=True)
+    if data.revision_esperada_id is not None and data.revision_esperada_id != model.revision_actual_id:
+        raise MegalodonException(ErrorCode.BIM_ERROR, 'Cambió la revisión; actualiza la cobertura', status_code=409)
     if job is None:
         # A concurrent legacy request may have created the intent while we
         # waited for the model. Never acquire a job lock after a model lock.
@@ -809,7 +823,7 @@ async def reprocesar_modelo(expediente_id: UUID, modelo_id: UUID, data: Reproces
             raise MegalodonException(ErrorCode.BIM_ERROR, 'Ya se registró el procesamiento; actualiza el modelo', status_code=409)
     if job is not None and job.estado not in ('ERROR', 'COMPLETADO'):
         raise MegalodonException(ErrorCode.BIM_ERROR, 'El modelo ya está en procesamiento', status_code=409)
-    params = data.model_dump()
+    params = data.model_dump(exclude={"revision_esperada_id"})
     if job is None:
         registrar_trabajo(db, model, 'BIM_IFC', params)
     else:
@@ -819,3 +833,113 @@ async def reprocesar_modelo(expediente_id: UUID, modelo_id: UUID, data: Reproces
     model.estado_procesamiento, model.error_procesamiento = 'PENDIENTE', None
     await db.commit()
     return model
+
+# Operational coverage and measurement policy share the model's tenant boundary.
+@router.get('/{expediente_id}/modelos/{modelo_id}/revisiones')
+async def revisiones_bim(expediente_id: UUID, modelo_id: UUID,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    from app.services.bim_operational import BIMOperationalService
+    from app.models.bim_revision import RevisionBIM
+    model = await BIMOperationalService(db, user.tenant_id).modelo(modelo_id, expediente_id)
+    rows = (await db.scalars(select(RevisionBIM).where(RevisionBIM.modelo_id == modelo_id,
+        RevisionBIM.tenant_id == user.tenant_id).order_by(RevisionBIM.created_at.desc()))).all()
+    return [{'id': str(r.id), 'fuente_sha256': r.fuente_sha256, 'tipos_admitidos': r.tipos_admitidos,
+        'creado_en': r.created_at.isoformat(), 'actual': r.id == model.revision_actual_id} for r in rows]
+
+
+@router.get('/{expediente_id}/modelos/{modelo_id}/cobertura')
+async def cobertura_bim(expediente_id: UUID, modelo_id: UUID, revision_id: Optional[UUID] = None,
+    estado: Optional[str] = None, skip: int = Query(0, ge=0), limit: int = Query(100, ge=1, le=500),
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    from app.services.bim_operational import BIMOperationalService
+    return await BIMOperationalService(db, user.tenant_id).cobertura(modelo_id, expediente_id, revision_id, estado, skip, limit)
+
+
+@router.get('/{expediente_id}/modelos/{modelo_id}/familias/{global_id}')
+async def familia_bim(expediente_id: UUID, modelo_id: UUID, global_id: str, revision_id: Optional[UUID] = None,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    from app.services.bim_operational import BIMOperationalService, rechazar
+    ops = BIMOperationalService(db, user.tenant_id)
+    revision = await ops.revision(await ops.modelo(modelo_id, expediente_id), revision_id)
+    root = next((r for r in revision.cobertura if r['global_id'] == global_id), None)
+    if root is None:
+        rechazar('Familia no encontrada', 404)
+    members = {global_id, *root['descendientes']}
+    return [r for r in revision.cobertura if r['global_id'] in members]
+
+
+@router.get('/{expediente_id}/modelos/{modelo_id}/referencias-contractuales')
+async def referencias_bim(expediente_id: UUID, modelo_id: UUID,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    from app.services.bim_operational import BIMOperationalService
+    return await BIMOperationalService(db, user.tenant_id).referencias(modelo_id, expediente_id)
+
+
+class IncorporarTiposBIM(BaseModel):
+    revision_id: UUID
+    tipos: List[Literal['IfcMember', 'IfcPlate', 'IfcCurtainWall', 'IfcRamp', 'IfcRampFlight', 'IfcStairFlight']] = Field(min_length=1, max_length=6)
+
+
+@router.post('/{expediente_id}/modelos/{modelo_id}/incorporar-tipos', response_model=ModeloBIMOut)
+async def incorporar_tipos_bim(expediente_id: UUID, modelo_id: UUID, data: IncorporarTiposBIM,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user),
+    _rate_limit: bool = Depends(rate_limit_strict)):
+    from app.services.bim_operational import BIMOperationalService
+    ops = BIMOperationalService(db, user.tenant_id)
+    model = await ops.modelo(modelo_id, expediente_id)
+    revision = await ops.revision(model, data.revision_id)
+    request = ReprocesarModeloRequest(tipos_elementos=sorted(set(revision.tipos_admitidos) | set(data.tipos)),
+        extraer_malla=True, revision_esperada_id=revision.id)
+    return await reprocesar_modelo(expediente_id, modelo_id, request, db, user, _rate_limit)
+
+
+class LineaMedicionBIM(BaseModel):
+    global_id: str = Field(min_length=1, max_length=100)
+    catalogo_apu_id: Optional[UUID] = None
+    cantidad: str = Field(min_length=1, max_length=40)
+    referencia_medicion: str = Field(min_length=5, max_length=1000)
+    alcance: str = Field(min_length=5, max_length=1000)
+
+
+class GuardarDecisionBIM(BaseModel):
+    revision_id: UUID
+    familia_global_id: str = Field(min_length=1, max_length=100)
+    criterio: Literal['PADRE', 'COMPONENTES']
+    confirmar: bool = False
+    lineas: List[LineaMedicionBIM] = Field(default_factory=list, max_length=500)
+    referencia_contractual: str = Field(default='', max_length=2000)
+    documento_id: Optional[UUID] = None
+    exclusiones: Dict[str, str] = Field(default_factory=dict, max_length=2000)
+
+
+@router.get('/{expediente_id}/modelos/{modelo_id}/decisiones-medicion')
+async def decisiones_bim(expediente_id: UUID, modelo_id: UUID, revision_id: Optional[UUID] = None,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user)):
+    from app.services.bim_operational import BIMOperationalService
+    return await BIMOperationalService(db, user.tenant_id).listar_decisiones(modelo_id, expediente_id, revision_id)
+
+
+@router.post('/{expediente_id}/modelos/{modelo_id}/decisiones-medicion')
+async def guardar_decision_bim(expediente_id: UUID, modelo_id: UUID, data: GuardarDecisionBIM,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user),
+    _rate_limit: bool = Depends(rate_limit_strict)):
+    from app.services.bim_operational import BIMOperationalService
+    ops = BIMOperationalService(db, user.tenant_id)
+    decision = await ops.guardar_decision(modelo_id, expediente_id, user.id, data.model_dump())
+    return {'id': str(decision.id), **await ops.estado_decision(decision)}
+
+
+class PresupuestoDecisionesBIM(BaseModel):
+    decisiones_ids: List[UUID] = Field(min_length=1, max_length=1000)
+    parametros_costeo: ParametrosCosteoInput
+
+
+@router.post('/{expediente_id}/modelos/{modelo_id}/presupuesto-decisiones')
+async def presupuesto_decisiones_bim(expediente_id: UUID, modelo_id: UUID, data: PresupuestoDecisionesBIM,
+    db: AsyncSession = Depends(get_db), user: User = Depends(get_current_user),
+    _rate_limit: bool = Depends(rate_limit_strict)):
+    from app.services.bim_operational import BIMOperationalService
+    from app.api.v1.presupuestos import PresupuestoOut
+    result = await BIMOperationalService(db, user.tenant_id).crear_presupuesto(
+        modelo_id, expediente_id, user.id, data.decisiones_ids, data.parametros_costeo.to_domain())
+    return PresupuestoOut.model_validate(result)

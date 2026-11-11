@@ -1,6 +1,7 @@
 """Durable generation of Megalodon-owned IFC technical drawing artifacts."""
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import math
@@ -141,7 +142,7 @@ class BIMDrawingService:
         )
         if lock:
             query = query.with_for_update()
-        model = await self.db.scalar(query)
+        model = await self.db.scalar(query.execution_options(populate_existing=True))
         if model is None:
             raise MegalodonException(
                 ErrorCode.DOCUMENTO_NO_ENCONTRADO,
@@ -170,7 +171,7 @@ class BIMDrawingService:
         formatos: list[str],
         permitir_geometria_parcial: bool = False,
     ) -> DibujoBIM:
-        model = await self._model(modelo_id, expediente_id, lock=True)
+        model = await self._model(modelo_id, expediente_id)
         if model.estado_procesamiento != "COMPLETADO":
             raise MegalodonException(
                 ErrorCode.BIM_ERROR,
@@ -193,12 +194,26 @@ class BIMDrawingService:
         if "PDF" not in selected_formats and {"cotas_elementos", "niveles_ifc", "nota_lamina"} & canonical.keys():
             raise MegalodonException(ErrorCode.BIM_ERROR, "Las cotas, niveles y notas de lámina requieren formato PDF")
 
+        source_updated_at = model.updated_at
+        source_version = model.version_ifc
         elements = await self._elements(model.id)
         if not elements:
             raise MegalodonException(ErrorCode.BIM_ERROR, "El modelo IFC no contiene elementos cuantificados")
-        source_updated_at = model.updated_at
         if source_updated_at is None:
             raise MegalodonException(ErrorCode.BIM_ERROR, "El modelo IFC no tiene revisión temporal verificable")
+
+        fingerprint = await asyncio.to_thread(_geometry_fingerprint, elements)
+        # Lock only for the revision check and enqueue, after hashing the snapshot.
+        model = await self._model(modelo_id, expediente_id, lock=True)
+        if (
+            model.estado_procesamiento != "COMPLETADO"
+            or model.updated_at != source_updated_at
+            or model.version_ifc != source_version
+        ):
+            raise MegalodonException(
+                ErrorCode.CONFLICT, "El modelo cambió al preparar el plano. Actualiza y vuelve a solicitarlo.",
+                status_code=409,
+            )
 
         drawing = DibujoBIM(
             tenant_id=self.tenant_id,
@@ -211,9 +226,9 @@ class BIMDrawingService:
             permitir_geometria_parcial=bool(permitir_geometria_parcial),
             estado="PENDIENTE",
             source_model_updated_at=_as_utc(source_updated_at),
-            source_model_version=model.version_ifc,
+            source_model_version=source_version,
             source_num_elementos=len(elements),
-            source_geometry_sha256=_geometry_fingerprint(elements),
+            source_geometry_sha256=fingerprint,
             elementos_fuente=len(elements),
             creado_por_id=creado_por_id,
             actualizado_por_id=creado_por_id,
@@ -235,7 +250,9 @@ class BIMDrawingService:
         return drawing
 
     async def procesar_dibujo(self, drawing: DibujoBIM) -> None:
-        model = await self._model(drawing.modelo_id, drawing.expediente_id, lock=True)
+        # The fingerprint below binds the in-memory geometry to the requested
+        # revision. Rendering and uploading it do not need a model write lock.
+        model = await self._model(drawing.modelo_id, drawing.expediente_id)
         if model.estado_procesamiento != "COMPLETADO":
             raise MegalodonException(ErrorCode.BIM_ERROR, "El modelo IFC fuente ya no está COMPLETADO")
         if (
@@ -282,7 +299,9 @@ class BIMDrawingService:
         if without_mesh and not drawing.permitir_geometria_parcial:
             raise MegalodonException(
                 ErrorCode.BIM_ERROR,
-                f"El modelo contiene {len(without_mesh)} elementos sin malla; no se generó un dibujo incompleto",
+                f"Falta geometría para {len(without_mesh)} elementos IFC "
+                f"({', '.join(without_mesh[:8])}). Reprocesa el modelo para recuperar los conjuntos "
+                "y revisa los componentes que sigan pendientes.",
             )
         if not meshes:
             raise MegalodonException(ErrorCode.BIM_ERROR, "El modelo no contiene mallas geométricas para dibujar")

@@ -47,6 +47,7 @@ from app.models.compliance import (
 )
 
 # ─── 7. BIM ────────────────────────────────────────────────
+from app.models.bim_revision import RevisionBIM, DecisionMedicionBIM
 from app.models.bim import ModeloBIM, ElementoBIM, AnalisisClash, ClashResult, DibujoBIM
 
 # ─── 8. Costos / APU / Presupuesto ─────────────────────────

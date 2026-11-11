@@ -146,6 +146,7 @@ class PresupuestoOut(BaseModel):
     factor_impuesto: float
     factor_riesgo: Optional[float] = None
     metadatos: Optional[dict] = None
+    fuentes_bim_obsoletas: bool = False
     zona_economica: str
     estado: Optional[str] = None
     # BUG ORIGINAL: no se exponían las partidas -- no había forma de ver

@@ -27,14 +27,16 @@ from typing import BinaryIO, List, Optional, Dict, Any, TYPE_CHECKING
 from uuid import UUID, uuid4
 from types import SimpleNamespace
 
-from sqlalchemy import select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
+from sqlalchemy.orm import defer
 
 from app.models.presupuesto import Presupuesto, Partida
 from app.models.bim import ModeloBIM, ElementoBIM
 from app.models.base import EstadoProceso
 from app.models.expediente import ExpedienteObra
 from app.engines.bim.motor_bim import MotorBIM
+from app.engines.bim.coverage import conflictos_de_conjuntos
 from app.engines.bim.heuristics import estimar_duracion_4d, resumir_grupo_bim4d
 from app.integrations.supabase_storage import storage_bim
 from app.core.errors import MegalodonException, ErrorCode
@@ -239,6 +241,8 @@ class BIMService:
             for obsolete in existing.values():
                 await self.db.delete(obsolete)
 
+            from app.services.bim_operational import registrar_revision
+            await registrar_revision(self.db, modelo, ifc_file, resultado, file_content, tipos_elementos)
             modelo.num_elementos = len(resultado.elementos)
             modelo.niveles = resultado.niveles
             # Si TODOS los elementos fallaron, es un error real; si solo
@@ -292,7 +296,9 @@ class BIMService:
             query = query.where(ElementoBIM.tipo == tipo)
         if nivel:
             query = query.where(ElementoBIM.nivel == nivel)
-        query = query.order_by(ElementoBIM.tipo).limit(limit).offset(offset)
+        if not incluir_malla:
+            query = query.options(defer(ElementoBIM.malla_vertices), defer(ElementoBIM.malla_caras))
+        query = query.order_by(ElementoBIM.tipo, ElementoBIM.id).limit(limit).offset(offset)
         result = await self.db.execute(query)
         elementos = list(result.scalars().all())
         # Serialize copies: suppressing mesh must never dirty persisted ORM rows.
@@ -319,6 +325,9 @@ class BIMService:
             if elem is None or partida is None:
                 raise MegalodonException(ErrorCode.DOCUMENTO_NO_ENCONTRADO,
                     "Elemento o partida no encontrado en este expediente")
+            if elem.tipo == 'IfcBuildingElementProxy':
+                raise MegalodonException(ErrorCode.BIM_ERROR,
+                    'El Proxy requiere clasificación funcional antes del mapeo económico', status_code=409)
             validated.append((elem, partida.id))
         for elem, partida_id in validated:
             elem.partida_id = partida_id
@@ -350,7 +359,7 @@ class BIMService:
         juntos; un APU distinto crea otra partida. Los elementos sin APU
         siguen como cuantificación pendiente de costeo. Toda referencia a
         elemento/APU se valida dentro del modelo, expediente y tenant."""
-        await self._validar_modelo_en_expediente(modelo_id, expediente_id, bloquear=True)
+        source_model = await self._validar_modelo_en_expediente(modelo_id, expediente_id, bloquear=True)
         from app.services.presupuesto_service import PresupuestoService
         from app.models.catalogo_apu import CatalogoAPU
 
@@ -375,6 +384,7 @@ class BIMService:
 
         result = await self.db.execute(
             select(ElementoBIM)
+            .options(defer(ElementoBIM.malla_vertices), defer(ElementoBIM.malla_caras))
             .join(ModeloBIM, ModeloBIM.id == ElementoBIM.modelo_id)
             .where(
                 ElementoBIM.modelo_id == modelo_id,
@@ -450,6 +460,9 @@ class BIMService:
                     "origen_mapeo": "ELEMENTO" if explicit is not None else "TIPO_IFC",
                 })
 
+        conflicts = conflictos_de_conjuntos(elementos)
+        conflict_guids = {gid for pair in conflicts for gid in pair.values()}
+
         # A missing member never discards the measured cost of its siblings.
         captures = {}
         for item in cantidades_complementarias or []:
@@ -484,7 +497,7 @@ class BIMService:
                 )
 
         used = set()
-        pending_ids, snapshots = [], []
+        pending_ids, snapshots, measurements, geometric_pending = [], [], [], []
         partidas_data, grupos_partidas = [], []
         for (tipo, apu_id), elems in grupos.items():
             apu = catalogos_por_id.get(apu_id) if apu_id is not None else None
@@ -505,13 +518,17 @@ class BIMService:
                 # Non-geometric catalogue units (kg, t, etc.) need an explicit
                 # reviewed measurement; geometry alone cannot supply mass.
                 value = 1.0 if unit == "pza" else getattr(element, field) if field else None
-                valid = value is not None and math.isfinite(float(value)) and float(value) > 0
+                original_value = value
+                geometric = field == "volumen" and element.fuente_volumen == "GEOMETRIA_CALCULADA"
+                valid = value is not None and math.isfinite(float(value)) and float(value) > 0 and not geometric
+                if element.tipo == "IfcBuildingElementProxy":
+                    valid = False
                 capture = captures.get(str(element.id))
                 if capture:
                     if valid or capture["unidad"].lower().strip() != unit:
                         raise MegalodonException(
                             ErrorCode.BAD_REQUEST,
-                            "La captura solo completa cantidades faltantes en la unidad del concepto",
+                            "La captura completa faltantes o revisa estimaciones en la unidad del concepto",
                         )
                     used.add(str(element.id))
                     value, valid = capture["cantidad"], True
@@ -523,8 +540,19 @@ class BIMService:
                         "referencia": capture["referencia"],
                         "usuario_id": str(creado_por_id),
                         "capturado_en": datetime.now(timezone.utc).isoformat(),
+                        "fuente_original": element.fuente_volumen if field == "volumen" else "OTRA_MEDICION",
+                        "cantidad_original": float(original_value) if original_value is not None else None,
                     })
+                if element.global_id in conflict_guids or element.tipo == "IfcBuildingElementProxy":
+                    valid = False
+                if geometric and not capture:
+                    geometric_pending.append(str(element.id))
                 if valid:
+                    measurements.append({
+                        "elemento_id": str(element.id), "global_id": element.global_id,
+                        "unidad": unit, "cantidad": float(value),
+                        "fuente": "CAPTURA_REVISADA" if capture else element.fuente_volumen if field == "volumen" else "QTO_IFC" if field == "longitud" else "CONTEO",
+                    })
                     ready.append(element)
                     total += float(value)
                 else:
@@ -565,12 +593,21 @@ class BIMService:
             )
         coverage = {
             "modelo_id": str(modelo_id),
+            "revision_id": str(source_model.revision_actual_id) if source_model.revision_actual_id else None,
             "area_requiere_revision": True,
             "completa": not pending_ids,
             "elementos_totales": len(elementos),
             "elementos_medidos": len(elementos) - len(pending_ids),
             "elementos_pendientes": pending_ids,
             "capturas": snapshots,
+            "mediciones_economicas": measurements,
+            "volumenes_geometricos_pendientes": geometric_pending,
+            "conflictos_conjuntos": conflicts,
+            "reglas_candidatas_conjuntos": [{
+                **pair, "regla": "PADRE_SI_CONCEPTO_INTEGRAL_O_COMPONENTES_SI_DESGLOSADO",
+                "fuente": "JERARQUIA_IFC_Y_COMPONENTES_DE_MALLA",
+                "sustento_contractual": None, "estado": "PENDIENTE_DE_APROBACION_ECONOMICA",
+            } for pair in conflicts],
             "mapeo_apu_elementos": mapping_snapshot,
         }
 
@@ -604,6 +641,17 @@ class BIMService:
 
         await self.db.commit()
         return presupuesto
+
+    async def asignar_zona_por_nivel(
+        self, modelo_id: UUID, expediente_id: UUID, zona: str, nivel: Optional[str],
+    ) -> int:
+        await self._validar_modelo_en_expediente(modelo_id, expediente_id, bloquear=True)
+        query = update(ElementoBIM).where(ElementoBIM.modelo_id == modelo_id)
+        if nivel is not None:
+            query = query.where(func.coalesce(func.nullif(ElementoBIM.nivel, ""), "Sin nivel") == nivel)
+        result = await self.db.execute(query.values(zona_4d=zona).execution_options(synchronize_session=False))
+        await self.db.commit()
+        return result.rowcount
 
     async def asignar_zonas_4d(
         self,
@@ -733,6 +781,7 @@ class BIMService:
         capturas_por_elemento = {}
         presupuesto_por_partida = {}
         presupuestos_bim = set()
+        presupuestos_con_snapshot = set()
         if partida_ids:
             result_p = await self.db.execute(select(Partida).join(Presupuesto, Presupuesto.id == Partida.presupuesto_id).join(ExpedienteObra, ExpedienteObra.id == Presupuesto.expediente_id).where(Partida.id.in_(partida_ids), ExpedienteObra.tenant_id == self.tenant_id))
             linked_parts = result_p.scalars().all()
@@ -748,8 +797,29 @@ class BIMService:
                 if not cobertura:
                     continue
                 presupuestos_bim.add(budget.id)
-                for capture in cobertura.get('capturas', []):
+                if 'mediciones_economicas' in cobertura:
+                    presupuestos_con_snapshot.add(budget.id)
+                for capture in cobertura.get('mediciones_economicas', cobertura.get('capturas', [])):
                     capturas_por_elemento[(budget.id,capture['elemento_id'],capture['unidad'])] = float(capture['cantidad'])
+
+        # Decision budgets may have multiple payment concepts for one element.
+        # Use the latest explicit policy version and its persisted line amounts.
+        policy_budget = await self.db.scalar(select(Presupuesto).where(
+            Presupuesto.tenant_id == self.tenant_id, Presupuesto.expediente_id == expediente_id,
+            Presupuesto.metadatos["bim_cobertura"]["modelo_id"].as_string() == str(modelo_id),
+            Presupuesto.metadatos["bim_cobertura"]["decisiones_ids"].as_string().is_not(None),
+        ).order_by(Presupuesto.created_at.desc()).limit(1))
+        policy_costs = None
+        if policy_budget is not None and (policy_budget.metadatos or {}).get('bim_cobertura', {}).get('decisiones_ids'):
+            from app.services.bim_operational import BIMOperationalService
+            if await BIMOperationalService(self.db, self.tenant_id).presupuesto_obsoleto(policy_budget):
+                raise MegalodonException(ErrorCode.BIM_ERROR, 'Revisa el presupuesto por decisiones antes de generar 4D', status_code=409)
+            parts = (await self.db.scalars(select(Partida).where(Partida.presupuesto_id == policy_budget.id,
+                Partida.tenant_id == self.tenant_id).order_by(Partida.numero))).all()
+            lines = policy_budget.metadatos['bim_cobertura']['mediciones_decisiones']
+            policy_costs = {}
+            for line, part in zip(lines, parts, strict=True):
+                policy_costs[line['global_id']] = policy_costs.get(line['global_id'], 0.0) + float(part.importe)
 
         # `dias_por_defecto` funciona como base configurable. La duración
         # final se ajusta por tamaño del grupo y por la magnitud geométrica
@@ -772,14 +842,19 @@ class BIMService:
         for idx, ((zona, tipo), elems) in enumerate(sorted(grupos.items(), key=lambda kv: (kv[0][0], kv[0][1])), 1):
             costo = 0.0
             for e in elems:
+                if policy_costs is not None:
+                    costo += policy_costs.get(e.global_id, 0.0)
+                    continue
                 if e.partida_id and e.partida_id in precios_por_partida:
                     precio_unit, unidad = precios_por_partida[e.partida_id]
                     captura = capturas_por_elemento.get((presupuesto_por_partida[e.partida_id],str(e.id),unidad))
                     if captura is not None:
                         costo += precio_unit * captura
+                    elif presupuesto_por_partida[e.partida_id] in presupuestos_con_snapshot:
+                        continue  # A pending measurement cannot reappear as 4D money.
                     elif unidad == "m2" and presupuesto_por_partida[e.partida_id] not in presupuestos_bim:
                         costo += precio_unit * float(e.area or 0)
-                    elif unidad == "m3":
+                    elif unidad == "m3" and e.fuente_volumen != "GEOMETRIA_CALCULADA":
                         costo += precio_unit * float(e.volumen or 0)
                     elif unidad in ("ml", "m"):
                         costo += precio_unit * float(e.longitud or 0)

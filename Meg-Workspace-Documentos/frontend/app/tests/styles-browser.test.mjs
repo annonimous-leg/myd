@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 
@@ -114,4 +114,149 @@ test('compiled semantic colors, font and enter animations resolve in the browser
   assert.equal(values.enterOpacity, '0');
   assert.deepEqual(values.indicatorBorders, ['rgb(255, 0, 0)', 'rgb(0, 255, 0)']);
   await page.close();
+});
+
+// Inspect rendered pixels so an off-origin model cannot pass with an empty grid.
+async function assertModelFramed(page) {
+  const canvas = page.locator('.bim-studio-viewport canvas');
+  let consecutive = 0;
+  let last;
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const png = await canvas.screenshot();
+    if (attempt === 0 && process.env.STYLE_EVIDENCE_DIR) {
+      await mkdir(process.env.STYLE_EVIDENCE_DIR, { recursive: true });
+      await writeFile(join(process.env.STYLE_EVIDENCE_DIR, `frame-${page.viewportSize().width}-${Date.now()}.png`), png);
+    }
+    last = await page.evaluate(async bytes => {
+      const bitmap = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: 'image/png' }));
+      const surface = new OffscreenCanvas(bitmap.width, bitmap.height);
+      const context = surface.getContext('2d');
+      context.drawImage(bitmap, 0, 0);
+      const { data, width, height } = context.getImageData(0, 0, bitmap.width, bitmap.height);
+      bitmap.close();
+      let count = 0, left = width, right = 0, top = height, bottom = 0;
+      // Exclude the two-pixel CSS border; geometry still needs a 3% inner margin.
+      for (let y = 2; y < height - 2; y++) for (let x = 2; x < width - 2; x++) {
+        const i = (y * width + x) * 4;
+        if (data[i + 2] > data[i] + 12 && data[i + 1] > data[i] + 2 && data[i + 2] > data[i + 1] + 5) {
+          count++; left = Math.min(left, x); right = Math.max(right, x);
+          top = Math.min(top, y); bottom = Math.max(bottom, y);
+        }
+      }
+      return { count, left, right, top, bottom, width, height };
+    }, [...png]);
+    const framed = last.count > 100 && last.left > last.width * 0.03 && last.right < last.width * 0.97
+      && last.top > last.height * 0.03 && last.bottom < last.height * 0.97;
+    consecutive = framed ? consecutive + 1 : 0;
+    if (consecutive === 3) return;
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+  assert.fail(`Model must remain visible and fit inside the viewport: ${JSON.stringify(last)}`);
+}
+
+// Layout fixtures exercise the compiled BIM UI, without authenticating to a
+// backend or claiming IFC geometry/quantity validation.
+test('BIM studio stays reachable on desktop and short mobile screens', async () => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 1024, height: 768 }, { width: 390, height: 844 }, { width: 390, height: 500 }]) {
+    const page = await browser.newPage({ viewport });
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.addInitScript(() => localStorage.setItem('megalodon-expediente-activo',
+      JSON.stringify({ state: { expedienteActivoId: 'visual-project' }, version: 0 })));
+    await page.route('**/*', route => {
+      const path = new URL(route.request().url()).pathname;
+      if (!path.startsWith('/api/') && !['/health', '/ready'].includes(path)) return route.continue();
+      let data = [];
+      if (path === '/ready') data = { status: 'ready' };
+      if (path.endsWith('/auth/me')) data = { id: 'visual-user', full_name: 'Revisión visual', email: 'visual@example.test', role: 'admin' };
+      if (path.endsWith('/mi-plan')) data = { plan: 'enterprise', plan_efectivo: 'enterprise', limites: {}, uso_actual: {} };
+      if (path === '/api/v1/expedientes') data = [{ id: 'visual-project', titulo: 'Obra de prueba · revisión visual BIM/CAD', estado: 'ABIERTO' }];
+      if (path.endsWith('/modelos')) data = [{ id: 'visual-model', nombre: 'Modelo sintético de revisión', estado_procesamiento: 'COMPLETADO', num_elementos: 40, niveles: ['Planta baja', 'Planta alta'] }];
+      if (path.endsWith('/elementos')) data = Array.from({ length: 40 }, (_, i) => ({
+        id: `e${i}`, tipo: `IfcPrueba${i}`, nombre: `Elemento ${i}`, nivel: i % 2 ? 'Planta alta' : 'Planta baja',
+        volumen: 3, area: 5, fuente_volumen: 'QTO_IFC', fuente_area: 'QTO_IFC',
+        // Coordinates deliberately far from the world origin, as in real IFC exports.
+        malla_vertices: [100, 200, 50, 104, 200, 50, 100, 203, 50, 100, 200, 53],
+        malla_caras: [0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2],
+      }));
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(data) });
+    });
+    await page.goto(`${origin}/?app=bim-calculator`);
+    await page.locator('.bim-studio-inspector').waitFor();
+    await page.waitForFunction(() => {
+      let node = document.querySelector('.bim-studio');
+      while (node) { if (getComputedStyle(node).opacity !== '1') return false; node = node.parentElement; }
+      return true;
+    });
+    await assertModelFramed(page);
+    const studio = page.locator('.bim-studio');
+    assert.equal(await studio.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+    await page.getByRole('button', { name: 'Activar modo oscuro', exact: true }).click();
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
+    assert.notEqual(await studio.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
+    await page.reload();
+    await page.locator('.bim-studio-inspector').waitFor();
+    await page.getByRole('button', { name: 'Activar modo claro', exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Activar modo claro', exact: true }).click();
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
+    assert.equal(await page.getByRole('menuitem', { name: 'Workspace', exact: true }).count(), 0);
+    await page.getByRole('button', { name: 'Abrir bandeja de trabajo' }).click();
+    await page.getByRole('menuitem', { name: 'Workspace', exact: true }).waitFor();
+    await page.getByRole('menuitem', { name: 'Tezcatlipoca', exact: true }).waitFor();
+    await page.getByRole('menuitem', { name: 'Firma / Field SAT', exact: true }).waitFor();
+    await page.keyboard.press('Escape');
+    assert.equal(await page.getByRole('button', { name: 'Abrir bandeja de trabajo' }).evaluate(el => el === document.activeElement), true);
+    await page.getByText('Herramientas de vista', { exact: true }).click();
+    await page.getByLabel('Mostrar IfcPrueba0', { exact: true }).uncheck();
+    await page.getByText('39 de 40 elementos visibles', { exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Restablecer vista', exact: true }).click();
+    await page.getByText('40 de 40 elementos visibles', { exact: true }).waitFor();
+    await page.getByText('Herramientas de vista', { exact: true }).click();
+    assert.ok(await studio.evaluate(el => el.scrollWidth <= el.clientWidth), 'No horizontal overflow');
+    const factors = await page.locator('.bim-studio-cost-factors input').evaluateAll(inputs => inputs.map(el => el.getBoundingClientRect().width));
+    assert.ok(factors.every(width => width >= 115), 'Cost inputs must remain readable');
+    if (viewport.width >= 1024) {
+      // R3F resizes its canvas asynchronously after closing the view tools.
+      await page.waitForFunction(() => Math.abs(document.querySelector('canvas').getBoundingClientRect().height -
+        document.querySelector('.bim-studio-viewport').getBoundingClientRect().height) < 1);
+      const canvasBefore = await page.locator('canvas').boundingBox();
+      const content = page.locator('.bim-studio-inspector > div').nth(1);
+      await content.evaluate(el => { el.scrollTop = el.scrollHeight; });
+      assert.ok(await content.evaluate(el => el.scrollTop > 0), 'Inspector scrolls independently');
+      assert.deepEqual(await page.locator('canvas').boundingBox(), canvasBefore);
+    } else {
+      assert.ok(await studio.evaluate(el => el.scrollHeight > el.clientHeight), 'Mobile uses the whole studio for scrolling');
+      await page.getByRole('button', { name: 'Resumen', exact: true }).scrollIntoViewIfNeeded();
+      const bounds = await page.getByRole('button', { name: 'Resumen', exact: true }).boundingBox();
+      assert.ok(bounds.y >= 0 && bounds.y + bounds.height <= viewport.height, 'Inspector navigation is reachable');
+      await studio.evaluate(el => { el.scrollTop = 0; });
+    }
+    const plan = page.getByRole('button', { name: 'Planta (2D)', exact: true });
+    await plan.click();
+    assert.equal(await plan.getAttribute('aria-pressed'), 'true');
+    await assertModelFramed(page);
+    const wire = page.getByRole('button', { name: 'Alambre', exact: true });
+    await wire.focus(); await page.keyboard.press('Space');
+    assert.equal(await wire.getAttribute('aria-pressed'), 'true');
+    await page.getByRole('button', { name: '2. Preparar presupuesto', exact: true }).click();
+    assert.equal(await page.getByRole('button', { name: 'Presupuesto', exact: true }).getAttribute('aria-pressed'), 'true');
+    await page.getByRole('button', { name: '3. Crear cronograma', exact: true }).click();
+    assert.equal(await page.getByRole('button', { name: 'Cronograma', exact: true }).getAttribute('aria-pressed'), 'true');
+    await page.getByRole('button', { name: '1. Revisar cantidades', exact: true }).click();
+    await page.getByRole('button', { name: 'Vista 3D', exact: true }).click();
+    await page.waitForFunction(() => [...document.querySelectorAll('button')]
+      .some(el => el.textContent.trim() === 'Vista 3D' && el.getAttribute('aria-pressed') === 'true'));
+    await studio.evaluate(el => { el.scrollTop = 0; });
+    if (process.env.STYLE_EVIDENCE_DIR) {
+      await mkdir(process.env.STYLE_EVIDENCE_DIR, { recursive: true });
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      await page.screenshot({ path: join(process.env.STYLE_EVIDENCE_DIR, `bim-${viewport.width}-${viewport.height}.png`) });
+      if (viewport.width < 1024) {
+        await page.getByRole('button', { name: 'Resumen', exact: true }).scrollIntoViewIfNeeded();
+        await page.screenshot({ path: join(process.env.STYLE_EVIDENCE_DIR, `bim-inspector-${viewport.width}-${viewport.height}.png`) });
+      }
+    }
+    assert.deepEqual(errors, []);
+    await page.close();
+  }
 });

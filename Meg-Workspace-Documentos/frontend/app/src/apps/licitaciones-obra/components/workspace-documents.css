@@ -156,7 +156,7 @@
 }
 .workspace-docs__fields textarea {
   min-height: 260px;
-  resize: vertical;
+  resize: none;
   line-height: 1.65;
 }
 .workspace-docs__fields input:focus-visible,
