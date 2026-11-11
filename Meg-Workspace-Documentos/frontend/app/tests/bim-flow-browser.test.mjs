@@ -97,6 +97,7 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
       page.waitForResponse(r=>r.request().method()==='POST' && new URL(r.url()).pathname==='/api/v1/expedientes'),
       page.getByRole('button',{name:'Crear expediente',exact:true}).click()]);
     assert.equal(created.status(),200);
+    const createdObra=await created.json();
     await page.getByRole('button',{name:'Calculadora BIM',exact:true}).click();
     const [uploadResponse]=await Promise.all([
       page.waitForResponse(r=>r.request().method()==='POST' && /\/bim\/[^/]+\/modelos$/.test(new URL(r.url()).pathname)),
@@ -313,13 +314,15 @@ test('user creates an obra, resumes an IFC job after restart, approves and expor
     await coverageRegion.getByText(/Revisión histórica/).waitFor();
     await coverageRegion.getByText(/Cambió la revisión del modelo/).waitFor();
     assert.equal(await coverageRegion.getByRole('button',{name:'Crear versión del presupuesto con decisiones',exact:true}).isDisabled(),true);
+    await coverageRegion.getByText(/Cambió la revisión del modelo/).scrollIntoViewIfNeeded();
     await page.screenshot({path:join(evidence,'08-cobertura-historica-propuesta-obsoleta.png'),fullPage:true});
     const readerContext=await browser.newContext({viewport:{width:1440,height:1000}});
     try {
       const readerPage=await readerContext.newPage();
       await login(readerPage,credentials.reader);
       await readerPage.getByRole('navigation').getByRole('button',{name:'Proyectos',exact:true}).click();
-      await readerPage.getByRole('button',{name:/Obra sintética de aceptación BIM/}).click();
+      // Repeated runs may leave other synthetic obras with the same title.
+      await readerPage.getByRole('button').filter({has:readerPage.getByText(createdObra.identificador,{exact:true})}).click();
       await readerPage.getByRole('button',{name:'Calculadora BIM',exact:true}).click();
       await readerPage.getByLabel('Subir archivo IFC').waitFor({state:'attached'});
       assert.equal(await readerPage.getByLabel('Subir archivo IFC').isDisabled(),true);
