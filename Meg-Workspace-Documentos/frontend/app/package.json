@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:browser": "node --test tests/styles-browser.test.mjs tests/bim-view.test.mjs"
+    "test:browser": "node --test tests/styles-browser.test.mjs tests/bim-view.test.mjs",
+    "test:tezcatlipoca": "node --experimental-strip-types --test tests/tezcatlipoca-intelligence.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
