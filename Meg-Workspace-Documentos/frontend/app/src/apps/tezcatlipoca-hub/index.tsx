@@ -61,6 +61,7 @@ function DataInspector({ value, depth = 0 }: { value: unknown; depth?: number })
 
 export default function TezcatlipocaHub() {
   const [tab, setTab] = useState<Tab>('overview');
+  const [regionCenter, setRegionCenter] = useState<{ lat: number; lon: number } | null>(null);
   const [data, setData] = useState<unknown>(null);
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
@@ -135,8 +136,8 @@ export default function TezcatlipocaHub() {
           </button>
         ))}
       </nav>
-      {tab === 'overview' && <IntelligenceCenter onOpenMap={() => setTab('territory')} onOpenOrbit={() => abrirModulo('rastreo-orbital')}/>}
-      {tab === 'territory' && <Suspense fallback={<p className="p-5 text-xs" role="status">Cargando mapa terrestre 2D…</p>}><GeoExplorer/></Suspense>}
+      {tab === 'overview' && <IntelligenceCenter onOpenMap={center => { setRegionCenter(center); setTab('territory'); }} onOpenOrbit={() => abrirModulo('rastreo-orbital')}/>}
+      {tab === 'territory' && <Suspense fallback={<p className="p-5 text-xs" role="status">Cargando mapa terrestre 2D…</p>}><GeoExplorer initialCenter={regionCenter ?? undefined}/></Suspense>}
       {tab === 'osint' && (
         <form onSubmit={event => { event.preventDefault(); void load(); }} className="mb-4 flex flex-wrap gap-2">
           <label className="sr-only" htmlFor="tez-osint-target">Entidad, IP, dominio o CVE</label>
