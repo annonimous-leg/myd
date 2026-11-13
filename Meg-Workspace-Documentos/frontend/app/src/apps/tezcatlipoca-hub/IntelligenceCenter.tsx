@@ -6,7 +6,7 @@ import { observationsFromContext, providerStatus, regionalBounds } from './intel
 import type { ObservationKind, ProviderInfo, RegionalBounds } from './intelligence-data';
 
 type KindFilter = 'all' | ObservationKind;
-interface Props { onOpenMap: () => void; onOpenOrbit: () => void; }
+interface Props { onOpenMap: (center: { lat: number; lon: number }) => void; onOpenOrbit: () => void; }
 
 const GROUPS = [
   { title: 'Aeronáutica', entries: ['Vuelos civiles', 'Vuelos militares'] },
@@ -44,6 +44,15 @@ export default function IntelligenceCenter({ onOpenMap, onOpenOrbit }: Props) {
   const requestId = useRef(0);
 
   useEffect(() => () => { requestId.current += 1; }, []);
+
+  const openRegionalMap = () => {
+    try {
+      regionalBounds(lat, lon, radiusKm);
+      onOpenMap({ lat: Number(lat), lon: Number(lon) });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Coordenadas no válidas');
+    }
+  };
 
   const queryRegion = async () => {
     let region: RegionalBounds;
@@ -114,7 +123,7 @@ export default function IntelligenceCenter({ onOpenMap, onOpenOrbit }: Props) {
               <h2 className="text-sm font-semibold">Inteligencia territorial</h2>
               <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>Región delimitada · observaciones reales · consulta bajo demanda</p>
             </div>
-            <button type="button" onClick={onOpenMap} className="flex items-center gap-1 rounded-md border px-3 py-2 text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
+            <button type="button" onClick={openRegionalMap} className="flex items-center gap-1 rounded-md border px-3 py-2 text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
               <MapPinned size={14}/> Abrir mapa 2D
             </button>
           </div>
@@ -217,7 +226,7 @@ export default function IntelligenceCenter({ onOpenMap, onOpenOrbit }: Props) {
           </section>
           <section className="rounded-xl border p-4 space-y-2" style={{ background: 'var(--surface)', borderColor: 'var(--border-subtle)' }}>
             <h2 className="text-sm font-semibold">Exploración especializada</h2>
-            <button type="button" onClick={onOpenMap} className="flex w-full items-center justify-between rounded-md border p-2.5 text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
+            <button type="button" onClick={openRegionalMap} className="flex w-full items-center justify-between rounded-md border p-2.5 text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
               <span className="flex items-center gap-2"><Globe2 size={14}/> Mapa terrestre NASA · 2D</span><ExternalLink size={13}/>
             </button>
             <button type="button" onClick={onOpenOrbit} className="flex w-full items-center justify-between rounded-md border p-2.5 text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
