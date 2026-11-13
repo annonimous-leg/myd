@@ -84,6 +84,8 @@ function statusLabel(state?: SourceState): string {
 export default function GeoExplorer() {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  // Invalidate responses when the user moves the map or unmounts the view.
+  const queryVersion = useRef(0);
   const [ready, setReady] = useState(false);
   const [date, setDate] = useState(yesterdayUTC);
   const [layers, setLayers] = useState(DEFAULT_LAYERS);
@@ -125,7 +127,7 @@ export default function GeoExplorer() {
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
     map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
     map.on('load', () => setReady(true));
-    map.on('moveend', () => setDirty(true));
+    map.on('moveend', () => { queryVersion.current += 1; setDirty(true); setQuerying(false); });
     map.on('click', e => {
       const hit = map.queryRenderedFeatures(e.point, { layers: ['quakes', 'planes', 'vessels'] });
       if (hit.length) {
@@ -141,7 +143,7 @@ export default function GeoExplorer() {
       }
     });
     mapRef.current = map;
-    return () => { map.remove(); mapRef.current = null; };
+    return () => { queryVersion.current += 1; map.remove(); mapRef.current = null; };
     // Create only once; subsequent state updates use the existing map.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -179,6 +181,7 @@ export default function GeoExplorer() {
       setError('Acerca el mapa a una región sin cruzar el meridiano ±180°.');
       return;
     }
+    const version = ++queryVersion.current;
     setQuerying(true); setError(''); setMessage('');
     try {
       const result = await megalodonClient.tezcatlipoca.geoContext({
@@ -186,14 +189,25 @@ export default function GeoExplorer() {
         lonMin: bounds.getWest(), lonMax: bounds.getEast(),
         limit: 250,
       });
+      if (version !== queryVersion.current) return;
+      const currentBounds = map.getBounds();
+      if (Math.abs(currentBounds.getSouth() - bounds.getSouth()) > 0.00001
+          || Math.abs(currentBounds.getNorth() - bounds.getNorth()) > 0.00001
+          || Math.abs(currentBounds.getWest() - bounds.getWest()) > 0.00001
+          || Math.abs(currentBounds.getEast() - bounds.getEast()) > 0.00001) {
+        setDirty(true);
+        setError('La región cambió durante la consulta; vuelve a actualizar antes de guardar.');
+        return;
+      }
       setContext(result);
       setDirty(false);
       setMessage('Capas consultadas. Los resultados reflejan el momento de la consulta, no un flujo continuo.');
     } catch (e) {
+      if (version !== queryVersion.current) return;
       setContext(null); setDirty(true);
       setError(e instanceof Error ? e.message : 'No se pudo consultar la región');
     } finally {
-      setQuerying(false);
+      if (version === queryVersion.current) setQuerying(false);
     }
   }, []);
 
@@ -210,21 +224,28 @@ export default function GeoExplorer() {
 
   const save = useCallback(async () => {
     const map = mapRef.current;
-    if (!map || !context || dirty) {
+    const b = map?.getBounds();
+    const recorded = context?.bbox;
+    const matches = !!b && !!recorded
+      && Math.abs(recorded[0] - b.getSouth()) < 0.00001
+      && Math.abs(recorded[1] - b.getWest()) < 0.00001
+      && Math.abs(recorded[2] - b.getNorth()) < 0.00001
+      && Math.abs(recorded[3] - b.getEast()) < 0.00001;
+    if (!map || !context || dirty || !matches) {
       setError('Actualiza la región antes de guardar: la vista cambió o no tiene resultados.');
       return;
     }
     setSaving(true); setError('');
     try {
       const center = map.getCenter();
-      const b = map.getBounds();
+      const viewportBounds = map.getBounds();
       const entry = await megalodonClient.tezcatlipoca.saveSnapshot({
         name: `Tezcatlipoca · ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`,
         description: 'Vista geoespacial contextual. No equivale a levantamiento topográfico ni a evidencia aprobada.',
         layers: LAYER_META.filter(l => layers[l.id]).map(l => l.id),
         viewport: {
           crs: 'EPSG:4326', center: { lon: center.lng, lat: center.lat },
-          zoom: map.getZoom(), bbox: [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()],
+          zoom: map.getZoom(), bbox: [viewportBounds.getWest(), viewportBounds.getSouth(), viewportBounds.getEast(), viewportBounds.getNorth()],
           selected_site: location, imagery: { provider: 'NASA EOSDIS GIBS', product: 'MODIS Terra TrueColor', day: date, resolution: 'context_only' },
           source_status: context.sources, context_observed_at: context.timestamp,
           counts: { aircraft: context.aircraft.length, ships: context.ships.length, earthquakes: context.earthquakes.length },
