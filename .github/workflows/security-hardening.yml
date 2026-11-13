@@ -150,6 +150,7 @@ jobs:
       - run: node --experimental-strip-types --test tests/session-client.test.mjs
       - run: npm run lint
       - run: npm run build
+      - run: npm run test:tezcatlipoca
       - run: npx playwright install --with-deps chromium
       - run: node --test tests/expediente-store.test.mjs
       - run: npm run test:browser
