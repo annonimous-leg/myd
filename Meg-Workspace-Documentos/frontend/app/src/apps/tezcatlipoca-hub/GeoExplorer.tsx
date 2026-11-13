@@ -9,6 +9,7 @@ import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { CalendarDays, Crosshair, Database, Eye, EyeOff, Globe2, Save, Satellite, ScanSearch } from 'lucide-react';
 import { megalodonClient } from '@/lib/api-client';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { abrirModulo } from '@/lib/navigation';
 import type { ContextoGeoTez } from '@/lib/megalodon-client';
 
@@ -81,7 +82,7 @@ function statusLabel(state?: SourceState): string {
   return state.status || 'Sin información';
 }
 
-export default function GeoExplorer() {
+export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter?: Center }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   // Invalidate responses when the user moves the map or unmounts the view.
@@ -90,9 +91,9 @@ export default function GeoExplorer() {
   const [date, setDate] = useState(yesterdayUTC);
   const [layers, setLayers] = useState(DEFAULT_LAYERS);
   const [context, setContext] = useState<ContextoGeoTez | null>(null);
-  const [location, setLocation] = useState<Center>(INITIAL);
-  const [inputLat, setInputLat] = useState(String(INITIAL.lat));
-  const [inputLon, setInputLon] = useState(String(INITIAL.lon));
+  const [location, setLocation] = useState<Center>(initialCenter);
+  const [inputLat, setInputLat] = useState(String(initialCenter.lat));
+  const [inputLon, setInputLon] = useState(String(initialCenter.lon));
   const [querying, setQuerying] = useState(false);
   const [saving, setSaving] = useState(false);
   const [weather, setWeather] = useState<{
@@ -104,6 +105,8 @@ export default function GeoExplorer() {
   const [message, setMessage] = useState('');
   const [selected, setSelected] = useState<{ title: string; provider: string; observed: string } | null>(null);
   const [dirty, setDirty] = useState(true);
+  const role = useAuthStore(state => state.user?.role);
+  const canSave = role === 'tecnico' || role === 'admin' || role === 'superadmin';
 
   useEffect(() => {
     if (!container.current || mapRef.current) return;
@@ -121,7 +124,7 @@ export default function GeoExplorer() {
       ],
     };
     const map = new maplibregl.Map({
-      container: container.current, style, center: [INITIAL.lon, INITIAL.lat],
+      container: container.current, style, center: [initialCenter.lon, initialCenter.lat],
       zoom: INITIAL_ZOOM, attributionControl: { compact: true },
     });
     map.addControl(new maplibregl.NavigationControl(), 'top-right');
@@ -334,9 +337,10 @@ export default function GeoExplorer() {
         </div>
         {error && <p role="alert" className="rounded-md bg-red-950/40 p-2 text-xs text-red-300">{error}</p>}
         {message && <p role="status" className="text-xs" style={{ color: 'var(--text-secondary)' }}>{message}</p>}
-        <button onClick={() => void save()} disabled={!context || dirty || saving}
+        <button onClick={() => void save()} disabled={!canSave || !context || dirty || saving}
           className="flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-xs disabled:opacity-50"
           style={{ borderColor: 'var(--border-subtle)' }}><Save size={14}/>{saving ? 'Guardando…' : 'Guardar vista en Tezcatlipoca'}</button>
+        {!canSave && <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Tu rol permite consultar, pero no guardar snapshots.</p>}
         <button onClick={() => abrirModulo('rastreo-orbital')} className="w-full rounded-md border px-3 py-2 text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
           Ver motor orbital 3D
         </button>
