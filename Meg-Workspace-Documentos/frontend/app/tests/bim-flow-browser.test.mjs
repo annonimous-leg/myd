@@ -594,3 +594,43 @@ test('Tezcatlipoca corporate center loads without orbital or geo network queries
     await context.close();
   }
 });
+
+
+test('Tezcatlipoca keeps regional observations accessible without WebGL', {timeout:120000}, async () => {
+  const context = await browser.newContext({viewport:{width:1366,height:768}});
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  try {
+    await login(page, credentials.reviewer);
+    // Simulate a genuine unavailable WebGL context, without mocking provider responses.
+    await page.addInitScript(() => {
+      const nativeGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function(type, ...args) {
+        if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') return null;
+        return nativeGetContext.call(this, type, ...args);
+      };
+    });
+    await page.goto(origin + '/?app=tezcatlipoca-hub');
+    await page.getByRole('heading', {name:'Tezcatlipoca · Hub Operacional'}).waitFor();
+    await page.getByRole('button', {name:'Tierra',exact:true}).click();
+    const table = page.getByRole('region',{name:'Observaciones terrestres sin WebGL'});
+    await table.waitFor({timeout:30000});
+    assert.equal(await table.locator('canvas').count(), 0);
+    await page.getByLabel('Latitud de destino').fill('19.4326');
+    await page.getByLabel('Longitud de destino').fill('-99.1332');
+    await page.getByRole('button',{name:'Ir a coordenadas'}).click();
+    const response = page.waitForResponse(r => new URL(r.url()).pathname === '/api/tezcatlipoca/geo/context', {timeout:60000});
+    await page.getByRole('button',{name:'Consultar esta región'}).click();
+    const actual = await response;
+    assert.equal(actual.status(), 200, 'Real authenticated regional backend request must succeed');
+    const query = new URL(actual.url()).searchParams;
+    assert.ok(Number(query.get('lat_min') ?? query.get('latMin')) < 19.4326, 'Regional query must cover south');
+    assert.ok(Number(query.get('lat_max') ?? query.get('latMax')) > 19.4326, 'Regional query must cover north');
+    await page.getByText(/Consulta ·/).first().waitFor({timeout:30000});
+    await page.screenshot({path:join(evidence,'14-tezcatlipoca-sin-webgl.png'),fullPage:true});
+    assert.deepEqual(errors, []);
+  } finally {
+    await context.close();
+  }
+});
