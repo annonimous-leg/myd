@@ -646,10 +646,15 @@ test('orbital view starts in basic mode and can toggle bloom without WebGL excep
     await page.goto(origin+'/?app=rastreo-orbital');
     const quality = page.getByLabel('Calidad gráfica orbital');
     await quality.waitFor({timeout:30000});
+    const canvas = page.locator('canvas[data-render-quality]');
+    await canvas.waitFor({timeout:30000}); // actual WebGLRenderer, not just a selector
     assert.equal(await quality.inputValue(), 'basic');
+    assert.equal(await canvas.getAttribute('data-render-quality'), 'basic');
     await quality.selectOption('standard');
+    await page.waitForFunction(() => document.querySelector('canvas[data-render-quality]')?.getAttribute('data-render-quality') === 'standard');
     assert.equal(await quality.inputValue(), 'standard');
     await quality.selectOption('basic');
+    await page.waitForFunction(() => document.querySelector('canvas[data-render-quality]')?.getAttribute('data-render-quality') === 'basic');
     assert.equal(await quality.inputValue(), 'basic');
     await page.screenshot({path:join(evidence,'15-orbital-modo-basico.png'),fullPage:true});
     assert.deepEqual(errors, []);
