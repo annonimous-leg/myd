@@ -40,6 +40,7 @@ export function usePropagator(
   dataset: Dataset | null,
   engineRef: React.RefObject<GlobeEngine | null>,
   clock: SimClock,
+  enabled = true,
 ) {
   const [degraded, setDegraded] = useState<string | null>(null)
   const workerRef = useRef<Worker | null>(null)
@@ -104,7 +105,7 @@ export function usePropagator(
 
   // worker lifecycle, one per dataset generation
   useEffect(() => {
-    if (!dataset) return
+    if (!dataset || !enabled) return
     const gen = ++genRef.current
     readyRef.current = false
     inFlightRef.current = false
@@ -189,15 +190,18 @@ export function usePropagator(
     return () => {
       if (initTimerRef.current) clearTimeout(initTimerRef.current)
       worker.terminate()
+      readyRef.current = false
+      inFlightRef.current = false
+      pendingRef.current = null
       if (workerRef.current === worker) workerRef.current = null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataset])
+  }, [dataset, enabled])
 
   // scheduler: activate pending intervals on time, keep the forward buffer full
   useEffect(() => {
     const id = setInterval(() => {
-      if (!readyRef.current || !playingRef.current) return
+      if (!enabled || !readyRef.current || !playingRef.current) return
       const now = clock.getTime()
       const dir = speedRef.current < 0 ? -1 : 1
 
@@ -232,7 +236,7 @@ export function usePropagator(
       }
     }, 120)
     return () => clearInterval(id)
-  }, [clock, intervalFor, requestInterval, activate])
+  }, [clock, intervalFor, requestInterval, activate, enabled])
 
   // Note: a still-valid interval is deliberately NOT restarted when playback
   // speed changes — only the duration of future intervals adapts.
