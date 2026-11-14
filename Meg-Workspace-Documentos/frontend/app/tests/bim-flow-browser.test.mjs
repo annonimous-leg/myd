@@ -634,3 +634,26 @@ test('Tezcatlipoca keeps regional observations accessible without WebGL', {timeo
     await context.close();
   }
 });
+
+
+test('orbital view starts in basic mode and can toggle bloom without WebGL exceptions', {timeout:90000}, async () => {
+  const context = await browser.newContext({viewport:{width:1366,height:768}});
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  try {
+    await login(page, credentials.reviewer);
+    await page.goto(origin+'/?app=rastreo-orbital');
+    const quality = page.getByLabel('Calidad gráfica orbital');
+    await quality.waitFor({timeout:30000});
+    assert.equal(await quality.inputValue(), 'basic');
+    await quality.selectOption('standard');
+    assert.equal(await quality.inputValue(), 'standard');
+    await quality.selectOption('basic');
+    assert.equal(await quality.inputValue(), 'basic');
+    await page.screenshot({path:join(evidence,'15-orbital-modo-basico.png'),fullPage:true});
+    assert.deepEqual(errors, []);
+  } finally {
+    await context.close();
+  }
+});
