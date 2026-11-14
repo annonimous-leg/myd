@@ -239,7 +239,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataset])
 
-  const { degraded } = usePropagator(dataset, engineRef, clock)
+  const { degraded } = usePropagator(dataset, engineRef, clock, webglOk && !ctxLost)
 
   // ---- telemetry for the selected satellite (direct propagación orbital at exact sim time) ----
   useEffect(() => {
