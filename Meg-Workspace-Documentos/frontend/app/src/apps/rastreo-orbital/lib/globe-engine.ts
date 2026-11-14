@@ -227,6 +227,7 @@ export class GlobeEngine {
       alpha: false,
       powerPreference: quality === 'basic' ? 'low-power' : 'high-performance',
     })
+    this.renderer.domElement.dataset.renderQuality = this.quality
     this.renderer.setClearColor(0x04060a, 1)
     container.appendChild(this.renderer.domElement)
 
@@ -467,6 +468,7 @@ export class GlobeEngine {
   setQuality(quality: RenderQuality) {
     if (this.disposed || quality === this.quality) return
     this.quality = quality
+    this.renderer.domElement.dataset.renderQuality = quality
     if (quality === 'basic') this.releaseComposer()
     else this.createComposer(this.container.clientWidth || 1, this.container.clientHeight || 1)
     this.appliedDpr = 0 // force reallocating at the appropriate DPR
