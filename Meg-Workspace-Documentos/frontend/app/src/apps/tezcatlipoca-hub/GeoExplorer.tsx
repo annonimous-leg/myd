@@ -12,6 +12,8 @@ import { megalodonClient } from '@/lib/api-client';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { abrirModulo } from '@/lib/navigation';
 import type { ContextoGeoTez } from '@/lib/megalodon-client';
+import { observationsFromContext, regionalBounds } from './intelligence-data';
+import type { RegionalBounds } from './intelligence-data';
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
@@ -21,6 +23,19 @@ type SourceState = { status?: string; last_success?: string | null; coverage?: s
 
 const INITIAL: Center = { lon: -99.1332, lat: 19.4326 };
 const INITIAL_ZOOM = 7;
+
+/** Only request a WebGL map if a context can actually be created. */
+function supportsWebGL(): boolean {
+  try {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    if (!context) return false;
+    context.getExtension('WEBGL_lose_context')?.loseContext();
+    return true;
+  } catch {
+    return false;
+  }
+}
 const DEFAULT_LAYERS: Record<LayerId, boolean> = { earthquakes: true, aircraft: true, ships: true };
 const LAYER_META: { id: LayerId; label: string; color: string }[] = [
   { id: 'earthquakes', label: 'Sismos', color: '#ed886c' },
@@ -88,6 +103,9 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
   // Invalidate responses when the user moves the map or unmounts the view.
   const queryVersion = useRef(0);
   const [ready, setReady] = useState(false);
+  const [viewMode, setViewMode] = useState<'map' | 'table'>(() => supportsWebGL() ? 'map' : 'table');
+  const [mapError, setMapError] = useState('');
+  const [tableRadiusKm, setTableRadiusKm] = useState(50);
   const [date, setDate] = useState(yesterdayUTC);
   const [layers, setLayers] = useState(DEFAULT_LAYERS);
   const [context, setContext] = useState<ContextoGeoTez | null>(null);
@@ -108,8 +126,33 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
   const role = useAuthStore(state => state.user?.role);
   const canSave = role === 'tecnico' || role === 'admin' || role === 'superadmin';
 
+  const switchToTable = useCallback((reason: string) => {
+    queryVersion.current += 1;
+    setReady(false);
+    setContext(null);
+    setDirty(true);
+    setQuerying(false);
+    setSelected(null);
+    setMapError(reason);
+    setViewMode('table');
+  }, []);
+
+  const tryMap = () => {
+    if (!supportsWebGL()) {
+      setMapError('WebGL no está disponible. Continúa con las observaciones tabulares.');
+      return;
+    }
+    queryVersion.current += 1;
+    setReady(false);
+    setContext(null);
+    setDirty(true);
+    setSelected(null);
+    setMapError('');
+    setViewMode('map');
+  };
+
   useEffect(() => {
-    if (!container.current || mapRef.current) return;
+    if (viewMode !== 'map' || !container.current || mapRef.current) return;
     const style: maplibregl.StyleSpecification = {
       version: 8,
       sources: {
@@ -123,33 +166,52 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
         { id: 'vessels', type: 'circle', source: 'observations', filter: ['==', ['get', 'kind'], 'ships'], paint: { 'circle-radius': 5, 'circle-color': '#e7c675', 'circle-stroke-width': 1.2, 'circle-stroke-color': '#08131e' } },
       ],
     };
-    const map = new maplibregl.Map({
-      container: container.current, style, center: [initialCenter.lon, initialCenter.lat],
-      zoom: INITIAL_ZOOM, attributionControl: { compact: true },
-    });
-    map.addControl(new maplibregl.NavigationControl(), 'top-right');
-    map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
-    map.on('load', () => setReady(true));
-    map.on('moveend', () => { queryVersion.current += 1; setDirty(true); setQuerying(false); });
-    map.on('click', e => {
-      const hit = map.queryRenderedFeatures(e.point, { layers: ['quakes', 'planes', 'vessels'] });
-      if (hit.length) {
-        const props = hit[0].properties;
-        setSelected({ title: String(props?.title || 'Observación'), provider: String(props?.provider || 'Desconocido'), observed: String(props?.observed || 'Sin fecha') });
-      } else {
-        setSelected(null);
-        const next = { lat: e.lngLat.lat, lon: e.lngLat.lng };
-        setLocation(next);
-        setWeather(null);
-        setInputLat(next.lat.toFixed(5));
-        setInputLon(next.lon.toFixed(5));
-      }
-    });
-    mapRef.current = map;
-    return () => { queryVersion.current += 1; map.remove(); mapRef.current = null; };
-    // Create only once; subsequent state updates use the existing map.
+    let created: maplibregl.Map | null = null;
+    try {
+      const map = new maplibregl.Map({
+        container: container.current, style, center: [location.lon, location.lat],
+        zoom: INITIAL_ZOOM, attributionControl: { compact: true },
+      });
+      created = map;
+      mapRef.current = map;
+      const onContextLost = (event: Event) => {
+        event.preventDefault();
+        switchToTable('El mapa perdió el contexto WebGL. Las observaciones continúan disponibles en tabla.');
+      };
+      map.getCanvas().addEventListener('webglcontextlost', onContextLost);
+      map.addControl(new maplibregl.NavigationControl(), 'top-right');
+      map.addControl(new maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
+      map.on('load', () => setReady(true));
+      map.on('moveend', () => { queryVersion.current += 1; setDirty(true); setQuerying(false); });
+      map.on('click', e => {
+        const hit = map.queryRenderedFeatures(e.point, { layers: ['quakes', 'planes', 'vessels'] });
+        if (hit.length) {
+          const props = hit[0].properties;
+          setSelected({ title: String(props?.title || 'Observación'), provider: String(props?.provider || 'Desconocido'), observed: String(props?.observed || 'Sin fecha') });
+        } else {
+          setSelected(null);
+          const next = { lat: e.lngLat.lat, lon: e.lngLat.lng };
+          setLocation(next);
+          setWeather(null);
+          setInputLat(next.lat.toFixed(5));
+          setInputLon(next.lon.toFixed(5));
+        }
+      });
+      return () => {
+        queryVersion.current += 1;
+        map.getCanvas().removeEventListener('webglcontextlost', onContextLost);
+        map.remove();
+        if (mapRef.current === map) mapRef.current = null;
+      };
+    } catch {
+      created?.remove();
+      if (mapRef.current === created) mapRef.current = null;
+      switchToTable('No se pudo inicializar WebGL/MapLibre. Puedes consultar la región mediante la tabla.');
+      return;
+    }
+    // Changing display mode tears down the map and its GPU context.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [viewMode, switchToTable]);
 
   useEffect(() => {
     if (!ready) return;
@@ -173,31 +235,45 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
     setError('');
     setSelected(null);
     mapRef.current?.flyTo({ center: [lon, lat], zoom: Math.max(9, mapRef.current.getZoom()), essential: true });
+    queryVersion.current += 1;
+    setContext(null);
     setDirty(true);
   }, [inputLat, inputLon]);
 
   const refresh = useCallback(async () => {
-    const map = mapRef.current;
-    if (!map) return;
-    const bounds = map.getBounds();
-    if (bounds.getWest() < -180 || bounds.getEast() > 180) {
-      setError('Acerca el mapa a una región sin cruzar el meridiano ±180°.');
+    const map = viewMode === 'map' ? mapRef.current : null;
+    if (viewMode === 'map' && !map) return;
+    let bounds: RegionalBounds;
+    try {
+      if (map) {
+        const viewport = map.getBounds();
+        if (viewport.getWest() < -180 || viewport.getEast() > 180) {
+          throw new Error('Acerca el mapa a una región sin cruzar el meridiano ±180°.');
+        }
+        bounds = { latMin: viewport.getSouth(), latMax: viewport.getNorth(),
+          lonMin: viewport.getWest(), lonMax: viewport.getEast() };
+      } else {
+        bounds = regionalBounds(String(location.lat), String(location.lon), tableRadiusKm);
+      }
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Región inválida');
       return;
     }
     const version = ++queryVersion.current;
     setQuerying(true); setError(''); setMessage('');
     try {
       const result = await megalodonClient.tezcatlipoca.geoContext({
-        latMin: bounds.getSouth(), latMax: bounds.getNorth(),
-        lonMin: bounds.getWest(), lonMax: bounds.getEast(),
+        latMin: bounds.latMin, latMax: bounds.latMax,
+        lonMin: bounds.lonMin, lonMax: bounds.lonMax,
         limit: 250,
       });
       if (version !== queryVersion.current) return;
-      const currentBounds = map.getBounds();
-      if (Math.abs(currentBounds.getSouth() - bounds.getSouth()) > 0.00001
-          || Math.abs(currentBounds.getNorth() - bounds.getNorth()) > 0.00001
-          || Math.abs(currentBounds.getWest() - bounds.getWest()) > 0.00001
-          || Math.abs(currentBounds.getEast() - bounds.getEast()) > 0.00001) {
+      const currentBounds = map?.getBounds();
+      if (currentBounds && (
+        Math.abs(currentBounds.getSouth() - bounds.latMin) > 0.00001
+        || Math.abs(currentBounds.getNorth() - bounds.latMax) > 0.00001
+        || Math.abs(currentBounds.getWest() - bounds.lonMin) > 0.00001
+        || Math.abs(currentBounds.getEast() - bounds.lonMax) > 0.00001)) {
         setDirty(true);
         setError('La región cambió durante la consulta; vuelve a actualizar antes de guardar.');
         return;
@@ -212,7 +288,7 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
     } finally {
       if (version === queryVersion.current) setQuerying(false);
     }
-  }, []);
+  }, [viewMode, location.lat, location.lon, tableRadiusKm]);
 
   const loadWeather = useCallback(async () => {
     setLoadingWeather(true); setWeather(null); setError('');
@@ -267,8 +343,34 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
   return (
     <div className="flex h-full min-h-[580px] flex-col gap-3 overflow-auto lg:flex-row">
       <div className="relative min-h-[430px] flex-1 overflow-hidden rounded-xl border" style={{ borderColor: 'var(--border-subtle)', background: '#08121b' }}>
-        <div ref={container} className="absolute inset-0" aria-label="Mapa de contexto geoespacial Tezcatlipoca" />
-        <div className="absolute left-3 top-3 z-10 rounded-lg border bg-[#090f19]/90 p-3 text-xs text-slate-100 backdrop-blur" style={{ borderColor: '#24344a' }}>
+        {viewMode === 'map' ? (
+          <div ref={container} className="absolute inset-0" aria-label="Mapa de contexto geoespacial Tezcatlipoca" />
+        ) : (
+          <div className="absolute inset-0 overflow-auto p-4 pt-16" role="region" aria-label="Observaciones terrestres sin WebGL">
+            <h3 className="text-sm font-semibold text-slate-100">Observaciones regionales · modo tabular</h3>
+            <p className="mt-1 text-xs text-slate-300">
+              {mapError || 'Vista sin WebGL. Se conserva la consulta autenticada al backend real.'}
+            </p>
+            {!context ? <p className="mt-5 text-xs text-slate-400">Sin datos consultados. Selecciona coordenadas y pulsa «Consultar esta región».</p>
+              : (() => {
+                const rows = observationsFromContext(context).filter(item =>
+                  (item.kind === 'earthquake' && layers.earthquakes)
+                  || (item.kind === 'aircraft' && layers.aircraft)
+                  || (item.kind === 'ship' && layers.ships));
+                return rows.length === 0
+                  ? <p className="mt-5 text-xs text-slate-400">No se recibieron observaciones válidas para esta consulta. Revisa la cobertura de las fuentes.</p>
+                  : <div className="mt-3 overflow-x-auto"><table className="min-w-full text-left text-xs text-slate-200">
+                    <thead><tr className="border-b border-slate-700"><th className="p-2">Observación</th><th className="p-2">Fuente</th><th className="p-2">Coordenadas</th><th className="p-2">Fecha</th></tr></thead>
+                    <tbody>{rows.slice(0, 100).map((item, index) => <tr className="border-b border-slate-800" key={item.id + '-' + index}>
+                      <td className="p-2">{item.title} · {item.detail}</td><td className="p-2">{item.source}</td>
+                      <td className="p-2">{item.lat.toFixed(4)}, {item.lon.toFixed(4)}</td>
+                      <td className="p-2">{item.observedAt ? new Date(item.observedAt).toLocaleString('es-MX') : 'Sin fecha'}</td>
+                    </tr>)}</tbody>
+                    </table>{rows.length > 100 && <p className="mt-2 text-xs text-slate-400">Mostrando los primeros 100 de {rows.length} registros.</p>}</div>;
+              })()}
+          </div>
+        )}
+        {viewMode === 'map' && <div className="absolute left-3 top-3 z-10 rounded-lg border bg-[#090f19]/90 p-3 text-xs text-slate-100 backdrop-blur" style={{ borderColor: '#24344a' }}>
           <div className="mb-2 flex items-center gap-1.5 font-semibold"><Satellite size={14}/> NASA · Terra / imagen diaria</div>
           <label className="flex items-center gap-2 text-[11px] text-slate-300">
             <CalendarDays size={13}/> Fecha de imagen
@@ -279,8 +381,8 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
           <p className="mt-2 max-w-[230px] text-[10px] leading-4 text-slate-400">
             Contexto satelital de baja resolución, NO Street View ni imagen en vivo.
           </p>
-        </div>
-        {selected && (
+        </div>}
+        {selected && viewMode === 'map' && (
           <div className="absolute bottom-12 left-3 z-10 max-w-[270px] rounded-lg border border-slate-600 bg-[#080e17]/95 p-3 text-xs text-white">
             <strong>{selected.title}</strong>
             <p className="mt-1">Fuente: {selected.provider}</p>
@@ -295,11 +397,24 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
         <div>
           <h2 className="flex items-center gap-2 text-sm font-semibold"><Globe2 size={17}/> Explorador terrestre</h2>
           <p className="mt-1 text-[11px]" style={{ color: 'var(--text-muted)' }}>Selecciona una región, consulta las fuentes y guarda el estado verificable.</p>
+          <div className="mt-2 flex gap-2">
+            <button type="button" onClick={() => switchToTable('Vista tabular seleccionada para reducir consumo gráfico.')}
+              aria-pressed={viewMode === 'table'} className="rounded-md border px-2 py-1 text-[11px]" style={{ borderColor: 'var(--border-subtle)' }}>Tabla sin WebGL</button>
+            {viewMode === 'table' && <button type="button" onClick={tryMap} className="rounded-md border px-2 py-1 text-[11px]" style={{ borderColor: 'var(--border-subtle)' }}>Reintentar mapa</button>}
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <label className="text-[11px]">Latitud<input aria-label="Latitud de destino" type="number" step="any" value={inputLat} onChange={e => setInputLat(e.target.value)} className="mt-1 w-full rounded-md border p-2 text-xs" style={{ background: 'var(--surface-elevated)', borderColor: 'var(--border-subtle)' }}/></label>
           <label className="text-[11px]">Longitud<input aria-label="Longitud de destino" type="number" step="any" value={inputLon} onChange={e => setInputLon(e.target.value)} className="mt-1 w-full rounded-md border p-2 text-xs" style={{ background: 'var(--surface-elevated)', borderColor: 'var(--border-subtle)' }}/></label>
         </div>
+        {viewMode === 'table' && (
+          <label className="block text-[11px]">Radio de consulta (sin mapa)
+            <select value={tableRadiusKm} onChange={e => { queryVersion.current += 1; setTableRadiusKm(Number(e.target.value)); setContext(null); setDirty(true); }}
+              className="mt-1 w-full rounded-md border p-2 text-xs" style={{ background: 'var(--surface-elevated)', borderColor: 'var(--border-subtle)' }}>
+              <option value={20}>20 km</option><option value={50}>50 km</option><option value={100}>100 km</option><option value={200}>200 km</option>
+            </select>
+          </label>
+        )}
         <button onClick={explore} className="flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-xs" style={{ borderColor: 'var(--border-subtle)' }}><Crosshair size={14}/> Ir a coordenadas</button>
         <div className="space-y-2 border-t pt-3" style={{ borderColor: 'var(--border-subtle)' }}>
           <p className="flex items-center gap-1.5 text-xs font-medium"><ScanSearch size={15}/> Capas observadas</p>
@@ -309,7 +424,7 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
             <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: l.color }}/>{l.label}</span>
             {layers[l.id] ? <Eye size={13}/> : <EyeOff size={13}/>}
           </button>)}
-          <button onClick={() => void refresh()} disabled={!ready || querying} className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold disabled:opacity-50"
+          <button onClick={() => void refresh()} disabled={(viewMode === 'map' && !ready) || querying} className="flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-semibold disabled:opacity-50"
             style={{ background: 'var(--accent-gold)', color: 'var(--void)' }}><Database size={14}/>{querying ? 'Consultando…' : dirty ? 'Consultar esta región' : 'Volver a consultar'}</button>
         </div>
         {context && (
@@ -337,9 +452,10 @@ export default function GeoExplorer({ initialCenter = INITIAL }: { initialCenter
         </div>
         {error && <p role="alert" className="rounded-md bg-red-950/40 p-2 text-xs text-red-300">{error}</p>}
         {message && <p role="status" className="text-xs" style={{ color: 'var(--text-secondary)' }}>{message}</p>}
-        <button onClick={() => void save()} disabled={!canSave || !context || dirty || saving}
+        <button onClick={() => void save()} disabled={viewMode === 'table' || !canSave || !context || dirty || saving}
           className="flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-xs disabled:opacity-50"
           style={{ borderColor: 'var(--border-subtle)' }}><Save size={14}/>{saving ? 'Guardando…' : 'Guardar vista en Tezcatlipoca'}</button>
+        {viewMode === 'table' && <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>El guardado geográfico requiere una vista de mapa verificable. La tabla solo permite consulta.</p>}
         {!canSave && <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>Tu rol permite consultar, pero no guardar snapshots.</p>}
         <button onClick={() => abrirModulo('rastreo-orbital')} className="w-full rounded-md border px-3 py-2 text-xs" style={{ borderColor: 'var(--border-subtle)' }}>
           Ver motor orbital 3D
