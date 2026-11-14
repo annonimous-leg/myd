@@ -17,6 +17,8 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js'
 
+export type RenderQuality = 'basic' | 'standard'
+
 export interface EngineCallbacks {
   getSimTime: () => number // ms epoch (simulated)
   onSelect: (index: number | null) => void
@@ -25,6 +27,7 @@ export interface EngineCallbacks {
   onContextRestored: () => void
   /** reported ~once per second */
   onFps?: (fps: number) => void
+  onQualityChange?: (quality: RenderQuality) => void
   /** Fill `past` (t-P/2..t) and `future` (t..t+P/2) with unit ECI points. */
   orbitProvider: (
     index: number,
@@ -171,15 +174,15 @@ export class GlobeEngine {
   private scene = new THREE.Scene()
   private camera: THREE.PerspectiveCamera
   private controls: OrbitControls
-  private composer: EffectComposer
-  private bloom: UnrealBloomPass
+  private composer: EffectComposer | null = null
+  private quality: RenderQuality = 'basic'
+  private earthTextures: THREE.Texture[] = []
   private earth: THREE.Mesh
   private earthMat: THREE.ShaderMaterial
   private groups: GroupRuntime[] = []
   /** hidden replacement set during a dataset swap (old groups keep rendering) */
   private replacement: GroupRuntime[] | null = null
   private desiredVisible: boolean[] = []
-  private qualityCap = 1.5
   private appliedW = 0
   private appliedH = 0
   private appliedDpr = 0
@@ -210,19 +213,19 @@ export class GlobeEngine {
   private downPos = { x: 0, y: 0 }
   private lastHoverCheck = 0
   private frameTimes: number[] = []
-  private dprReduced = false
   private lastFrameT = 0
   private fpsCount = 0
   private fpsWindowStart = 0
 
-  constructor(container: HTMLElement, cb: EngineCallbacks) {
+  constructor(container: HTMLElement, cb: EngineCallbacks, quality: RenderQuality = 'basic') {
     this.container = container
     this.cb = cb
+    this.quality = quality
 
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
+      antialias: quality === 'standard',
       alpha: false,
-      powerPreference: 'high-performance',
+      powerPreference: quality === 'basic' ? 'low-power' : 'high-performance',
     })
     this.renderer.setClearColor(0x04060a, 1)
     container.appendChild(this.renderer.domElement)
@@ -247,6 +250,8 @@ export class GlobeEngine {
     const loader = new THREE.TextureLoader()
     const dayTex = loader.load(`${import.meta.env.BASE_URL}textures/earth-day.jpg`)
     const nightTex = loader.load(`${import.meta.env.BASE_URL}textures/earth-night.jpg`)
+    // Shader uniforms own these textures, so material.dispose() does not release them.
+    this.earthTextures = [dayTex, nightTex]
     dayTex.colorSpace = THREE.SRGBColorSpace
     nightTex.colorSpace = THREE.SRGBColorSpace
     dayTex.anisotropy = 4
@@ -355,12 +360,8 @@ export class GlobeEngine {
     this.footLine.frustumCulled = false
     this.scene.add(this.footLine)
 
-    // --- selective bloom: threshold 1.0 keeps Earth/stars out of the glow ---
-    this.composer = new EffectComposer(this.renderer)
-    this.composer.addPass(new RenderPass(this.scene, this.camera))
-    this.bloom = new UnrealBloomPass(new THREE.Vector2(initW, initH), 0.55, 0.35, 1.0)
-    this.composer.addPass(this.bloom)
-    this.composer.addPass(new OutputPass())
+    // Basic mode avoids allocating bloom/composer render targets entirely.
+    if (this.quality === 'standard') this.createComposer(initW, initH)
     this.applySize()
 
     // --- events ---
@@ -437,10 +438,46 @@ export class GlobeEngine {
    */
   private computeDpr(w: number, h: number): number {
     const pixelBudgetDpr = Math.sqrt(5_000_000 / (w * h))
+    // Cap basic mode below DPR=1 even on modest screens and integrated GPUs.
     return Math.max(
       0.5,
-      Math.min(window.devicePixelRatio || 1, this.qualityCap, pixelBudgetDpr),
+      Math.min(window.devicePixelRatio || 1, this.quality === 'basic' ? 0.75 : 1.5, pixelBudgetDpr),
     )
+  }
+
+  private createComposer(w: number, h: number) {
+    if (this.composer) return
+    const composer = new EffectComposer(this.renderer)
+    composer.addPass(new RenderPass(this.scene, this.camera))
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.55, 0.35, 1.0))
+    composer.addPass(new OutputPass())
+    this.composer = composer
+  }
+
+  private releaseComposer() {
+    if (!this.composer) return
+    for (const pass of this.composer.passes) {
+      ;(pass as { dispose?: () => void }).dispose?.()
+    }
+    this.composer.dispose()
+    this.composer = null
+  }
+
+  /** Can be changed without recreating the scene or satellite buffers. */
+  setQuality(quality: RenderQuality) {
+    if (this.disposed || quality === this.quality) return
+    this.quality = quality
+    if (quality === 'basic') this.releaseComposer()
+    else this.createComposer(this.container.clientWidth || 1, this.container.clientHeight || 1)
+    this.appliedDpr = 0 // force reallocating at the appropriate DPR
+    this.applySize()
+    this.frameTimes.length = 0
+    this.lastFrameT = 0
+    this.cb.onQualityChange?.(quality)
+  }
+
+  getQuality(): RenderQuality {
+    return this.quality
   }
 
   /** Apply container size + DPR; a no-op when neither actually changed. */
@@ -457,8 +494,8 @@ export class GlobeEngine {
     this.camera.updateProjectionMatrix()
     this.renderer.setPixelRatio(dpr)
     this.renderer.setSize(w, h)
-    this.composer.setPixelRatio(dpr)
-    this.composer.setSize(w, h)
+    this.composer?.setPixelRatio(dpr)
+    this.composer?.setSize(w, h)
     for (const g of this.groups) g.mat.uniforms.uPixelRatio.value = dpr
     if (this.replacement) {
       for (const g of this.replacement) g.mat.uniforms.uPixelRatio.value = dpr
@@ -788,15 +825,13 @@ export class GlobeEngine {
       this.fpsCount = 0
       this.fpsWindowStart = now
     }
-    if (this.dprReduced) return
-    if (this.lastFrameT) this.frameTimes.push(now - this.lastFrameT)
-    if (this.frameTimes.length >= 120) {
-      const avg = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length
-      this.frameTimes.length = 0
-      if (avg > 40 && this.qualityCap > 1) {
-        this.dprReduced = true
-        this.qualityCap = 1
-        this.applySize()
+    if (this.quality === 'standard') {
+      if (this.lastFrameT) this.frameTimes.push(now - this.lastFrameT)
+      if (this.frameTimes.length >= 120) {
+        const avg = this.frameTimes.reduce((a, b) => a + b, 0) / this.frameTimes.length
+        this.frameTimes.length = 0
+        // Sustained <25 FPS: drop bloom and its render targets, not only DPR.
+        if (avg > 40) this.setQuality('basic')
       }
     }
     this.lastFrameT = now
@@ -879,7 +914,8 @@ export class GlobeEngine {
     }
 
     this.controls.update()
-    this.composer.render()
+    if (this.composer) this.composer.render()
+    else this.renderer.render(this.scene, this.camera)
     this.monitorPerf(performance.now())
   }
 
@@ -911,10 +947,10 @@ export class GlobeEngine {
         }
       }
     })
-    for (const pass of this.composer.passes) {
-      ;(pass as { dispose?: () => void }).dispose?.()
-    }
-    this.composer.dispose()
+    // ShaderMaterial uniforms do not dispose textures automatically.
+    for (const texture of this.earthTextures) texture.dispose()
+    this.earthTextures = []
+    this.releaseComposer()
     this.renderer.dispose()
     el.remove()
   }
