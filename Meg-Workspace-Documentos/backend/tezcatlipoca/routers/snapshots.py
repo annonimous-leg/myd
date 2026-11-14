@@ -23,7 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
 from db.models import get_async_db, Snapshot
-from routers.auth import get_current_user
+from routers.auth import get_current_user, require_role
 from db.models import User
 
 router = APIRouter(tags=["snapshots"])
@@ -112,7 +112,7 @@ async def get_snapshot(
 @router.post("/create", response_model=SnapshotResponse)
 async def create_snapshot(
     req: SnapshotCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["full", "admin"])),
     db: AsyncSession = Depends(get_async_db), _rate_limit: bool = Depends(rate_limit_strict)
 ):
     """Create a new snapshot, asociado al tenant del usuario actual."""
@@ -134,7 +134,7 @@ async def create_snapshot(
 @router.delete("/{snapshot_id}")
 async def delete_snapshot(
     snapshot_id: int,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["full", "admin"])),
     db: AsyncSession = Depends(get_async_db), _rate_limit: bool = Depends(rate_limit_strict)
 ):
     """Delete a snapshot (owner o admin -- del MISMO tenant)."""

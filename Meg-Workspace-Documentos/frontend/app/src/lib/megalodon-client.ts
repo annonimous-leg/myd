@@ -2134,11 +2134,11 @@ export class MegalodonClient {
     snapshots: async (): Promise<{ id: number; name: string; created_at: string }[]> =>
       this.requestTez("GET", "/snapshots/"),
     osintLookup: async (q: string, type = "auto") => {
-      const params = new URLSearchParams({ q, type });
+      const params = new URLSearchParams({ target: q, type });
       return this.requestTez<any>("GET", `/osint/lookup?${params.toString()}`);
     },
     osintExpand: async (entity: string, maxDepth = 2) =>
-      this.requestTez<any>("POST", "/osint/expand", { entity, max_depth: maxDepth }),
+      this.requestTez<any>("POST", "/osint/expand", { entity, depth: maxDepth }),
     cyberCisaStats: async () => this.requestTez<any>("GET", "/cyber/cisa-kev/stats"),
     cyberGreynoise: async (ip: string) => this.requestTez<any>("GET", `/cyber/greynoise/ip/${encodeURIComponent(ip)}`),
     sarScenes: async (params?: { bbox?: string; startDate?: string; endDate?: string }) => {

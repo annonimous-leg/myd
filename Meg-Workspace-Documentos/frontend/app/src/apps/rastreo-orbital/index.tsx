@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as satellite from './lib/orbit/satellite'
 import { GlobeEngine } from './lib/globe-engine'
+import type { RenderQuality } from './lib/globe-engine'
 import { UI_GROUPS } from './lib/satellites'
 import type { SatInfo } from './lib/satellites'
 import { useSimClock } from './hooks/useSimClock'
@@ -60,6 +61,8 @@ export default function Home() {
   const [showFoot, setShowFoot] = useState(true)
   const [follow, setFollow] = useState(false)
   const [fps, setFps] = useState(0)
+  // Basic is intentional: usable on integrated graphics before opting in to bloom.
+  const [quality, setQuality] = useState<RenderQuality>('basic')
   const [layersOpen, setLayersOpen] = useState(false)
 
   const satsRef = useRef<SatInfo[]>(EMPTY_SATS)
@@ -174,9 +177,10 @@ export default function Home() {
       onContextLost: () => setCtxLost(true),
       onContextRestored: () => setCtxLost(false),
       onFps: (v) => setFps(v),
+      onQualityChange: setQuality,
       orbitProvider,
       footprintProvider,
-    })
+    }, 'basic')
     engineRef.current = engine
     return () => {
       engine.dispose()
@@ -235,7 +239,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataset])
 
-  const { degraded } = usePropagator(dataset, engineRef, clock)
+  const { degraded } = usePropagator(dataset, engineRef, clock, webglOk && !ctxLost)
 
   // ---- telemetry for the selected satellite (direct propagación orbital at exact sim time) ----
   useEffect(() => {
@@ -291,6 +295,11 @@ export default function Home() {
     return () => window.removeEventListener('keydown', onKey)
   }, [selectSat])
 
+  const changeQuality = (mode: RenderQuality) => {
+    setQuality(mode)
+    engineRef.current?.setQuality(mode)
+  }
+
   const toggleGroup = (i: number) => {
     setGroupVisible((prev) => {
       const next = prev.map((v, j) => (j === i ? !v : v))
@@ -322,6 +331,20 @@ export default function Home() {
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#04060a] font-sans text-slate-200">
       <div ref={mountRef} className="absolute inset-0" />
+
+      {/* Accessible quality selector — no globe rebuild required. */}
+      <label className="absolute right-4 top-[144px] z-20 flex items-center gap-2 rounded-md border border-white/15 bg-[#0a0e14]/90 px-2 py-1.5 text-[11px] text-slate-200 md:right-7 md:top-[76px]">
+        Calidad gráfica
+        <select
+          aria-label="Calidad gráfica orbital"
+          value={quality}
+          onChange={(event) => changeQuality(event.target.value as RenderQuality)}
+          className="rounded border border-white/15 bg-[#101620] px-2 py-1 text-[11px] text-slate-100"
+        >
+          <option value="basic">Básica · sin bloom</option>
+          <option value="standard">Estándar · bloom</option>
+        </select>
+      </label>
 
       {/* hover tooltip */}
       {hover && tooltipPos && hoverSat && (

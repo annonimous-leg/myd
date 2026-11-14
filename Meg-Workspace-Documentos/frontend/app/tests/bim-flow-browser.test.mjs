@@ -565,3 +565,100 @@ print(json.dumps({'xlsx':'verified','pdf':'verified','calculo_id':expected['calc
 test('bidder prepares a proposal workspace and source requirements stay blocked for human review', {timeout:240000}, async () => {
   await licitacionFlow({ browser, credentials, origin, evidence, login });
 });
+
+
+test('Tezcatlipoca corporate center loads without orbital or geo network queries', {timeout:90000}, async () => {
+  const context = await browser.newContext({viewport:{width:1440,height:950}});
+  const page = await context.newPage();
+  const geoRequests = [];
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => {
+    if (new URL(request.url()).pathname === '/api/tezcatlipoca/geo/context') {
+      geoRequests.push(request.url());
+    }
+  });
+  try {
+    await login(page, credentials.reviewer);
+    await page.goto(origin + '/?app=tezcatlipoca-hub');
+    await page.getByRole('heading', {name:'Tezcatlipoca · Hub Operacional'}).waitFor({timeout:30000});
+    await page.getByRole('heading', {name:'Inteligencia territorial'}).waitFor();
+    await page.getByText('Sin consulta regional.', {exact:false}).waitFor();
+    assert.equal(geoRequests.length, 0, 'Landing must not query geospatial feeds without consent');
+    await page.getByRole('button', {name:'Ver 21 capacidades declaradas'}).click();
+    await page.getByRole('heading', {name:'Aeronáutica', exact:true}).waitFor();
+    await page.getByText('No conectado aquí', {exact:true}).first().waitFor();
+    await page.screenshot({path:join(evidence,'13-tezcatlipoca-centro.png'),fullPage:true});
+    assert.deepEqual(errors, []);
+  } finally {
+    await context.close();
+  }
+});
+
+
+test('Tezcatlipoca keeps regional observations accessible without WebGL', {timeout:120000}, async () => {
+  const context = await browser.newContext({viewport:{width:1366,height:768}});
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  try {
+    await login(page, credentials.reviewer);
+    // Simulate a genuine unavailable WebGL context, without mocking provider responses.
+    await page.addInitScript(() => {
+      const nativeGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function(type, ...args) {
+        if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') return null;
+        return nativeGetContext.call(this, type, ...args);
+      };
+    });
+    await page.goto(origin + '/?app=tezcatlipoca-hub');
+    await page.getByRole('heading', {name:'Tezcatlipoca · Hub Operacional'}).waitFor();
+    await page.getByRole('button', {name:'Tierra',exact:true}).click();
+    const table = page.getByRole('region',{name:'Observaciones terrestres sin WebGL'});
+    await table.waitFor({timeout:30000});
+    assert.equal(await table.locator('canvas').count(), 0);
+    await page.getByLabel('Latitud de destino').fill('19.4326');
+    await page.getByLabel('Longitud de destino').fill('-99.1332');
+    await page.getByRole('button',{name:'Ir a coordenadas'}).click();
+    const response = page.waitForResponse(r => new URL(r.url()).pathname === '/api/tezcatlipoca/geo/context', {timeout:60000});
+    await page.getByRole('button',{name:'Consultar esta región'}).click();
+    const actual = await response;
+    assert.equal(actual.status(), 200, 'Real authenticated regional backend request must succeed');
+    const query = new URL(actual.url()).searchParams;
+    assert.ok(Number(query.get('lat_min') ?? query.get('latMin')) < 19.4326, 'Regional query must cover south');
+    assert.ok(Number(query.get('lat_max') ?? query.get('latMax')) > 19.4326, 'Regional query must cover north');
+    await page.getByText(/Consulta ·/).first().waitFor({timeout:30000});
+    await page.screenshot({path:join(evidence,'14-tezcatlipoca-sin-webgl.png'),fullPage:true});
+    assert.deepEqual(errors, []);
+  } finally {
+    await context.close();
+  }
+});
+
+
+test('orbital view starts in basic mode and can toggle bloom without WebGL exceptions', {timeout:90000}, async () => {
+  const context = await browser.newContext({viewport:{width:1366,height:768}});
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  try {
+    await login(page, credentials.reviewer);
+    await page.goto(origin+'/?app=rastreo-orbital');
+    const quality = page.getByLabel('Calidad gráfica orbital');
+    await quality.waitFor({timeout:30000});
+    const canvas = page.locator('canvas[data-render-quality]');
+    await canvas.waitFor({timeout:30000}); // actual WebGLRenderer, not just a selector
+    assert.equal(await quality.inputValue(), 'basic');
+    assert.equal(await canvas.getAttribute('data-render-quality'), 'basic');
+    await quality.selectOption('standard');
+    await page.waitForFunction(() => document.querySelector('canvas[data-render-quality]')?.getAttribute('data-render-quality') === 'standard');
+    assert.equal(await quality.inputValue(), 'standard');
+    await quality.selectOption('basic');
+    await page.waitForFunction(() => document.querySelector('canvas[data-render-quality]')?.getAttribute('data-render-quality') === 'basic');
+    assert.equal(await quality.inputValue(), 'basic');
+    await page.screenshot({path:join(evidence,'15-orbital-modo-basico.png'),fullPage:true});
+    assert.deepEqual(errors, []);
+  } finally {
+    await context.close();
+  }
+});

@@ -96,7 +96,7 @@ def _owner_or_admin_or_403(owner_user_id: int, current_user: User):
 @router.post("/tunnel/create", response_model=TunnelResponse)
 async def create_tunnel(
     req: TunnelCreateRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["full", "admin"])),
     db: AsyncSession = Depends(get_async_db), _rate_limit: bool = Depends(rate_limit_strict)
 ):
     """Create an encrypted tunnel to a destination. (Auth required)"""
@@ -150,7 +150,7 @@ async def get_tunnel(
 @router.post("/tunnel/{tunnel_id}/close")
 async def close_tunnel(
     tunnel_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["full", "admin"])),
     db: AsyncSession = Depends(get_async_db), _rate_limit: bool = Depends(rate_limit_strict)
 ):
     """Close an active tunnel. (Auth required - owner or admin, same tenant)"""
@@ -189,7 +189,7 @@ async def list_tunnels(
 @router.post("/dead-drop/create")
 async def create_dead_drop(
     req: DeadDropCreateRequest,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["full", "admin"])),
     db: AsyncSession = Depends(get_async_db), _rate_limit: bool = Depends(rate_limit_strict)
 ):
     """Create a secure dead drop message. (Auth required)
@@ -309,13 +309,6 @@ async def list_dead_drops(
 
 @router.get("/health")
 async def health(db: AsyncSession = Depends(get_async_db), _rate_limit: bool = Depends(rate_limit_standard)):
-    """Public health check endpoint."""
-    result = await db.execute(select(func.count()).select_from(Tunnel).where(Tunnel.status == "active"))
-    active_tunnels = result.scalar()
-    result = await db.execute(select(func.count()).select_from(DeadDrop).where(DeadDrop.status == "active"))
-    active_drops = result.scalar()
-    return {
-        "status": "healthy",
-        "active_tunnels": active_tunnels,
-        "active_drops": active_drops,
-    }
+    """Public liveness check; never disclose aggregate resource counts."""
+    await db.execute(select(func.count()).select_from(Tunnel).where(Tunnel.status == "active"))
+    return {"status": "healthy"}
