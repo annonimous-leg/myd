@@ -952,6 +952,8 @@ export class GlobeEngine {
     this.earthTextures = []
     this.releaseComposer()
     this.renderer.dispose()
+    // Release GPU context immediately instead of waiting for browser GC.
+    this.renderer.forceContextLoss()
     el.remove()
   }
 }
